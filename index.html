@@ -1589,10 +1589,10 @@
     let savedUsername = '';
     let usernameChangesUsed = 0;
 
-    // Online multiplayer & inline 1/4 + 3/4 chat state
-    const ROOM_PREFIX = 'ttt-gem-';
-    let peer = null;
-    let conn = null;
+    // Online multiplayer & inline 1/4 + 3/4 chat state (Firebase Firestore Room Sync)
+    let roomPollTimer = null;
+    let roomRoundId = 1;
+    let lastNotifiedBattleId = '';
     let mySymbol = 'X';
     let activeRoomCode = '';
     let isOnlineConnected = false;
@@ -1600,6 +1600,7 @@
     let selectedPlayerForChat = null; // null = Server Chat; 'friend' = Personal Chat
     let serverChatHistory = [];
     let personalChatHistory = [];
+    let roomMessages = [];
     let unreadPersonal = 0;
     let recognition = null;
     let isListening = false;
@@ -2282,8 +2283,8 @@
       updateLabelsAndTheme();
       pullFromCloud().then(pushToCloud);
 
-      if (conn && conn.open) {
-        conn.send({ type: 'hello', name: getMyName() });
+      if (gameMode === 'online' && activeRoomCode) {
+        patchRoomFields(mySymbol === 'X' ? { hostName: getMyName() } : { guestName: getMyName() });
       }
     }
 
@@ -2680,8 +2681,9 @@
       renderChat();
       playChatSound();
 
-      if (conn && conn.open) {
-        conn.send({ type: 'chat', channel, sender, text, time });
+      if (gameMode === 'online' && activeRoomCode) {
+        roomMessages.push({ kind: 'text', channel, sender, text, time });
+        patchRoomFields({ messages: JSON.stringify(roomMessages) });
       }
     }
 
@@ -2703,14 +2705,9 @@
       renderChat();
       playChatSound();
 
-      if (conn && conn.open) {
-        conn.send({
-          type: 'battleInvite',
-          id,
-          channel,
-          sender,
-          time
-        });
+      if (gameMode === 'online' && activeRoomCode) {
+        roomMessages.push({ kind: 'battle', id, channel, sender, time, status: 'pending' });
+        patchRoomFields({ messages: JSON.stringify(roomMessages) });
       }
     }
 
@@ -2730,14 +2727,10 @@
         oSym: O_SYMBOLS[oTheme] || 'O'
       };
 
-      if (conn && conn.open) {
-        conn.send({
-          type: 'battleResponse',
-          id,
-          channel,
-          decision,
-          accepter: myProfile
-        });
+      if (gameMode === 'online' && activeRoomCode) {
+        const rm = roomMessages.find((m) => m.kind === 'battle' && m.id === id);
+        if (rm) { rm.status = decision; if (decision === 'accepted') rm.accepter = myProfile; }
+        patchRoomFields({ messages: JSON.stringify(roomMessages) });
       }
 
       if (decision === 'accepted') {
@@ -2761,179 +2754,229 @@
       whatsappShareBtn.href = `https://wa.me/?text=${waText}`;
     }
 
-    // 11. Online PeerJS helpers
+    // 11. Firebase Firestore Room Sync (reliable across all Wi-Fi & mobile networks)
     function cleanupPeer() {
-      if (conn) {
-        try { conn.close(); } catch (e) {}
-        conn = null;
-      }
-      if (peer) {
-        try { peer.destroy(); } catch (e) {}
-        peer = null;
+      if (roomPollTimer) {
+        clearInterval(roomPollTimer);
+        roomPollTimer = null;
       }
       isOnlineConnected = false;
       selectedPlayerForChat = null;
       activeRoomCode = '';
       friendName = 'Friend';
+      roomMessages = [];
+      serverChatHistory = [];
+      personalChatHistory = [];
       unreadPersonal = 0;
       shareRow.classList.remove('visible');
       updateOnlineRoster();
       renderChat();
     }
 
-    function setupConnection(connection) {
-      conn = connection;
+    function parseRoomDoc(doc) {
+      const f = doc && doc.fields;
+      if (!f) return null;
+      const str = (k, d='') => (f[k] && typeof f[k].stringValue === 'string' ? f[k].stringValue : d);
+      const num = (k, d=1) => (f[k] && f[k].integerValue ? Number(f[k].integerValue) : d);
+      let b = ['', '', '', '', '', '', '', '', ''];
+      let sc = { X: 0, O: 0, draw: 0 };
+      let msgs = [];
+      try { b = JSON.parse(str('board', '[]')); } catch (e) {}
+      try { sc = JSON.parse(str('scores', '{}')); } catch (e) {}
+      try { msgs = JSON.parse(str('messages', '[]')); } catch (e) {}
+      return {
+        hostName: str('hostName', 'Host'),
+        guestName: str('guestName', ''),
+        board: Array.isArray(b) && b.length === 9 ? b : ['', '', '', '', '', '', '', '', ''],
+        turn: str('turn', 'X'),
+        roundId: num('roundId', 1),
+        scores: { X: sc.X || 0, O: sc.O || 0, draw: sc.draw || 0 },
+        messages: Array.isArray(msgs) ? msgs : []
+      };
+    }
 
-      conn.on('open', () => {
-        isOnlineConnected = true;
-        conn.send({ type: 'hello', name: getMyName() });
-        roomInfo.innerHTML = `Connected to room <span class="room-code-badge">${activeRoomCode}</span> — Tap <strong>${escapeHtml(friendName)}</strong> on the left to start Personal Chat!`;
-        updateOnlineRoster();
-        resetScores(false);
-        playChatSound();
-      });
+    async function patchRoomFields(fieldsObj) {
+      if (!activeRoomCode) return;
+      const fields = {};
+      for (const [k, v] of Object.entries(fieldsObj)) {
+        if (typeof v === 'number') fields[k] = { integerValue: String(v) };
+        else fields[k] = { stringValue: String(v) };
+      }
+      const mask = Object.keys(fields).map(k => 'updateMask.fieldPaths=' + encodeURIComponent(k)).join('&');
+      try {
+        await fetch(`${FIRESTORE_BASE}/rooms/${activeRoomCode}?${mask}&key=${FIREBASE_API_KEY}`, {
+          method: 'PATCH',
+          headers: getCloudHeaders(),
+          body: JSON.stringify({ fields })
+        });
+      } catch (e) {}
+    }
 
-      conn.on('data', (data) => {
-        if (!data || typeof data !== 'object') return;
-        if (data.type === 'hello' && data.name) {
-          const incomingName = String(data.name).slice(0, 18);
-          if (incomingName.toLowerCase() === getMyName().toLowerCase()) {
-            friendName = `${incomingName} (2)`;
-            roomInfo.innerHTML = `Connected! Both players used "${escapeHtml(incomingName)}", so your friend is shown as "${escapeHtml(friendName)}".`;
-          } else {
-            friendName = incomingName;
-          }
-          updateOnlineRoster();
-          updateLabelsAndTheme();
-        } else if (data.type === 'chat' && data.text) {
-          const ch = data.channel === 'personal' ? 'personal' : 'server';
-          const targetList = ch === 'personal' ? personalChatHistory : serverChatHistory;
+    function applyOnlineBoardState(room) {
+      // Check if round reset
+      if (room.roundId !== roomRoundId) {
+        roomRoundId = room.roundId;
+        board = ['', '', '', '', '', '', '', '', ''];
+        currentPlayer = 'X';
+        gameOver = false;
+        cells.forEach((cell) => {
+          cell.textContent = '';
+          cell.disabled = false;
+          cell.classList.remove('x-color', 'o-color', 'win', 'placed');
+        });
+      }
 
-          targetList.push({
-            kind: 'text',
-            sender: data.sender || friendName,
-            text: data.text,
-            time: data.time || '',
-            isMe: false
-          });
+      // Sync board cells
+      let changed = false;
+      for (let i = 0; i < 9; i++) {
+        if (board[i] !== room.board[i] && (room.board[i] === 'X' || room.board[i] === 'O')) {
+          board[i] = room.board[i];
+          const cell = cells[i];
+          cell.textContent = getMarkDisplay(board[i]);
+          cell.classList.add(board[i] === 'X' ? 'x-color' : 'o-color', 'placed');
+          cell.disabled = true;
+          playMoveSound(board[i]);
+          changed = true;
+        }
+      }
 
-          const currentChannel = selectedPlayerForChat === 'friend' ? 'personal' : 'server';
-          if (ch === 'personal' && currentChannel !== 'personal') {
-            unreadPersonal++;
-            updateOnlineRoster();
-          } else {
-            renderChat();
-          }
-          playChatSound();
-        } else if (data.type === 'battleInvite') {
-          const ch = data.channel === 'personal' ? 'personal' : 'server';
-          const targetList = ch === 'personal' ? personalChatHistory : serverChatHistory;
+      currentPlayer = room.turn;
+      scores = room.scores;
+      updateScoreboard();
 
-          targetList.push({
-            kind: 'battle',
-            id: data.id,
-            sender: data.sender || friendName,
-            time: data.time || '',
-            isMe: false,
-            status: 'pending'
-          });
+      const winningLine = getWinnerLine(board);
+      if (winningLine && !gameOver) {
+        gameOver = true;
+        winningLine.forEach((i) => cells[i].classList.add('win'));
+        cells.forEach((c) => (c.disabled = true));
+        const winner = board[winningLine[0]];
+        playWinSound(winner);
+        awardMatchRewards();
+        statusEl.textContent = winner === mySymbol ? 'You win!' : `${friendName} wins!`;
+      } else if (!board.includes('') && !gameOver) {
+        gameOver = true;
+        playDrawSound();
+        awardMatchRewards();
+        statusEl.textContent = "It's a draw!";
+      } else if (!gameOver) {
+        updateTurnStatus();
+      }
+    }
 
-          const currentChannel = selectedPlayerForChat === 'friend' ? 'personal' : 'server';
-          if (ch === 'personal' && currentChannel !== 'personal') {
-            unreadPersonal++;
-            updateOnlineRoster();
-          } else {
-            renderChat();
-          }
-          playBossIntroSound();
-        } else if (data.type === 'battleResponse') {
-          const ch = data.channel === 'personal' ? 'personal' : 'server';
-          const list = ch === 'personal' ? personalChatHistory : serverChatHistory;
-          const item = list.find((m) => m.kind === 'battle' && m.id === data.id);
-          if (item) {
-            item.status = data.decision;
-          }
-          renderChat();
-          if (data.decision === 'accepted' && data.accepter) {
-            showBattleAcceptedNotification(data.accepter);
-            startNewRound(false);
-          }
-        } else if (data.type === 'move' && typeof data.index === 'number') {
-          if (!gameOver && board[data.index] === '') {
-            makeMove(data.index);
-          }
-        } else if (data.type === 'newRound') {
-          startNewRound(false);
-        } else if (data.type === 'resetScore') {
-          resetScores(false);
+    function syncRoomMessages(msgs) {
+      const prevLen = roomMessages.length;
+      const myName = getMyName();
+      roomMessages = msgs;
+      serverChatHistory = [];
+      personalChatHistory = [];
+
+      msgs.forEach((m) => {
+        const isMe = m.sender === myName;
+        const entry = {
+          kind: m.kind || 'text',
+          id: m.id,
+          sender: m.sender,
+          text: m.text,
+          time: m.time,
+          isMe,
+          status: m.status
+        };
+        if (m.channel === 'personal') personalChatHistory.push(entry);
+        else serverChatHistory.push(entry);
+
+        if (m.kind === 'battle' && m.status === 'accepted' && isMe && m.accepter && lastNotifiedBattleId !== m.id) {
+          lastNotifiedBattleId = m.id;
+          showBattleAcceptedNotification(m.accepter);
         }
       });
 
-      conn.on('close', () => {
-        isOnlineConnected = false;
-        selectedPlayerForChat = null;
-        updateOnlineRoster();
-        renderChat();
-        roomInfo.textContent = 'Friend disconnected. Create or join a room to play again.';
-        statusEl.textContent = 'Friend disconnected';
-      });
-
-      conn.on('error', () => {
-        isOnlineConnected = false;
-        updateOnlineRoster();
-        roomInfo.textContent = 'Connection error. Please try creating or joining the room again.';
-      });
+      if (msgs.length > prevLen) {
+        const latest = msgs[msgs.length - 1];
+        if (latest.sender !== myName) {
+          playChatSound();
+          if (latest.channel === 'personal' && selectedPlayerForChat !== 'friend') {
+            unreadPersonal++;
+            updateOnlineRoster();
+          }
+        }
+      }
+      renderChat();
     }
 
-    function createOnlineRoom() {
-      if (typeof Peer === 'undefined') {
-        roomInfo.textContent = 'Online service is still loading or blocked. Check your internet connection.';
-        return;
-      }
+    async function pollRoom() {
+      if (!activeRoomCode || gameMode !== 'online') return;
+      try {
+        const res = await fetch(`${FIRESTORE_BASE}/rooms/${activeRoomCode}?key=${FIREBASE_API_KEY}`, {
+          headers: firebaseToken ? { 'Authorization': `Bearer ${firebaseToken}` } : {}
+        });
+        if (!res.ok) return;
+        const doc = await res.json();
+        const room = parseRoomDoc(doc);
+        if (!room) return;
 
+        // Detect partner joining
+        if (mySymbol === 'X' && room.guestName) {
+          const wasConnected = isOnlineConnected;
+          isOnlineConnected = true;
+          friendName = room.guestName;
+          if (!wasConnected) {
+            roomInfo.innerHTML = `Connected to room <span class="room-code-badge">${activeRoomCode}</span> — Tap <strong>${escapeHtml(friendName)}</strong> on the left for Personal Chat!`;
+            playChatSound();
+          }
+          updateOnlineRoster();
+          updateLabelsAndTheme();
+        } else if (mySymbol === 'O' && room.hostName) {
+          isOnlineConnected = true;
+          friendName = room.hostName;
+          updateOnlineRoster();
+          updateLabelsAndTheme();
+        }
+
+        applyOnlineBoardState(room);
+        syncRoomMessages(room.messages);
+      } catch (e) {}
+    }
+
+    async function createOnlineRoom() {
       cleanupPeer();
       mySymbol = 'X';
       const code = String(Math.floor(1000 + Math.random() * 9000));
       activeRoomCode = code;
+      roomRoundId = 1;
       roomInfo.textContent = 'Creating room...';
 
+      const fields = {
+        hostName: { stringValue: getMyName() },
+        guestName: { stringValue: '' },
+        board: { stringValue: JSON.stringify(['', '', '', '', '', '', '', '', '']) },
+        turn: { stringValue: 'X' },
+        roundId: { integerValue: '1' },
+        scores: { stringValue: JSON.stringify({ X: 0, O: 0, draw: 0 }) },
+        messages: { stringValue: '[]' }
+      };
+
       try {
-        peer = new Peer(ROOM_PREFIX + code);
-
-        peer.on('open', () => {
-          roomInfo.innerHTML = `Room <span class="room-code-badge">${code}</span> ready! Share this code or link on WhatsApp.`;
-          updateShareLinks(code);
-          shareRow.classList.add('visible');
-          statusEl.textContent = 'Waiting for friend to join...';
-          updateOnlineRoster();
+        const res = await fetch(`${FIRESTORE_BASE}/rooms/${code}?key=${FIREBASE_API_KEY}`, {
+          method: 'PATCH',
+          headers: getCloudHeaders(),
+          body: JSON.stringify({ fields })
         });
-
-        peer.on('connection', (incomingConn) => {
-          if (conn && conn.open) {
-            incomingConn.close();
-            return;
-          }
-          setupConnection(incomingConn);
-        });
-
-        peer.on('error', (err) => {
-          if (err && err.type === 'unavailable-id') {
-            createOnlineRoom();
-          } else {
-            roomInfo.textContent = 'Could not connect to room server. Check your internet and try again.';
-          }
-        });
+        if (!res.ok) {
+          roomInfo.textContent = 'Could not create room. Check Firestore rules (test mode).';
+          return;
+        }
+        roomInfo.innerHTML = `Room <span class="room-code-badge">${code}</span> ready! Share this code or link on WhatsApp.`;
+        updateShareLinks(code);
+        shareRow.classList.add('visible');
+        statusEl.textContent = 'Waiting for friend to join...';
+        updateOnlineRoster();
+        roomPollTimer = setInterval(pollRoom, 1200);
       } catch (e) {
-        roomInfo.textContent = 'Could not start online room. Check your internet connection.';
+        roomInfo.textContent = 'Network error creating room. Check your internet.';
       }
     }
 
-    function joinOnlineRoom(explicitCode) {
-      if (typeof Peer === 'undefined') {
-        roomInfo.textContent = 'Online service is still loading or blocked. Check your internet connection.';
-        return;
-      }
-
+    async function joinOnlineRoom(explicitCode) {
       const code = (explicitCode || roomCodeInput.value).trim();
       if (!/^\d{4}$/.test(code)) {
         roomInfo.textContent = 'Please enter a valid 4-digit room code.';
@@ -2947,18 +2990,37 @@
       roomInfo.textContent = `Joining room ${code}...`;
 
       try {
-        peer = new Peer();
-
-        peer.on('open', () => {
-          const outgoingConn = peer.connect(ROOM_PREFIX + code, { reliable: true });
-          setupConnection(outgoingConn);
+        const res = await fetch(`${FIRESTORE_BASE}/rooms/${code}?key=${FIREBASE_API_KEY}`, {
+          headers: firebaseToken ? { 'Authorization': `Bearer ${firebaseToken}` } : {}
         });
+        if (!res.ok) {
+          roomInfo.textContent = `Room ${code} not found. Make sure your friend created it first.`;
+          activeRoomCode = '';
+          return;
+        }
+        const doc = await res.json();
+        const room = parseRoomDoc(doc);
+        if (!room) {
+          roomInfo.textContent = `Room ${code} not found.`;
+          activeRoomCode = '';
+          return;
+        }
 
-        peer.on('error', () => {
-          isOnlineConnected = false;
-          updateOnlineRoster();
-          roomInfo.textContent = `Could not find room ${code}. Make sure your friend created it first.`;
-        });
+        let myName = getMyName();
+        if (myName.toLowerCase() === room.hostName.toLowerCase()) {
+          myName = `${myName} (2)`;
+        }
+        friendName = room.hostName;
+        isOnlineConnected = true;
+
+        await patchRoomFields({ guestName: myName });
+        roomInfo.innerHTML = `Connected to room <span class="room-code-badge">${code}</span> — Tap <strong>${escapeHtml(friendName)}</strong> on the left for Personal Chat!`;
+        updateOnlineRoster();
+        updateLabelsAndTheme();
+        applyOnlineBoardState(room);
+        syncRoomMessages(room.messages);
+        playChatSound();
+        roomPollTimer = setInterval(pollRoom, 1200);
       } catch (e) {
         roomInfo.textContent = 'Could not join room. Check your internet connection.';
       }
@@ -3057,8 +3119,12 @@
       if (board[index] !== '') return;
 
       makeMove(index);
-      if (gameMode === 'online' && conn && conn.open) {
-        conn.send({ type: 'move', index });
+      if (gameMode === 'online' && activeRoomCode) {
+        patchRoomFields({
+          board: JSON.stringify(board),
+          turn: currentPlayer,
+          scores: JSON.stringify(scores)
+        });
       }
     }
 
@@ -3123,8 +3189,14 @@
       updateLabelsAndTheme();
       updateTurnStatus();
 
-      if (broadcast && gameMode === 'online' && conn && conn.open) {
-        conn.send({ type: 'newRound' });
+      if (broadcast && gameMode === 'online' && activeRoomCode) {
+        roomRoundId++;
+        patchRoomFields({
+          board: JSON.stringify(board),
+          turn: 'X',
+          roundId: roomRoundId,
+          scores: JSON.stringify(scores)
+        });
       }
     }
 
@@ -3133,8 +3205,14 @@
       updateScoreboard();
       startNewRound(false);
 
-      if (broadcast && gameMode === 'online' && conn && conn.open) {
-        conn.send({ type: 'resetScore' });
+      if (broadcast && gameMode === 'online' && activeRoomCode) {
+        roomRoundId++;
+        patchRoomFields({
+          board: JSON.stringify(board),
+          turn: 'X',
+          roundId: roomRoundId,
+          scores: JSON.stringify(scores)
+        });
       }
     }
 
@@ -3279,6 +3357,5 @@
       initApp();
     }
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js" async defer></script>
 </body>
 </html>
