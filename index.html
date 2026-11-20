@@ -1,0 +1,3284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#2563eb" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Tic-Tac-Toe" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='14' y='34' font-size='22' font-weight='bold' fill='white' font-family='sans-serif'%3EX%3C/text%3E%3Ctext x='35' y='50' font-size='22' font-weight='bold' fill='%23fbbf24' font-family='sans-serif'%3EO%3C/text%3E%3C/svg%3E" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Step 14: Tic-Tac-Toe (1/4 Players + 3/4 Server &amp; Personal Chat)</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f4f6fb;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      transition: background-color 0.3s;
+    }
+
+    /* Difficulty Themes */
+    body.easy-theme { background: #ecfdf5; }
+    body.normal-theme { background: #fefce8; }
+    body.hard-theme { background: #fef2f2; }
+    body.boss-theme { background: #181024; }
+
+    .game-card {
+      background: #ffffff;
+      width: 100%;
+      max-width: 500px;
+      padding: 20px 18px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+      text-align: center;
+      transition: background-color 0.3s, box-shadow 0.3s, border-color 0.3s;
+      border: 2px solid transparent;
+    }
+
+    body.easy-theme .game-card {
+      border-color: #22c55e;
+      box-shadow: 0 12px 28px rgba(34, 197, 94, 0.16);
+    }
+
+    body.normal-theme .game-card {
+      border-color: #eab308;
+      box-shadow: 0 12px 28px rgba(234, 179, 8, 0.18);
+    }
+
+    body.hard-theme .game-card {
+      border-color: #ef4444;
+      box-shadow: 0 12px 28px rgba(239, 68, 68, 0.18);
+    }
+
+    body.boss-theme .game-card {
+      background: #231636;
+      color: #f8fafc;
+      border-color: #9333ea;
+      box-shadow: 0 14px 34px rgba(147, 51, 234, 0.28);
+    }
+
+    .top-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    body.boss-theme h1 { color: #f8fafc; }
+
+    .pill-btn {
+      padding: 6px 9px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      border-radius: 999px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      color: #334155;
+      cursor: pointer;
+      transition: background-color 0.15s, border-color 0.15s;
+    }
+
+    .pill-btn:hover { background: #e2e8f0; }
+
+    .pill-btn.active {
+      background: #2563eb;
+      border-color: #2563eb;
+      color: #ffffff;
+    }
+
+    .pill-btn.login-btn {
+      background: #2563eb;
+      border-color: #2563eb;
+      color: #ffffff;
+    }
+
+    .pill-btn.login-btn:hover { background: #1d4ed8; }
+
+    .pill-btn.muted {
+      background: #fee2e2;
+      border-color: #fca5a5;
+      color: #b91c1c;
+    }
+
+    body.boss-theme .pill-btn {
+      background: #3b235a;
+      border-color: #6b21a8;
+      color: #f3e8ff;
+    }
+
+    body.boss-theme .pill-btn.login-btn {
+      background: #2563eb;
+      border-color: #3b82f6;
+      color: #ffffff;
+    }
+
+    body.boss-theme .pill-btn.active {
+      background: #9333ea;
+      border-color: #c084fc;
+      color: #ffffff;
+    }
+
+    body.boss-theme .pill-btn.muted {
+      background: #4c1d24;
+      border-color: #be123c;
+      color: #fda4af;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .status-dot.waiting { background: #f59e0b; }
+
+    /* Battle Accepted Notification Toast */
+    .battle-notify {
+      display: none;
+      background: linear-gradient(135deg, #0f172a, #1e3a8a);
+      color: #ffffff;
+      border: 2px solid #60a5fa;
+      border-radius: 12px;
+      padding: 11px 12px;
+      margin-bottom: 12px;
+      text-align: left;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+    }
+
+    .battle-notify.visible { display: block; }
+
+    .battle-notify-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #93c5fd;
+      margin-bottom: 4px;
+    }
+
+    .battle-notify-close {
+      background: transparent;
+      border: none;
+      color: #cbd5e1;
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .battle-notify-body {
+      font-size: 0.84rem;
+      line-height: 1.4;
+    }
+
+    /* Player Stats Bar: Level, XP, Coins, Title */
+    .stats-bar {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+
+    body.boss-theme .stats-bar {
+      background: #1a0f2b;
+      border-color: #4c2875;
+    }
+
+    .stats-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+
+    .level-title-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .level-badge {
+      background: #2563eb;
+      color: #ffffff;
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+    }
+
+    .title-btn {
+      background: linear-gradient(135deg, #7c3aed, #db2777);
+      color: #ffffff;
+      border: none;
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .title-btn:hover { opacity: 0.92; }
+
+    .coin-badge {
+      background: #fef3c7;
+      color: #b45309;
+      border: 1px solid #fcd34d;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+    }
+
+    .xp-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .xp-track {
+      flex: 1;
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    body.boss-theme .xp-track { background: #3b235a; }
+
+    .xp-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+      border-radius: 999px;
+      transition: width 0.3s ease;
+    }
+
+    .xp-text {
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: #64748b;
+      white-space: nowrap;
+    }
+
+    body.boss-theme .xp-text { color: #c4b5fd; }
+
+    /* Gmail Login Panel */
+    .login-panel {
+      display: none;
+      background: #eff6ff;
+      border: 1.5px solid #93c5fd;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 14px;
+      text-align: left;
+    }
+
+    .login-panel.visible { display: block; }
+
+    body.boss-theme .login-panel {
+      background: #1a1033;
+      border-color: #3b82f6;
+    }
+
+    .login-desc {
+      font-size: 0.78rem;
+      color: #1e3a8a;
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+
+    body.boss-theme .login-desc { color: #bfdbfe; }
+
+    .login-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+
+    .login-input {
+      flex: 1;
+      min-width: 150px;
+      padding: 8px 10px;
+      font-size: 0.84rem;
+      border: 1.5px solid #93c5fd;
+      border-radius: 8px;
+      outline: none;
+      background: #ffffff;
+    }
+
+    .login-input:focus { border-color: #2563eb; }
+
+    .login-msg {
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: #1d4ed8;
+      min-height: 16px;
+    }
+
+    body.boss-theme .login-msg { color: #93c5fd; }
+
+    /* Dedicated Titles Area */
+    .titles-panel {
+      display: none;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 14px;
+      text-align: left;
+    }
+
+    .titles-panel.visible { display: block; }
+
+    body.boss-theme .titles-panel {
+      background: #1a0f2b;
+      border-color: #4c2875;
+    }
+
+    .titles-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .title-card {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 2px solid #cbd5e1;
+      background: #ffffff;
+      color: #1e293b;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      transition: transform 0.12s, border-color 0.15s;
+    }
+
+    .title-card:hover:not(:disabled) { transform: translateY(-1px); }
+
+    .title-card.active {
+      border-color: #7c3aed;
+      background: #faf5ff;
+      box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.18);
+    }
+
+    .title-card.owner-card {
+      grid-column: span 2;
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      border-color: #f59e0b;
+    }
+
+    .title-card.owner-card.active {
+      border-color: #b45309;
+      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+    }
+
+    .title-card.locked {
+      opacity: 0.55;
+      cursor: not-allowed;
+      background: #f1f5f9;
+    }
+
+    .title-card-name { font-size: 0.82rem; font-weight: 700; }
+    .title-card-req { font-size: 0.7rem; font-weight: 600; color: #64748b; }
+
+    /* Theme Shop Panel */
+    .theme-panel {
+      display: none;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 14px;
+      text-align: left;
+      max-height: 360px;
+      overflow-y: auto;
+    }
+
+    .theme-panel.visible { display: block; }
+
+    body.boss-theme .theme-panel {
+      background: #1a0f2b;
+      border-color: #4c2875;
+    }
+
+    .theme-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+
+    .theme-section-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #475569;
+      margin: 12px 0 6px;
+    }
+
+    .theme-section-title:first-child { margin-top: 0; }
+
+    body.boss-theme .theme-title,
+    body.boss-theme .theme-section-title { color: #c4b5fd; }
+
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+    }
+
+    .theme-option {
+      padding: 7px 5px;
+      border-radius: 10px;
+      border: 2px solid #cbd5e1;
+      background: #ffffff;
+      color: #1e293b;
+      font-size: 0.74rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      transition: transform 0.12s, border-color 0.15s;
+    }
+
+    .theme-option:hover { transform: translateY(-1px); }
+
+    .theme-option.active {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+    }
+
+    .mark-preview {
+      font-size: 1.25rem;
+      line-height: 1.2;
+      font-weight: 800;
+    }
+
+    .theme-price { font-size: 0.68rem; font-weight: 700; color: #b45309; }
+    .theme-option.owned .theme-price { color: #16a34a; }
+
+    .theme-msg {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #b45309;
+      min-height: 16px;
+    }
+
+    .theme-swatch {
+      width: 100%;
+      height: 15px;
+      border-radius: 5px;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+    }
+
+    .swatch-classic { background: linear-gradient(135deg, #f8fafc, #e2e8f0); }
+    .swatch-dots { background: radial-gradient(#94a3b8 1.5px, #fff1f2 1.5px); background-size: 8px 8px; }
+    .swatch-wood { background: linear-gradient(135deg, #92400e, #d97706, #fef3c7); }
+    .swatch-pixel { background: repeating-linear-gradient(45deg, #1e293b, #1e293b 6px, #38bdf8 6px, #38bdf8 12px); }
+    .swatch-galaxy { background: linear-gradient(135deg, #1e1b4b, #4338ca, #a855f7); }
+    .swatch-neon { background: linear-gradient(135deg, #090d16, #06b6d4, #ec4899); }
+
+    .mode-switch {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      background: #f1f5f9;
+      padding: 5px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+
+    body.boss-theme .mode-switch { background: #150c22; }
+
+    .mode-btn {
+      padding: 9px 6px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: #475569;
+      cursor: pointer;
+      transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+    }
+
+    body.boss-theme .mode-btn { color: #cbd5e1; }
+
+    .mode-btn.active {
+      background: #ffffff;
+      color: #0f172a;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+    }
+
+    body.boss-theme .mode-btn.active { background: #3b235a; color: #ffffff; }
+
+    .difficulty-bar {
+      display: none;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .difficulty-bar.visible { display: grid; }
+
+    .diff-btn {
+      padding: 7px 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #f8fafc;
+      color: #334155;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .diff-btn:hover { background: #e2e8f0; }
+    .diff-btn[data-diff="easy"].active { background: #16a34a; border-color: #16a34a; color: #ffffff; }
+    .diff-btn[data-diff="normal"].active { background: #ca8a04; border-color: #ca8a04; color: #ffffff; }
+    .diff-btn[data-diff="hard"].active { background: #dc2626; border-color: #dc2626; color: #ffffff; }
+    .diff-btn.boss-btn { border-color: #c084fc; color: #7e22ce; background: #faf5ff; }
+    .diff-btn.boss-btn.active {
+      background: linear-gradient(135deg, #9333ea, #e11d48);
+      border-color: #c084fc;
+      color: #ffffff;
+    }
+
+    .boss-banner {
+      display: none;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #f0abfc;
+      background: rgba(147, 51, 234, 0.22);
+      border: 1px solid rgba(192, 132, 252, 0.4);
+      border-radius: 8px;
+      padding: 6px 10px;
+      margin-bottom: 12px;
+    }
+
+    body.boss-theme .boss-banner { display: block; }
+
+    /* Online Room Panel + 1/4 Players & 3/4 Server/Personal Chat Split Box */
+    .online-panel {
+      display: none;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 14px;
+      text-align: left;
+    }
+
+    .online-panel.visible { display: block; }
+
+    .name-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .name-row label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #475569;
+      white-space: nowrap;
+    }
+
+    .name-input {
+      flex: 1;
+      padding: 7px 10px;
+      font-size: 0.88rem;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      outline: none;
+      background: #ffffff;
+    }
+
+    .name-input:focus { border-color: #2563eb; }
+    .name-input:disabled { background: #e2e8f0; color: #475569; cursor: not-allowed; }
+
+    .name-hint {
+      font-size: 0.74rem;
+      color: #64748b;
+      margin-bottom: 10px;
+    }
+
+    .online-controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .online-btn {
+      padding: 8px 11px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #2563eb;
+      color: #ffffff;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.15s;
+    }
+
+    .online-btn:hover:not(:disabled) { background: #1d4ed8; }
+    .online-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .online-btn.secondary { background: #e2e8f0; color: #1e293b; }
+    .online-btn.secondary:hover:not(:disabled) { background: #cbd5e1; }
+    .online-btn.whatsapp { background: #16a34a; color: #ffffff; }
+    .online-btn.whatsapp:hover:not(:disabled) { background: #15803d; }
+
+    .room-input {
+      flex: 1;
+      min-width: 105px;
+      padding: 8px 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-align: center;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    .room-input:focus { border-color: #2563eb; }
+
+    .room-info {
+      margin-top: 8px;
+      font-size: 0.82rem;
+      color: #334155;
+      line-height: 1.4;
+    }
+
+    .room-code-badge {
+      display: inline-block;
+      font-size: 0.96rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 2px 8px;
+      border-radius: 6px;
+      margin: 0 3px;
+    }
+
+    .share-row {
+      display: none;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .share-row.visible { display: flex; }
+
+    /* 1/4 Players + Vertical Divider + 3/4 Server/Personal Chat Box */
+    .split-chat-box {
+      display: grid;
+      grid-template-columns: 1fr 3fr;
+      margin-top: 12px;
+      border: 2px solid #cbd5e1;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #ffffff;
+      min-height: 270px;
+    }
+
+    .players-col {
+      border-right: 2px solid #cbd5e1;
+      background: #f1f5f9;
+      padding: 8px 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .players-col-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #475569;
+      text-align: center;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #cbd5e1;
+    }
+
+    .player-name-btn {
+      width: 100%;
+      padding: 9px 6px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      border-radius: 8px;
+      border: 1.5px solid #cbd5e1;
+      background: #ffffff;
+      color: #1e293b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      text-align: left;
+      word-break: break-word;
+      transition: all 0.15s;
+    }
+
+    .player-name-btn:hover {
+      background: #e2e8f0;
+    }
+
+    .player-name-btn.selected {
+      background: #2563eb;
+      border-color: #1d4ed8;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+    }
+
+    .player-name-btn.self-chip {
+      cursor: default;
+      background: #f8fafc;
+      font-size: 0.78rem;
+      color: #475569;
+    }
+
+    .unread-badge {
+      background: #16a34a;
+      color: #ffffff;
+      font-size: 0.68rem;
+      padding: 1px 5px;
+      border-radius: 999px;
+      margin-left: auto;
+    }
+
+    .chat-col {
+      display: flex;
+      flex-direction: column;
+      background: #efeae2;
+      min-width: 0;
+    }
+
+    .chat-col-header {
+      background: #ffffff;
+      padding: 8px 10px;
+      border-bottom: 1px solid #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .chat-col-sub {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+
+    .chat-messages {
+      padding: 10px;
+      height: 195px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      flex: 1;
+    }
+
+    .chat-empty {
+      margin: auto;
+      font-size: 0.8rem;
+      color: #64748b;
+      text-align: center;
+      padding: 0 8px;
+    }
+
+    .chat-bubble {
+      max-width: 86%;
+      padding: 7px 10px;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      line-height: 1.35;
+      word-break: break-word;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    }
+
+    .chat-bubble.me {
+      align-self: flex-end;
+      background: #d9fdd3;
+      color: #111b21;
+      border-bottom-right-radius: 2px;
+    }
+
+    .chat-bubble.them {
+      align-self: flex-start;
+      background: #ffffff;
+      color: #111b21;
+      border-bottom-left-radius: 2px;
+    }
+
+    .battle-card {
+      background: #ffffff;
+      border: 2px solid #f59e0b;
+      border-radius: 10px;
+      padding: 8px 10px;
+      max-width: 92%;
+      align-self: flex-start;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    .battle-card.me {
+      align-self: flex-end;
+      background: #fffbeb;
+    }
+
+    .battle-card-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #b45309;
+      margin-bottom: 2px;
+    }
+
+    .battle-card-text {
+      font-size: 0.78rem;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+
+    .battle-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .battle-accept-btn {
+      padding: 5px 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 6px;
+      background: #16a34a;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .battle-deny-btn {
+      padding: 5px 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 6px;
+      background: #dc2626;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .battle-status-tag {
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: #15803d;
+    }
+
+    .battle-status-tag.declined { color: #b91c1c; }
+
+    .chat-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.65rem;
+      color: #667781;
+      margin-top: 2px;
+    }
+
+    .chat-input-row {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      padding: 7px;
+      background: #f8fafc;
+      border-top: 1px solid #cbd5e1;
+      flex-wrap: wrap;
+    }
+
+    .chat-input {
+      flex: 1;
+      min-width: 80px;
+      padding: 7px 8px;
+      font-size: 0.82rem;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    .chat-input:focus { border-color: #16a34a; }
+
+    .mic-btn {
+      padding: 7px 8px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      background: #ffffff;
+      color: #334155;
+      cursor: pointer;
+    }
+
+    .mic-btn.listening {
+      background: #fee2e2;
+      border-color: #ef4444;
+      color: #b91c1c;
+    }
+
+    .battle-send-btn {
+      padding: 7px 8px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      border: 1.5px solid #f59e0b;
+      border-radius: 8px;
+      background: #fef3c7;
+      color: #b45309;
+      cursor: pointer;
+    }
+
+    .battle-send-btn:hover { background: #fde68a; }
+
+    .mic-status {
+      font-size: 0.72rem;
+      color: #64748b;
+      padding: 0 8px 4px;
+      background: #f8fafc;
+      min-height: 14px;
+    }
+
+    .status {
+      font-size: 1.02rem;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 12px;
+      min-height: 26px;
+    }
+
+    body.easy-theme .status { color: #15803d; }
+    body.normal-theme .status { color: #a16207; }
+    body.hard-theme .status { color: #b91c1c; }
+    body.boss-theme .status { color: #e9d5ff; }
+
+    .scoreboard {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .score-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px 6px;
+    }
+
+    body.easy-theme .score-box { background: #f0fdf4; border-color: #bbf7d0; }
+    body.normal-theme .score-box { background: #fefce8; border-color: #fef08a; }
+    body.hard-theme .score-box { background: #fef2f2; border-color: #fecaca; }
+    body.boss-theme .score-box { background: #1a0f2b; border-color: #4c2875; }
+
+    .score-label {
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    body.boss-theme .score-label { color: #c4b5fd; }
+
+    .score-value {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .x-color { color: #2563eb; }
+    body.boss-theme .x-color { color: #60a5fa; }
+    .o-color { color: #e11d48; }
+    body.boss-theme .o-color { color: #f472b6; }
+
+    /* Creative Board & 9 Boxes */
+    @keyframes popMark {
+      0% { transform: scale(0.72); }
+      70% { transform: scale(1.06); }
+      100% { transform: scale(1); }
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      padding: 12px;
+      border-radius: 16px;
+      background: #eef2f7;
+      margin-bottom: 16px;
+      transition: background 0.3s, box-shadow 0.3s, border-radius 0.3s;
+    }
+
+    .cell {
+      aspect-ratio: 1 / 1;
+      background: #ffffff;
+      border: 2px solid #cbd5e1;
+      border-radius: 12px;
+      font-size: 2.3rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, transform 0.1s, border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .cell.placed { animation: popMark 0.2s ease-out; }
+
+    .cell:hover:not(:disabled) {
+      background: #eff6ff;
+      border-color: #60a5fa;
+      transform: translateY(-2px);
+    }
+
+    .cell:active:not(:disabled) { transform: scale(0.96); }
+    .cell:disabled { cursor: default; }
+
+    .cell.win {
+      background: #dcfce7;
+      border-color: #22c55e;
+      box-shadow: 0 0 14px rgba(34, 197, 94, 0.35);
+    }
+
+    body.easy-theme .board.theme-classic { background: #dcfce7; }
+    body.normal-theme .board.theme-classic { background: #fef9c3; }
+    body.hard-theme .board.theme-classic { background: #fee2e2; }
+    body.boss-theme .board.theme-classic { background: #150c22; }
+    body.boss-theme .board.theme-classic .cell { background: #1a0f2b; border-color: #4c2875; }
+
+    /* Neon Arcade */
+    .board.theme-neon {
+      background: #090d16;
+      box-shadow: 0 0 22px rgba(6, 182, 212, 0.3);
+      border: 2px solid #06b6d4;
+    }
+    .board.theme-neon .cell {
+      background: #111827;
+      border: 2px solid #22d3ee;
+      box-shadow: inset 0 0 10px rgba(34, 211, 238, 0.18);
+    }
+    .board.theme-neon .cell:hover:not(:disabled) {
+      background: #164e63;
+      box-shadow: 0 0 14px rgba(34, 211, 238, 0.55);
+    }
+    .board.theme-neon .cell.x-color { color: #22d3ee; text-shadow: 0 0 10px #06b6d4; }
+    .board.theme-neon .cell.o-color { color: #f472b6; text-shadow: 0 0 10px #ec4899; }
+    .board.theme-neon .cell.win { background: #064e3b; border-color: #34d399; }
+
+    /* Wooden Board */
+    .board.theme-wood {
+      background: linear-gradient(135deg, #78350f, #92400e);
+      border: 3px solid #451a03;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.35);
+    }
+    .board.theme-wood .cell {
+      background: linear-gradient(145deg, #fef3c7, #fde68a);
+      border: 2px solid #b45309;
+      box-shadow: 0 3px 0 #78350f;
+    }
+    .board.theme-wood .cell:hover:not(:disabled) { background: #fef9c3; }
+    .board.theme-wood .cell.x-color { color: #7c2d12; }
+    .board.theme-wood .cell.o-color { color: #14532d; }
+    .board.theme-wood .cell.win { background: #bbf7d0; border-color: #16a34a; }
+
+    /* Pixel Retro */
+    .board.theme-pixel {
+      background: #0f172a;
+      border-radius: 4px;
+      border: 4px solid #38bdf8;
+      gap: 8px;
+    }
+    .board.theme-pixel .cell {
+      background: #1e293b;
+      border-radius: 2px;
+      border: 3px solid #94a3b8;
+      box-shadow: 4px 4px 0 #020617;
+      font-family: 'Courier New', monospace;
+    }
+    .board.theme-pixel .cell:hover:not(:disabled) { background: #334155; border-color: #38bdf8; }
+    .board.theme-pixel .cell.x-color { color: #38bdf8; }
+    .board.theme-pixel .cell.o-color { color: #fbbf24; }
+    .board.theme-pixel .cell.win { background: #14532d; border-color: #4ade80; }
+
+    /* Glass Galaxy */
+    .board.theme-galaxy {
+      background: radial-gradient(circle at top left, #4338ca, #1e1b4b 60%, #3b0764);
+      border: 2px solid rgba(196, 181, 253, 0.4);
+      box-shadow: 0 10px 26px rgba(67, 56, 202, 0.35);
+    }
+    .board.theme-galaxy .cell {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1.5px solid rgba(255, 255, 255, 0.28);
+      backdrop-filter: blur(6px);
+    }
+    .board.theme-galaxy .cell:hover:not(:disabled) { background: rgba(255, 255, 255, 0.24); border-color: #e9d5ff; }
+    .board.theme-galaxy .cell.x-color { color: #7dd3fc; }
+    .board.theme-galaxy .cell.o-color { color: #f9a8d4; }
+    .board.theme-galaxy .cell.win { background: rgba(34, 197, 94, 0.35); border-color: #4ade80; }
+
+    /* Sketch Dots */
+    .board.theme-dots {
+      background-color: #fff1f2;
+      background-image: radial-gradient(#fda4af 1.4px, transparent 1.4px);
+      background-size: 12px 12px;
+      border: 2px dashed #fb7185;
+    }
+    .board.theme-dots .cell {
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px dashed #f43f5e;
+      border-radius: 18px;
+    }
+    .board.theme-dots .cell:hover:not(:disabled) { background: #ffe4e6; }
+    .board.theme-dots .cell.win { background: #dcfce7; border-color: #16a34a; border-style: solid; }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 11px 18px;
+      font-size: 0.94rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .btn:active { transform: scale(0.98); }
+
+    .btn-primary { background: #0f172a; color: #ffffff; }
+    .btn-primary:hover { background: #1e293b; }
+
+    body.easy-theme .btn-primary { background: #16a34a; }
+    body.easy-theme .btn-primary:hover { background: #15803d; }
+    body.normal-theme .btn-primary { background: #ca8a04; }
+    body.normal-theme .btn-primary:hover { background: #a16207; }
+    body.hard-theme .btn-primary { background: #dc2626; }
+    body.hard-theme .btn-primary:hover { background: #b91c1c; }
+    body.boss-theme .btn-primary { background: #9333ea; }
+    body.boss-theme .btn-primary:hover { background: #7e22ce; }
+
+    .btn-secondary { background: #e2e8f0; color: #334155; }
+    .btn-secondary:hover { background: #cbd5e1; }
+    body.boss-theme .btn-secondary { background: #3b235a; color: #e2e8f0; }
+  </style>
+</head>
+<body>
+  <main class="game-card">
+    <div class="top-header">
+      <h1>Tic-Tac-Toe</h1>
+      <div class="header-actions">
+        <button id="authAreaBtn" class="pill-btn login-btn" type="button" aria-expanded="false">Account</button>
+          <button id="redeemAreaBtn" class="pill-btn" type="button" aria-expanded="false">Redeem</button>
+        <button id="titlesAreaBtn" class="pill-btn" type="button" aria-expanded="false">Titles</button>
+        <button id="themeToggleBtn" class="pill-btn" type="button" aria-expanded="false">Theme Shop</button>
+        <button id="soundToggleBtn" class="pill-btn" type="button" aria-pressed="false">Sound: On</button>
+      </div>
+    </div>
+
+    <!-- BATTLE ACCEPTED NOTIFICATION -->
+    <div id="battleNotify" class="battle-notify" role="status" aria-live="polite">
+      <div class="battle-notify-head">
+        <span>⚔️ Battle Accepted!</span>
+        <button id="closeNotifyBtn" class="battle-notify-close" type="button" aria-label="Close notification">&times;</button>
+      </div>
+      <div id="battleNotifyBody" class="battle-notify-body"></div>
+    </div>
+
+    <!-- PLAYER LEVEL, XP, TITLE & COINS -->
+    <div class="stats-bar">
+      <div class="stats-top">
+        <div class="level-title-group">
+          <span id="levelBadge" class="level-badge">Level 1</span>
+          <button id="titleToggleBtn" class="title-btn" type="button" title="Open Titles">Rookie</button>
+        </div>
+        <span id="coinBadge" class="coin-badge">0 Coins</span>
+      </div>
+      <div class="xp-row">
+        <div class="xp-track">
+          <div id="xpFill" class="xp-fill"></div>
+        </div>
+        <span id="xpText" class="xp-text">0 / 10 XP</span>
+        <span id="cloudStatus" class="xp-text" title="Firebase Cloud Sync status">☁️ Cloud Ready</span>
+      </div>
+    </div>
+
+    <!-- FIREBASE GMAIL & PASSWORD ACCOUNT PANEL -->
+    <div id="authPanel" class="login-panel">
+      <div class="theme-title">Cloud Account (Gmail &amp; Password)</div>
+      <p class="login-desc">Sign up or sign in with your Gmail and password to sync your progress to Firebase Cloud.</p>
+      <div class="login-row">
+        <input id="authEmailInput" class="login-input" type="email" placeholder="example@gmail.com" aria-label="Gmail ID" />
+      </div>
+      <div class="login-row">
+        <input id="authPassInput" class="login-input" type="password" placeholder="Password (min 6 chars)" aria-label="Password" />
+        <button id="authSignInBtn" class="online-btn" type="button">Sign In</button>
+        <button id="authSignUpBtn" class="online-btn secondary" type="button">Sign Up</button>
+      </div>
+      <div id="authMsg" class="login-msg"></div>
+    </div>
+
+    <!-- REDEEM CODE PANEL -->
+    <div id="redeemPanel" class="login-panel">
+      <div class="theme-title">Redeem Code</div>
+      <div class="login-row">
+        <input id="redeemInput" class="login-input" type="text" placeholder="Enter redeem code" aria-label="Redeem code" />
+        <button id="redeemBtn" class="online-btn" type="button">Redeem</button>
+      </div>
+      <div id="redeemMsg" class="login-msg"></div>
+    </div>
+
+    <!-- DEDICATED TITLES AREA -->
+    <div id="titlesPanel" class="titles-panel">
+      <div class="theme-title">Title Collection &amp; Milestones</div>
+      <div id="titlesList" class="titles-grid"></div>
+    </div>
+
+    <!-- THEME SHOP PANEL: BACKGROUND THEME (6), X (6), O (6) -->
+    <div id="themePanel" class="theme-panel">
+      <div class="theme-section-title">Background Theme</div>
+      <div class="theme-grid">
+        <button class="theme-option bg-option owned active" type="button" data-theme="classic" data-price="0">
+          <span class="theme-swatch swatch-classic"></span>
+          <span>Classic</span>
+          <span class="theme-price">Free</span>
+        </button>
+        <button class="theme-option bg-option" type="button" data-theme="dots" data-price="10">
+          <span class="theme-swatch swatch-dots"></span>
+          <span>Sketch Dots</span>
+          <span class="theme-price">10 Coins</span>
+        </button>
+        <button class="theme-option bg-option" type="button" data-theme="wood" data-price="25">
+          <span class="theme-swatch swatch-wood"></span>
+          <span>Wooden</span>
+          <span class="theme-price">25 Coins</span>
+        </button>
+        <button class="theme-option bg-option" type="button" data-theme="pixel" data-price="60">
+          <span class="theme-swatch swatch-pixel"></span>
+          <span>Pixel Retro</span>
+          <span class="theme-price">60 Coins</span>
+        </button>
+        <button class="theme-option bg-option" type="button" data-theme="galaxy" data-price="150">
+          <span class="theme-swatch swatch-galaxy"></span>
+          <span>Glass Galaxy</span>
+          <span class="theme-price">150 Coins</span>
+        </button>
+        <button class="theme-option bg-option" type="button" data-theme="neon" data-price="300">
+          <span class="theme-swatch swatch-neon"></span>
+          <span>Neon Arcade</span>
+          <span class="theme-price">300 Coins</span>
+        </button>
+      </div>
+
+      <div class="theme-section-title">X</div>
+      <div class="theme-grid">
+        <button class="theme-option x-option owned active" type="button" data-xtheme="classic" data-symbol="X" data-price="0">
+          <span class="mark-preview x-color">X</span>
+          <span>Classic X</span>
+          <span class="theme-price">Free</span>
+        </button>
+        <button class="theme-option x-option" type="button" data-xtheme="bolt" data-symbol="⚡" data-price="10">
+          <span class="mark-preview">⚡</span>
+          <span>Bolt</span>
+          <span class="theme-price">10 Coins</span>
+        </button>
+        <button class="theme-option x-option" type="button" data-xtheme="fire" data-symbol="🔥" data-price="25">
+          <span class="mark-preview">🔥</span>
+          <span>Fire</span>
+          <span class="theme-price">25 Coins</span>
+        </button>
+        <button class="theme-option x-option" type="button" data-xtheme="sword" data-symbol="⚔️" data-price="50">
+          <span class="mark-preview">⚔️</span>
+          <span>Blades</span>
+          <span class="theme-price">50 Coins</span>
+        </button>
+        <button class="theme-option x-option" type="button" data-xtheme="diamond" data-symbol="💎" data-price="120">
+          <span class="mark-preview">💎</span>
+          <span>Diamond</span>
+          <span class="theme-price">120 Coins</span>
+        </button>
+        <button class="theme-option x-option" type="button" data-xtheme="crown" data-symbol="👑" data-price="250">
+          <span class="mark-preview">👑</span>
+          <span>Crown</span>
+          <span class="theme-price">250 Coins</span>
+        </button>
+      </div>
+
+      <div class="theme-section-title">O</div>
+      <div class="theme-grid">
+        <button class="theme-option o-option owned active" type="button" data-otheme="classic" data-symbol="O" data-price="0">
+          <span class="mark-preview o-color">O</span>
+          <span>Classic O</span>
+          <span class="theme-price">Free</span>
+        </button>
+        <button class="theme-option o-option" type="button" data-otheme="star" data-symbol="⭐" data-price="10">
+          <span class="mark-preview">⭐</span>
+          <span>Star</span>
+          <span class="theme-price">10 Coins</span>
+        </button>
+        <button class="theme-option o-option" type="button" data-otheme="moon" data-symbol="🌙" data-price="25">
+          <span class="mark-preview">🌙</span>
+          <span>Moon</span>
+          <span class="theme-price">25 Coins</span>
+        </button>
+        <button class="theme-option o-option" type="button" data-otheme="target" data-symbol="🎯" data-price="50">
+          <span class="mark-preview">🎯</span>
+          <span>Target</span>
+          <span class="theme-price">50 Coins</span>
+        </button>
+        <button class="theme-option o-option" type="button" data-otheme="shield" data-symbol="🛡️" data-price="120">
+          <span class="mark-preview">🛡️</span>
+          <span>Shield</span>
+          <span class="theme-price">120 Coins</span>
+        </button>
+        <button class="theme-option o-option" type="button" data-otheme="galaxy" data-symbol="🌀" data-price="250">
+          <span class="mark-preview">🌀</span>
+          <span>Vortex</span>
+          <span class="theme-price">250 Coins</span>
+        </button>
+      </div>
+
+      <div id="themeMsg" class="theme-msg"></div>
+    </div>
+
+    <div class="mode-switch" role="group" aria-label="Game mode">
+      <button id="mode2pBtn" class="mode-btn active" type="button">2 Players</button>
+      <button id="modeCpuBtn" class="mode-btn" type="button">vs Computer</button>
+      <button id="modeOnlineBtn" class="mode-btn" type="button">Online Room</button>
+    </div>
+
+    <div id="difficultyBar" class="difficulty-bar" role="group" aria-label="Computer difficulty">
+      <button class="diff-btn" type="button" data-diff="easy">Easy</button>
+      <button class="diff-btn active" type="button" data-diff="normal">Normal</button>
+      <button class="diff-btn" type="button" data-diff="hard">Hard</button>
+      <button class="diff-btn boss-btn" type="button" data-diff="boss">Boss</button>
+    </div>
+
+    <!-- ONLINE ROOM PANEL (RIGHT BELOW ONLINE BUTTON) -->
+    <div id="onlinePanel" class="online-panel">
+      <div class="name-row">
+        <label for="playerNameInput">Username:</label>
+        <input id="playerNameInput" class="name-input" type="text" maxlength="18" placeholder="Pick your username" />
+        <button id="saveNameBtn" class="online-btn secondary" type="button">Save</button>
+      </div>
+      <div id="nameHint" class="name-hint">Save your username (can be changed only once later).</div>
+
+      <div class="online-controls">
+        <button id="createRoomBtn" class="online-btn" type="button">Create Room</button>
+        <input
+          id="roomCodeInput"
+          class="room-input"
+          type="text"
+          maxlength="4"
+          inputmode="numeric"
+          placeholder="4-digit code"
+          aria-label="4-digit room code"
+        />
+        <button id="joinRoomBtn" class="online-btn secondary" type="button">Join</button>
+      </div>
+
+      <div id="roomInfo" class="room-info">Create a room to get a 4-digit code, or enter your friend's code to join.</div>
+
+      <div id="shareRow" class="share-row">
+        <button id="copyCodeBtn" class="online-btn secondary" type="button">Copy Code</button>
+        <button id="copyLinkBtn" class="online-btn secondary" type="button">Copy Invite Link</button>
+        <a id="whatsappShareBtn" class="online-btn whatsapp" href="#" target="_blank" rel="noopener noreferrer">Share on WhatsApp</a>
+      </div>
+
+      <!-- 1/4 PLAYERS + VERTICAL DIVIDER + 3/4 SERVER CHAT / PERSONAL CHAT -->
+      <div class="split-chat-box">
+        <div class="players-col">
+          <div class="players-col-title">Players</div>
+          <div id="playersList"></div>
+        </div>
+        <div class="chat-col">
+          <div class="chat-col-header">
+            <span id="chatHeaderTitle">Server Chat</span>
+            <span id="chatHeaderSub" class="chat-col-sub">Tap player for personal</span>
+          </div>
+          <div id="chatMessages" class="chat-messages">
+            <div class="chat-empty">Server Chat is open! Send a message or tap ⚔️ Battle.</div>
+          </div>
+          <div class="chat-input-row">
+            <input id="chatInput" class="chat-input" type="text" placeholder="Message..." aria-label="Chat message" />
+            <button id="battleBtn" class="battle-send-btn" type="button" title="Send Battle Challenge">⚔️ Battle</button>
+            <button id="micBtn" class="mic-btn" type="button" title="Speak message">Mic</button>
+            <button id="sendChatBtn" class="online-btn whatsapp" type="button">Send</button>
+          </div>
+          <div id="micStatus" class="mic-status"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="bossBanner" class="boss-banner">Boss Mode: Unbeatable AI — Can you force a draw?</div>
+
+    <p id="status" class="status">Player X's turn</p>
+
+    <div class="scoreboard">
+      <div class="score-box">
+        <div id="labelX" class="score-label x-color">Player X</div>
+        <div id="scoreX" class="score-value x-color">0</div>
+      </div>
+      <div class="score-box">
+        <div class="score-label">Draws</div>
+        <div id="scoreDraw" class="score-value">0</div>
+      </div>
+      <div class="score-box">
+        <div id="labelO" class="score-label o-color">Player O</div>
+        <div id="scoreO" class="score-value o-color">0</div>
+      </div>
+    </div>
+
+    <div id="board" class="board theme-classic" role="grid" aria-label="Tic-Tac-Toe board">
+      <button class="cell" type="button" data-index="0" aria-label="Cell 1"></button>
+      <button class="cell" type="button" data-index="1" aria-label="Cell 2"></button>
+      <button class="cell" type="button" data-index="2" aria-label="Cell 3"></button>
+      <button class="cell" type="button" data-index="3" aria-label="Cell 4"></button>
+      <button class="cell" type="button" data-index="4" aria-label="Cell 5"></button>
+      <button class="cell" type="button" data-index="5" aria-label="Cell 6"></button>
+      <button class="cell" type="button" data-index="6" aria-label="Cell 7"></button>
+      <button class="cell" type="button" data-index="7" aria-label="Cell 8"></button>
+      <button class="cell" type="button" data-index="8" aria-label="Cell 9"></button>
+    </div>
+
+    <div class="actions">
+      <button id="newRoundBtn" class="btn btn-primary" type="button">New Round</button>
+      <button id="resetScoreBtn" class="btn btn-secondary" type="button">Reset Score</button>
+    </div>
+  </main>
+
+  <script>
+    // 1. Game state
+    let board = ['', '', '', '', '', '', '', '', ''];
+    let currentPlayer = 'X';
+    let gameOver = false;
+    let gameMode = '2p'; // '2p', 'cpu', or 'online'
+    let difficulty = 'normal'; // 'easy', 'normal', 'hard', 'boss'
+    let boardTheme = 'classic';
+    let xTheme = 'classic';
+    let oTheme = 'classic';
+    let isComputerThinking = false;
+    let cpuTimer = null;
+    let scores = { X: 0, O: 0, draw: 0 };
+
+    const X_SYMBOLS = {
+      classic: 'X',
+      bolt: '⚡',
+      fire: '🔥',
+      sword: '⚔️',
+      diamond: '💎',
+      crown: '👑'
+    };
+
+    const O_SYMBOLS = {
+      classic: 'O',
+      star: '⭐',
+      moon: '🌙',
+      target: '🎯',
+      shield: '🛡️',
+      galaxy: '🌀'
+    };
+
+    // Firebase Auth & Firestore Cloud Sync (project: tic-tac-toe-e0de4)
+    const FIREBASE_PROJECT_ID = 'tic-tac-toe-e0de4';
+    const FIREBASE_API_KEY = 'AIzaSyCcjoqROZxV_2UndVXdi6C5Ozz6YdhNEPg';
+    const FIRESTORE_BASE = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents`;
+    const FIREBASE_AUTH_BASE = 'https://identitytoolkit.googleapis.com/v1/accounts';
+    const STORAGE_AUTH_KEY = 'ttt_firebase_auth_v1';
+    let firebaseUid = null;
+    let firebaseToken = null;
+    let cloudSyncTimer = null;
+
+    // Economy, XP, Max Level 100 & Cloud/Local Auto-Save
+    const MAX_LEVEL = 100;
+    const OWNER_EMAIL = 'owner99@gmail.com';
+    const STORAGE_ACCOUNTS_KEY = 'ttt_gmail_accounts_v2';
+    const STORAGE_ACTIVE_EMAIL_KEY = 'ttt_active_gmail_v1';
+
+    const ALL_TITLES = [
+      { id: 'owner', name: 'Owner', minLevel: 1, reqLabel: 'Owner Only', isOwnerOnly: true },
+      { id: 'rookie', name: 'Rookie', minLevel: 1, reqLabel: 'Level 1' },
+      { id: 'beatable', name: 'Beatable', minLevel: 10, reqLabel: 'Level 10' },
+      { id: 'challenger', name: 'Challenger', minLevel: 30, reqLabel: 'Level 30' },
+      { id: 'unbeatable', name: 'Unbeatable', minLevel: 50, reqLabel: 'Level 50' },
+      { id: 'almost_legend', name: 'Almost Legend', minLevel: 80, reqLabel: 'Level 80' },
+      { id: 'legend', name: 'Legend', minLevel: 100, reqLabel: 'Level 100 (MAX)' }
+    ];
+
+    let activeEmail = 'guest';
+    let coins = 0;
+    let level = 1;
+    let xp = 0;
+    let unlockedThemes = ['classic'];
+    let unlockedXThemes = ['classic'];
+    let unlockedOThemes = ['classic'];
+    let activeTitle = 'Rookie';
+    let isOwner = false;
+    let redeemedCodes = [];
+
+    // Sound state
+    let audioCtx = null;
+    let isMuted = false;
+
+    // Persistent username keys
+    const STORAGE_NAME_KEY = 'ttt_saved_username';
+    const STORAGE_CHANGES_KEY = 'ttt_username_changes';
+    let savedUsername = '';
+    let usernameChangesUsed = 0;
+
+    // Online multiplayer & inline 1/4 + 3/4 chat state
+    const ROOM_PREFIX = 'ttt-gem-';
+    let peer = null;
+    let conn = null;
+    let mySymbol = 'X';
+    let activeRoomCode = '';
+    let isOnlineConnected = false;
+    let friendName = 'Friend';
+    let selectedPlayerForChat = null; // null = Server Chat; 'friend' = Personal Chat
+    let serverChatHistory = [];
+    let personalChatHistory = [];
+    let unreadPersonal = 0;
+    let recognition = null;
+    let isListening = false;
+
+    const winPatterns = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6]
+    ];
+
+    // 2. HTML elements
+    const battleNotify = document.getElementById('battleNotify');
+    const battleNotifyBody = document.getElementById('battleNotifyBody');
+    const closeNotifyBtn = document.getElementById('closeNotifyBtn');
+    const statusEl = document.getElementById('status');
+    const boardEl = document.getElementById('board');
+    const cells = document.querySelectorAll('.cell');
+    const scoreXEl = document.getElementById('scoreX');
+    const scoreOEl = document.getElementById('scoreO');
+    const scoreDrawEl = document.getElementById('scoreDraw');
+    const labelXEl = document.getElementById('labelX');
+    const labelOEl = document.getElementById('labelO');
+    const newRoundBtn = document.getElementById('newRoundBtn');
+    const resetScoreBtn = document.getElementById('resetScoreBtn');
+    const redeemAreaBtn = document.getElementById('redeemAreaBtn');
+    const redeemPanel = document.getElementById('redeemPanel');
+            const redeemMsg = document.getElementById('redeemMsg');
+    const levelBadge = document.getElementById('levelBadge');
+    const titleToggleBtn = document.getElementById('titleToggleBtn');
+    const titlesAreaBtn = document.getElementById('titlesAreaBtn');
+    const titlesPanel = document.getElementById('titlesPanel');
+    const titlesList = document.getElementById('titlesList');
+    const coinBadge = document.getElementById('coinBadge');
+    const xpFill = document.getElementById('xpFill');
+    const xpText = document.getElementById('xpText');
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const themePanel = document.getElementById('themePanel');
+    const bgOptions = document.querySelectorAll('.bg-option');
+    const xOptions = document.querySelectorAll('.x-option');
+    const oOptions = document.querySelectorAll('.o-option');
+    const themeMsg = document.getElementById('themeMsg');
+    const soundToggleBtn = document.getElementById('soundToggleBtn');
+    const mode2pBtn = document.getElementById('mode2pBtn');
+    const modeCpuBtn = document.getElementById('modeCpuBtn');
+    const modeOnlineBtn = document.getElementById('modeOnlineBtn');
+    const difficultyBar = document.getElementById('difficultyBar');
+    const diffButtons = document.querySelectorAll('.diff-btn');
+    const onlinePanel = document.getElementById('onlinePanel');
+    const playerNameInput = document.getElementById('playerNameInput');
+    const saveNameBtn = document.getElementById('saveNameBtn');
+    const nameHint = document.getElementById('nameHint');
+    const createRoomBtn = document.getElementById('createRoomBtn');
+    const joinRoomBtn = document.getElementById('joinRoomBtn');
+    const roomCodeInput = document.getElementById('roomCodeInput');
+    const roomInfo = document.getElementById('roomInfo');
+    const shareRow = document.getElementById('shareRow');
+    const copyCodeBtn = document.getElementById('copyCodeBtn');
+    const copyLinkBtn = document.getElementById('copyLinkBtn');
+    const whatsappShareBtn = document.getElementById('whatsappShareBtn');
+    const playersListEl = document.getElementById('playersList');
+    const chatHeaderTitle = document.getElementById('chatHeaderTitle');
+    const chatHeaderSub = document.getElementById('chatHeaderSub');
+    const chatMessagesEl = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const battleBtn = document.getElementById('battleBtn');
+    const micBtn = document.getElementById('micBtn');
+    const micStatus = document.getElementById('micStatus');
+    const sendChatBtn = document.getElementById('sendChatBtn');
+
+    // 3. Gmail Auto-Save System, Coins, XP & Level 100 (MAX) Logic
+    function getMaxXpForLevel(lvl) {
+      if (lvl === 1) return 10;
+      if (lvl === 2) return 20;
+      if (lvl === 3) return 30;
+      return 50 + (lvl - 4) * 25;
+    }
+
+    function formatCoins(n) {
+      if (Number.isInteger(n)) return n.toLocaleString();
+      return n.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    }
+
+    function formatNum(n) {
+      return Number.isInteger(n) ? String(n) : n.toFixed(1);
+    }
+
+    function getAllAccounts() {
+      try {
+        const raw = localStorage.getItem(STORAGE_ACCOUNTS_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function getCloudPlayerId() {
+      if (firebaseUid) return firebaseUid;
+      const name = getMyName().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+      return name && name !== 'player' ? name : null;
+    }
+
+    function getCloudHeaders() {
+      const headers = { 'Content-Type': 'application/json' };
+      if (firebaseToken) headers['Authorization'] = `Bearer ${firebaseToken}`;
+      return headers;
+    }
+
+    async function firebaseAuthAction(mode) {
+      const email = document.getElementById('authEmailInput').value.trim().toLowerCase();
+      const password = document.getElementById('authPassInput').value;
+      const authMsg = document.getElementById('authMsg');
+
+      if (!email || !email.includes('@') || !email.includes('.')) {
+        authMsg.textContent = 'Please enter a valid Gmail ID.';
+        return;
+      }
+      if (!password || password.length < 6) {
+        authMsg.textContent = 'Password must be at least 6 characters.';
+        return;
+      }
+
+      authMsg.textContent = mode === 'signUp' ? 'Creating cloud account...' : 'Signing in...';
+      try {
+        const endpoint = mode === 'signUp' ? 'signUp' : 'signInWithPassword';
+        const res = await fetch(`${FIREBASE_AUTH_BASE}:${endpoint}?key=${FIREBASE_API_KEY}`, {
+          method: 'POST',
+          headers: getCloudHeaders(),
+          body: JSON.stringify({ email, password, returnSecureToken: true })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          const code = data && data.error && data.error.message ? data.error.message : 'Auth failed';
+          authMsg.textContent = `Error: ${code}. Make sure Email/Password is enabled in Firebase Auth.`;
+          return;
+        }
+        firebaseUid = data.localId;
+        firebaseToken = data.idToken;
+        activeEmail = email;
+        try {
+          localStorage.setItem(STORAGE_AUTH_KEY, JSON.stringify({ uid: firebaseUid, token: firebaseToken, email }));
+        } catch (e) {}
+        document.getElementById('authAreaBtn').textContent = email.split('@')[0].slice(0, 10);
+        authMsg.textContent = `Signed in as ${email}! Syncing cloud progress...`;
+        if (mode === 'signUp') {
+          await pushToCloud();
+        } else {
+          await pullFromCloud();
+        }
+        playWinSound('X');
+      } catch (e) {
+        authMsg.textContent = 'Network error connecting to Firebase.';
+      }
+    }
+
+    function setCloudStatus(text) {
+      const el = document.getElementById('cloudStatus');
+      if (el) el.textContent = text;
+    }
+
+    function toFirestoreFields(obj) {
+      return {
+        fields: {
+          coins: { doubleValue: Number(obj.coins || 0) },
+          level: { integerValue: String(obj.level || 1) },
+          xp: { doubleValue: Number(obj.xp || 0) },
+          unlockedThemes: { stringValue: JSON.stringify(obj.unlockedThemes || ['classic']) },
+          unlockedXThemes: { stringValue: JSON.stringify(obj.unlockedXThemes || ['classic']) },
+          unlockedOThemes: { stringValue: JSON.stringify(obj.unlockedOThemes || ['classic']) },
+          boardTheme: { stringValue: String(obj.boardTheme || 'classic') },
+          xTheme: { stringValue: String(obj.xTheme || 'classic') },
+          oTheme: { stringValue: String(obj.oTheme || 'classic') },
+          activeTitle: { stringValue: String(obj.activeTitle || 'Rookie') },
+          isOwner: { booleanValue: Boolean(obj.isOwner) },
+          redeemedCodes: { stringValue: JSON.stringify(obj.redeemedCodes || []) }
+        }
+      };
+    }
+
+    function fromFirestoreFields(fields) {
+      if (!fields) return null;
+      const parseArr = (f, fallback) => {
+        try { return f && f.stringValue ? JSON.parse(f.stringValue) : fallback; } catch (e) { return fallback; }
+      };
+      return {
+        coins: fields.coins ? Number(fields.coins.doubleValue ?? fields.coins.integerValue ?? 0) : 0,
+        level: fields.level ? Number(fields.level.integerValue ?? 1) : 1,
+        xp: fields.xp ? Number(fields.xp.doubleValue ?? fields.xp.integerValue ?? 0) : 0,
+        unlockedThemes: parseArr(fields.unlockedThemes, ['classic']),
+        unlockedXThemes: parseArr(fields.unlockedXThemes, ['classic']),
+        unlockedOThemes: parseArr(fields.unlockedOThemes, ['classic']),
+        boardTheme: fields.boardTheme ? fields.boardTheme.stringValue : 'classic',
+        xTheme: fields.xTheme ? fields.xTheme.stringValue : 'classic',
+        oTheme: fields.oTheme ? fields.oTheme.stringValue : 'classic',
+        activeTitle: fields.activeTitle ? fields.activeTitle.stringValue : 'Rookie',
+        isOwner: fields.isOwner ? Boolean(fields.isOwner.booleanValue) : false,
+        redeemedCodes: parseArr(fields.redeemedCodes, [])
+      };
+    }
+
+    async function pushToCloud() {
+      const pid = getCloudPlayerId();
+      if (!pid) {
+        setCloudStatus('☁️ Set Username to Sync');
+        return;
+      }
+      try {
+        setCloudStatus('☁️ Syncing...');
+        const payload = toFirestoreFields({
+          coins, level, xp, unlockedThemes, unlockedXThemes, unlockedOThemes,
+          boardTheme, xTheme, oTheme, activeTitle, isOwner, redeemedCodes
+        });
+        const res = await fetch(`${FIRESTORE_BASE}/players/${encodeURIComponent(pid)}?key=${FIREBASE_API_KEY}`, {
+          method: 'PATCH',
+          headers: getCloudHeaders(),
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          setCloudStatus('☁️ Cloud Synced');
+        } else {
+          setCloudStatus('☁️ Local Saved');
+        }
+      } catch (e) {
+        setCloudStatus('☁️ Local Saved');
+      }
+    }
+
+    async function pullFromCloud() {
+      const pid = getCloudPlayerId();
+      if (!pid) {
+        setCloudStatus('☁️ Set Username to Sync');
+        return;
+      }
+      try {
+        const res = await fetch(`${FIRESTORE_BASE}/players/${encodeURIComponent(pid)}?key=${FIREBASE_API_KEY}`, { headers: firebaseToken ? { 'Authorization': `Bearer ${firebaseToken}` } : {} });
+        if (!res.ok) {
+          setCloudStatus('☁️ Local Saved');
+          return;
+        }
+        const doc = await res.json();
+        const data = fromFirestoreFields(doc.fields);
+        if (data) {
+          coins = Math.max(coins, data.coins);
+          level = Math.max(level, Math.min(MAX_LEVEL, data.level));
+          xp = data.level > level ? data.xp : xp;
+          unlockedThemes = Array.from(new Set([...unlockedThemes, ...data.unlockedThemes]));
+          unlockedXThemes = Array.from(new Set([...unlockedXThemes, ...data.unlockedXThemes]));
+          unlockedOThemes = Array.from(new Set([...unlockedOThemes, ...data.unlockedOThemes]));
+          redeemedCodes = Array.from(new Set([...redeemedCodes, ...data.redeemedCodes]));
+          if (data.isOwner) isOwner = true;
+          if (data.activeTitle) activeTitle = data.activeTitle;
+          applyBoardTheme(data.boardTheme || boardTheme, false);
+          xTheme = data.xTheme || xTheme;
+          oTheme = data.oTheme || oTheme;
+          refreshBoardMarks();
+          updateProgressUI();
+          updateThemeShopUI();
+          renderTitles();
+          setCloudStatus('☁️ Cloud Synced');
+        }
+      } catch (e) {
+        setCloudStatus('☁️ Local Saved');
+      }
+    }
+
+    function saveProgress() {
+      try {
+        const accounts = getAllAccounts();
+        accounts[activeEmail] = {
+          coins,
+          level,
+          xp,
+          unlockedThemes,
+          unlockedXThemes,
+          unlockedOThemes,
+          boardTheme,
+          xTheme,
+          oTheme,
+          activeTitle,
+          isOwner,
+          redeemedCodes
+        };
+        localStorage.setItem(STORAGE_ACCOUNTS_KEY, JSON.stringify(accounts));
+        localStorage.setItem(STORAGE_ACTIVE_EMAIL_KEY, activeEmail);
+      } catch (e) {}
+      if (cloudSyncTimer) clearTimeout(cloudSyncTimer);
+      cloudSyncTimer = setTimeout(pushToCloud, 300);
+    }
+
+    function loadAccount(email) {
+      activeEmail = email;
+      const accounts = getAllAccounts();
+      const data = accounts[email];
+
+      if (email === OWNER_EMAIL) {
+        isOwner = true;
+        level = MAX_LEVEL;
+        xp = 0;
+        coins = data && typeof data.coins === 'number' ? Math.max(900000, data.coins) : 900000;
+        unlockedThemes = ['classic', 'dots', 'wood', 'pixel', 'galaxy', 'neon'];
+        unlockedXThemes = ['classic', 'bolt', 'fire', 'sword', 'diamond', 'crown'];
+        unlockedOThemes = ['classic', 'star', 'moon', 'target', 'shield', 'galaxy'];
+        boardTheme = data && data.boardTheme ? data.boardTheme : 'classic';
+        xTheme = data && data.xTheme ? data.xTheme : 'classic';
+        oTheme = data && data.oTheme ? data.oTheme : 'classic';
+        activeTitle = data && typeof data.activeTitle === 'string' ? data.activeTitle : 'Owner';
+        saveProgress();
+      } else if (data) {
+        coins = typeof data.coins === 'number' ? data.coins : 0;
+        level = typeof data.level === 'number' && data.level >= 1 ? Math.min(MAX_LEVEL, data.level) : 1;
+        xp = typeof data.xp === 'number' && data.xp >= 0 ? data.xp : 0;
+        unlockedThemes = Array.isArray(data.unlockedThemes) && data.unlockedThemes.length > 0 ? data.unlockedThemes : ['classic'];
+        unlockedXThemes = Array.isArray(data.unlockedXThemes) && data.unlockedXThemes.length > 0 ? data.unlockedXThemes : ['classic'];
+        unlockedOThemes = Array.isArray(data.unlockedOThemes) && data.unlockedOThemes.length > 0 ? data.unlockedOThemes : ['classic'];
+        boardTheme = data.boardTheme && unlockedThemes.includes(data.boardTheme) ? data.boardTheme : 'classic';
+        xTheme = data.xTheme && unlockedXThemes.includes(data.xTheme) ? data.xTheme : 'classic';
+        oTheme = data.oTheme && unlockedOThemes.includes(data.oTheme) ? data.oTheme : 'classic';
+        activeTitle = typeof data.activeTitle === 'string' ? data.activeTitle : 'Rookie';
+        isOwner = false;
+        redeemedCodes = Array.isArray(data.redeemedCodes) ? data.redeemedCodes : [];
+      } else {
+        coins = 0;
+        level = 1;
+        xp = 0;
+        unlockedThemes = ['classic'];
+        unlockedXThemes = ['classic'];
+        unlockedOThemes = ['classic'];
+        boardTheme = 'classic';
+        xTheme = 'classic';
+        oTheme = 'classic';
+        activeTitle = 'Rookie';
+        isOwner = false;
+        redeemedCodes = [];
+        saveProgress();
+      }
+
+      applyBoardTheme(boardTheme, false);
+      refreshBoardMarks();
+      updateLoginButtonUI();
+      updateProgressUI();
+      updateThemeShopUI();
+      renderTitles();
+    }
+
+    function loadProgress() {
+      let savedEmail = 'guest';
+      try {
+        const stored = localStorage.getItem(STORAGE_ACTIVE_EMAIL_KEY);
+        if (stored) savedEmail = stored;
+      } catch (e) {}
+      loadAccount(savedEmail);
+    }
+
+    function updateLoginButtonUI() {}
+
+    function handleRedeemCode() {
+      const inputEl = document.getElementById('redeemInput');
+      const raw = inputEl.value.trim().toLowerCase().replace(/\s+/g, '');
+      if (!raw) {
+        redeemMsg.textContent = 'Please enter a redeem code.';
+        return;
+      }
+
+      if (raw === 'owner99') {
+        isOwner = true;
+        level = MAX_LEVEL;
+        xp = 0;
+        coins = Math.max(coins, 900000);
+        unlockedThemes = ['classic', 'dots', 'wood', 'pixel', 'galaxy', 'neon'];
+        unlockedXThemes = ['classic', 'bolt', 'fire', 'sword', 'diamond', 'crown'];
+        unlockedOThemes = ['classic', 'star', 'moon', 'target', 'shield', 'galaxy'];
+        activeTitle = 'Owner';
+        saveProgress();
+        updateProgressUI();
+        updateThemeShopUI();
+        renderTitles();
+        inputEl.value = '';
+        redeemMsg.textContent = 'Code redeemed! Owner title, Level 100 (MAX), 900,000 Coins, and all themes unlocked.';
+        playWinSound('X');
+        return;
+      }
+
+      if (redeemedCodes.includes(raw)) {
+        redeemMsg.textContent = 'You already redeemed this code!';
+        playDrawSound();
+        return;
+      }
+
+      let rewardMsg = '';
+      if (raw === 'welcome50') {
+        coins += 50;
+        rewardMsg = 'Redeemed! +50 Coins added.';
+      } else if (raw === 'coins200') {
+        coins += 200;
+        rewardMsg = 'Redeemed! +200 Coins added.';
+      } else if (raw === 'levelup') {
+        level = Math.min(MAX_LEVEL, level + 2);
+        if (level >= MAX_LEVEL) xp = 0;
+        rewardMsg = `Redeemed! Jumped to Level ${level >= MAX_LEVEL ? '100 (MAX)' : level}!`;
+      } else if (raw === 'firex') {
+        if (!unlockedXThemes.includes('fire')) unlockedXThemes.push('fire');
+        xTheme = 'fire';
+        refreshBoardMarks();
+        rewardMsg = 'Redeemed! Fire (🔥) X Theme unlocked and equipped!';
+      } else if (raw === 'staro') {
+        if (!unlockedOThemes.includes('star')) unlockedOThemes.push('star');
+        oTheme = 'star';
+        refreshBoardMarks();
+        rewardMsg = 'Redeemed! Star (⭐) O Theme unlocked and equipped!';
+      } else {
+        redeemMsg.textContent = 'Invalid redeem code.';
+        playDrawSound();
+        return;
+      }
+
+      redeemedCodes.push(raw);
+      saveProgress();
+      updateProgressUI();
+      updateThemeShopUI();
+      renderTitles();
+      inputEl.value = '';
+      redeemMsg.textContent = rewardMsg;
+      playWinSound('X');
+    }
+
+
+
+    function awardMatchRewards() {
+      const reward = gameMode === 'online' ? 1 : 0.5;
+      coins += reward;
+
+      if (level < MAX_LEVEL) {
+        xp += reward;
+        let leveledUp = false;
+        while (level < MAX_LEVEL && xp >= getMaxXpForLevel(level)) {
+          xp -= getMaxXpForLevel(level);
+          level++;
+          leveledUp = true;
+        }
+        if (level >= MAX_LEVEL) {
+          level = MAX_LEVEL;
+          xp = 0;
+        }
+        if (leveledUp) {
+          playWinSound('X');
+        }
+      }
+
+      saveProgress();
+      updateProgressUI();
+      renderTitles();
+    }
+
+    function updateProgressUI() {
+      if (level >= MAX_LEVEL) {
+        levelBadge.textContent = 'Level 100 (MAX)';
+        xpFill.style.width = '100%';
+        xpText.textContent = 'MAX LEVEL';
+      } else {
+        const maxXp = getMaxXpForLevel(level);
+        const pct = Math.min(100, Math.round((xp / maxXp) * 100));
+        levelBadge.textContent = `Level ${level}`;
+        xpFill.style.width = `${pct}%`;
+        xpText.textContent = `${formatNum(xp)} / ${maxXp} XP`;
+      }
+
+      titleToggleBtn.textContent = activeTitle;
+      coinBadge.textContent = `${formatCoins(coins)} Coins`;
+    }
+
+    function toggleTitlesPanel() {
+      const isOpen = titlesPanel.classList.toggle('visible');
+      titlesAreaBtn.classList.toggle('active', isOpen);
+      titlesAreaBtn.setAttribute('aria-expanded', String(isOpen));
+    }
+
+    function renderTitles() {
+      titlesList.innerHTML = '';
+      ALL_TITLES.forEach((t) => {
+        const unlocked = t.isOwnerOnly ? isOwner : level >= t.minLevel;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'title-card';
+        if (t.isOwnerOnly) btn.classList.add('owner-card');
+        if (activeTitle === t.name) btn.classList.add('active');
+        if (!unlocked) btn.classList.add('locked');
+
+        btn.innerHTML = `<span class="title-card-name">${t.name}</span><span class="title-card-req">${unlocked ? (activeTitle === t.name ? 'Equipped' : t.reqLabel) : `Unlock at ${t.reqLabel}`}</span>`;
+        btn.disabled = !unlocked;
+        btn.addEventListener('click', () => {
+          if (!unlocked) return;
+          activeTitle = t.name;
+          saveProgress();
+          updateProgressUI();
+          renderTitles();
+          playTone(620, 0.06, 'sine', 0.1, 0);
+        });
+        titlesList.appendChild(btn);
+      });
+    }
+
+    // 4. Background, X, and O Theme Shop Logic
+    function getMarkDisplay(player) {
+      if (player === 'X') return X_SYMBOLS[xTheme] || 'X';
+      return O_SYMBOLS[oTheme] || 'O';
+    }
+
+    function refreshBoardMarks() {
+      cells.forEach((cell, i) => {
+        if (board[i] === 'X' || board[i] === 'O') {
+          cell.textContent = getMarkDisplay(board[i]);
+        }
+      });
+    }
+
+    function applyBoardTheme(themeName, shouldSave = true) {
+      boardTheme = themeName;
+      boardEl.className = `board theme-${themeName}`;
+      updateThemeShopUI();
+      if (shouldSave) saveProgress();
+    }
+
+    function updateOptionGroup(nodeList, attrKey, unlockedList, activeKey) {
+      nodeList.forEach((btn) => {
+        const key = btn.dataset[attrKey];
+        const price = Number(btn.dataset.price || 0);
+        const owned = unlockedList.includes(key);
+        btn.classList.toggle('owned', owned);
+        btn.classList.toggle('active', activeKey === key);
+        const priceEl = btn.querySelector('.theme-price');
+        if (priceEl) {
+          if (activeKey === key) {
+            priceEl.textContent = 'Active';
+          } else if (owned) {
+            priceEl.textContent = price === 0 ? 'Free' : 'Owned';
+          } else {
+            priceEl.textContent = `${price} Coins`;
+          }
+        }
+      });
+    }
+
+    function updateThemeShopUI() {
+      updateOptionGroup(bgOptions, 'theme', unlockedThemes, boardTheme);
+      updateOptionGroup(xOptions, 'xtheme', unlockedXThemes, xTheme);
+      updateOptionGroup(oOptions, 'otheme', unlockedOThemes, oTheme);
+    }
+
+    function handleThemeGroupClick(btn, type) {
+      const price = Number(btn.dataset.price || 0);
+      const label = btn.children[1].textContent;
+
+      if (type === 'bg') {
+        const key = btn.dataset.theme;
+        if (unlockedThemes.includes(key)) {
+          themeMsg.textContent = '';
+          applyBoardTheme(key);
+          playTone(620, 0.06, 'sine', 0.1, 0);
+          return;
+        }
+        if (coins >= price) {
+          coins -= price;
+          unlockedThemes.push(key);
+          applyBoardTheme(key);
+          updateProgressUI();
+          themeMsg.textContent = `Unlocked ${label}!`;
+          playWinSound('X');
+        } else {
+          themeMsg.textContent = `Need ${formatNum(price - coins)} more coins for ${label}.`;
+          playDrawSound();
+        }
+      } else if (type === 'x') {
+        const key = btn.dataset.xtheme;
+        if (unlockedXThemes.includes(key)) {
+          themeMsg.textContent = '';
+          xTheme = key;
+          saveProgress();
+          updateThemeShopUI();
+          refreshBoardMarks();
+          playTone(620, 0.06, 'sine', 0.1, 0);
+          return;
+        }
+        if (coins >= price) {
+          coins -= price;
+          unlockedXThemes.push(key);
+          xTheme = key;
+          saveProgress();
+          updateProgressUI();
+          updateThemeShopUI();
+          refreshBoardMarks();
+          themeMsg.textContent = `Unlocked X theme: ${label}!`;
+          playWinSound('X');
+        } else {
+          themeMsg.textContent = `Need ${formatNum(price - coins)} more coins for ${label}.`;
+          playDrawSound();
+        }
+      } else if (type === 'o') {
+        const key = btn.dataset.otheme;
+        if (unlockedOThemes.includes(key)) {
+          themeMsg.textContent = '';
+          oTheme = key;
+          saveProgress();
+          updateThemeShopUI();
+          refreshBoardMarks();
+          playTone(620, 0.06, 'sine', 0.1, 0);
+          return;
+        }
+        if (coins >= price) {
+          coins -= price;
+          unlockedOThemes.push(key);
+          oTheme = key;
+          saveProgress();
+          updateProgressUI();
+          updateThemeShopUI();
+          refreshBoardMarks();
+          themeMsg.textContent = `Unlocked O theme: ${label}!`;
+          playWinSound('X');
+        } else {
+          themeMsg.textContent = `Need ${formatNum(price - coins)} more coins for ${label}.`;
+          playDrawSound();
+        }
+      }
+    }
+
+    // 5. Persistent Username Logic (saved in localStorage, changeable once)
+    function loadSavedUsername() {
+      try {
+        const storedName = localStorage.getItem(STORAGE_NAME_KEY);
+        const storedChanges = Number(localStorage.getItem(STORAGE_CHANGES_KEY) || '0');
+        if (storedName) {
+          savedUsername = storedName;
+          usernameChangesUsed = Number.isNaN(storedChanges) ? 1 : storedChanges;
+        }
+      } catch (e) {}
+
+      playerNameInput.value = savedUsername || '';
+      updateUsernameUI();
+    }
+
+    function updateUsernameUI() {
+      if (usernameChangesUsed >= 2) {
+        playerNameInput.disabled = true;
+        saveNameBtn.disabled = true;
+        saveNameBtn.textContent = 'Locked';
+        nameHint.textContent = `Username "${savedUsername}" is permanently locked (changed once).`;
+      } else if (usernameChangesUsed === 1) {
+        playerNameInput.disabled = false;
+        saveNameBtn.disabled = false;
+        saveNameBtn.textContent = 'Rename';
+        nameHint.textContent = `Saved as "${savedUsername}". You can change it 1 more time.`;
+      } else {
+        playerNameInput.disabled = false;
+        saveNameBtn.disabled = false;
+        saveNameBtn.textContent = 'Save';
+        nameHint.textContent = 'Enter your username (can be changed only once after saving).';
+      }
+    }
+
+    function saveUsername() {
+      if (usernameChangesUsed >= 2) return;
+      const entered = playerNameInput.value.trim();
+      if (!entered) {
+        nameHint.textContent = 'Please type a username before saving.';
+        return;
+      }
+      if (entered === savedUsername) {
+        nameHint.textContent = 'Type a different name to rename.';
+        return;
+      }
+
+      savedUsername = entered.slice(0, 18);
+      usernameChangesUsed = usernameChangesUsed === 0 ? 1 : 2;
+
+      try {
+        localStorage.setItem(STORAGE_NAME_KEY, savedUsername);
+        localStorage.setItem(STORAGE_CHANGES_KEY, String(usernameChangesUsed));
+      } catch (e) {}
+
+      updateUsernameUI();
+      updateOnlineRoster();
+      updateLabelsAndTheme();
+      pullFromCloud().then(pushToCloud);
+
+      if (conn && conn.open) {
+        conn.send({ type: 'hello', name: getMyName() });
+      }
+    }
+
+    function getMyName() {
+      return savedUsername || playerNameInput.value.trim() || 'Player';
+    }
+
+    // 6. Synthesized Sound Effects (Web Audio API)
+    function ensureAudio() {
+      if (isMuted) return null;
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return null;
+      if (!audioCtx) {
+        audioCtx = new AudioContextClass();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => {});
+      }
+      return audioCtx;
+    }
+
+    function playTone(freq, duration, type = 'sine', volume = 0.14, delay = 0) {
+      const ctx = ensureAudio();
+      if (!ctx) return;
+
+      const startTime = ctx.currentTime + delay;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, startTime);
+
+      gain.gain.setValueAtTime(0.001, startTime);
+      gain.gain.exponentialRampToValueAtTime(volume, startTime + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(startTime);
+      osc.stop(startTime + duration + 0.02);
+    }
+
+    function playMoveSound(player) {
+      if (gameMode === 'cpu' && difficulty === 'boss' && player === 'O') {
+        playTone(150, 0.14, 'sawtooth', 0.12, 0);
+        playTone(110, 0.16, 'triangle', 0.14, 0.07);
+      } else if (player === 'X') {
+        playTone(540, 0.09, 'sine', 0.14, 0);
+      } else {
+        playTone(410, 0.09, 'triangle', 0.14, 0);
+      }
+    }
+
+    function playWinSound(winner) {
+      if (gameMode === 'cpu' && difficulty === 'boss' && winner === 'O') {
+        playTone(220, 0.18, 'sawtooth', 0.12, 0);
+        playTone(185, 0.18, 'sawtooth', 0.12, 0.16);
+        playTone(146, 0.35, 'sawtooth', 0.14, 0.32);
+      } else {
+        playTone(523.25, 0.12, 'triangle', 0.15, 0);
+        playTone(659.25, 0.12, 'triangle', 0.15, 0.1);
+        playTone(783.99, 0.25, 'triangle', 0.16, 0.2);
+      }
+    }
+
+    function playDrawSound() {
+      playTone(330, 0.12, 'sine', 0.12, 0);
+      playTone(300, 0.2, 'sine', 0.12, 0.12);
+    }
+
+    function playBossIntroSound() {
+      playTone(130.81, 0.16, 'sawtooth', 0.12, 0);
+      playTone(164.81, 0.16, 'sawtooth', 0.12, 0.12);
+      playTone(196.0, 0.26, 'sawtooth', 0.14, 0.24);
+    }
+
+    function playChatSound() {
+      playTone(680, 0.07, 'sine', 0.09, 0);
+      playTone(880, 0.09, 'sine', 0.09, 0.06);
+    }
+
+    // 7. Voice-to-Text Mic (Web Speech API)
+    function toggleMic() {
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRec) {
+        micStatus.textContent = 'Voice input is not supported in this browser.';
+        return;
+      }
+
+      if (isListening && recognition) {
+        recognition.stop();
+        return;
+      }
+
+      recognition = new SpeechRec();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = () => {
+        isListening = true;
+        micBtn.classList.add('listening');
+        micBtn.textContent = 'Stop';
+        micStatus.textContent = 'Listening... speak now.';
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        chatInput.value = chatInput.value ? `${chatInput.value} ${transcript}` : transcript;
+        micStatus.textContent = 'Voice captured! Tap Send.';
+      };
+
+      recognition.onerror = () => {
+        micStatus.textContent = 'Could not hear audio. Check mic permission.';
+      };
+
+      recognition.onend = () => {
+        isListening = false;
+        micBtn.classList.remove('listening');
+        micBtn.textContent = 'Mic';
+      };
+
+      try {
+        recognition.start();
+      } catch (e) {
+        micStatus.textContent = 'Could not start microphone.';
+      }
+    }
+
+    // 8. Helper functions for checking wins & empty squares
+    function getWinnerLine(b) {
+      return winPatterns.find(([a, bIdx, c]) =>
+        b[a] && b[a] === b[bIdx] && b[a] === b[c]
+      ) || null;
+    }
+
+    function getEmptyIndices(b) {
+      const empty = [];
+      for (let i = 0; i < b.length; i++) {
+        if (b[i] === '') empty.push(i);
+      }
+      return empty;
+    }
+
+    function findWinningMove(b, player) {
+      for (const i of getEmptyIndices(b)) {
+        b[i] = player;
+        const wins = getWinnerLine(b) !== null;
+        b[i] = '';
+        if (wins) return i;
+      }
+      return -1;
+    }
+
+    // 9. Minimax algorithm for Boss Mode & Hard Mode
+    function minimax(b, depth, isMaximizing) {
+      const winLine = getWinnerLine(b);
+      if (winLine) {
+        const winner = b[winLine[0]];
+        return winner === 'O' ? 10 - depth : depth - 10;
+      }
+      if (!b.includes('')) return 0;
+
+      if (isMaximizing) {
+        let bestScore = -Infinity;
+        for (const i of getEmptyIndices(b)) {
+          b[i] = 'O';
+          bestScore = Math.max(bestScore, minimax(b, depth + 1, false));
+          b[i] = '';
+        }
+        return bestScore;
+      } else {
+        let bestScore = Infinity;
+        for (const i of getEmptyIndices(b)) {
+          b[i] = 'X';
+          bestScore = Math.min(bestScore, minimax(b, depth + 1, true));
+          b[i] = '';
+        }
+        return bestScore;
+      }
+    }
+
+    function getBestMinimaxMove(b) {
+      let bestScore = -Infinity;
+      let bestMove = -1;
+      for (const i of getEmptyIndices(b)) {
+        b[i] = 'O';
+        const score = minimax(b, 0, false);
+        b[i] = '';
+        if (score > bestScore) {
+          bestScore = score;
+          bestMove = i;
+        }
+      }
+      return bestMove;
+    }
+
+    function chooseComputerMove() {
+      const empty = getEmptyIndices(board);
+      if (empty.length === 0) return -1;
+
+      if (difficulty === 'easy') {
+        return empty[Math.floor(Math.random() * empty.length)];
+      }
+
+      if (difficulty === 'normal') {
+        const winMove = findWinningMove(board, 'O');
+        if (winMove !== -1) return winMove;
+        const blockMove = findWinningMove(board, 'X');
+        if (blockMove !== -1) return blockMove;
+        return empty[Math.floor(Math.random() * empty.length)];
+      }
+
+      if (difficulty === 'hard') {
+        if (Math.random() < 0.75) {
+          return getBestMinimaxMove(board);
+        }
+        const winMove = findWinningMove(board, 'O');
+        if (winMove !== -1) return winMove;
+        const blockMove = findWinningMove(board, 'X');
+        if (blockMove !== -1) return blockMove;
+        return empty[Math.floor(Math.random() * empty.length)];
+      }
+
+      return getBestMinimaxMove(board);
+    }
+
+    // 10. Inline 1/4 Players + 3/4 Server/Personal Chat Logic
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function togglePlayerPersonalChat() {
+      if (selectedPlayerForChat === 'friend') {
+        // Clicking the highlighted player again returns to Server Chat!
+        selectedPlayerForChat = null;
+      } else {
+        selectedPlayerForChat = 'friend';
+        unreadPersonal = 0;
+      }
+      updateOnlineRoster();
+      renderChat();
+    }
+
+    function updateOnlineRoster() {
+      const myName = getMyName();
+      playersListEl.innerHTML = '';
+
+      // Self indicator
+      const meChip = document.createElement('div');
+      meChip.className = 'player-name-btn self-chip';
+      meChip.innerHTML = `<span class="status-dot"></span> <span>${escapeHtml(myName)}</span>`;
+      playersListEl.appendChild(meChip);
+
+      if (isOnlineConnected) {
+        const friendBtn = document.createElement('button');
+        friendBtn.type = 'button';
+        friendBtn.className = 'player-name-btn';
+        if (selectedPlayerForChat === 'friend') {
+          friendBtn.classList.add('selected');
+        }
+        const badgeHtml = unreadPersonal > 0 ? `<span class="unread-badge">${unreadPersonal}</span>` : '';
+        friendBtn.innerHTML = `<span class="status-dot"></span> <span>${escapeHtml(friendName)}</span> ${badgeHtml}`;
+        friendBtn.addEventListener('click', togglePlayerPersonalChat);
+        playersListEl.appendChild(friendBtn);
+      } else {
+        if (selectedPlayerForChat === 'friend') {
+          selectedPlayerForChat = null;
+        }
+        const waitChip = document.createElement('div');
+        waitChip.className = 'player-name-btn self-chip';
+        waitChip.innerHTML = `<span class="status-dot waiting"></span> <span>Waiting...</span>`;
+        playersListEl.appendChild(waitChip);
+      }
+
+      if (selectedPlayerForChat === 'friend') {
+        chatHeaderTitle.textContent = `Personal Chat: ${friendName}`;
+        chatHeaderSub.textContent = 'Tap name again for Server';
+      } else {
+        chatHeaderTitle.textContent = 'Server Chat';
+        chatHeaderSub.textContent = isOnlineConnected ? 'Tap player for personal' : 'Always open';
+      }
+    }
+
+    function renderChat() {
+      const isPersonal = selectedPlayerForChat === 'friend';
+      const channel = isPersonal ? 'personal' : 'server';
+      const history = isPersonal ? personalChatHistory : serverChatHistory;
+      chatMessagesEl.innerHTML = '';
+
+      if (history.length === 0) {
+        chatMessagesEl.innerHTML = isPersonal
+          ? `<div class="chat-empty">Personal Chat with ${escapeHtml(friendName)}. Only you two see this!</div>`
+          : '<div class="chat-empty">Server Chat is open! Send a message or tap ⚔️ Battle.</div>';
+        return;
+      }
+
+      history.forEach((msg) => {
+        if (msg.kind === 'battle') {
+          const card = document.createElement('div');
+          card.className = `battle-card ${msg.isMe ? 'me' : ''}`;
+
+          const title = document.createElement('div');
+          title.className = 'battle-card-title';
+          title.textContent = `⚔️ ${msg.sender}`;
+
+          const body = document.createElement('div');
+          body.className = 'battle-card-text';
+          body.textContent = 'Challenge is here!';
+
+          card.appendChild(title);
+          card.appendChild(body);
+
+          if (msg.status === 'pending') {
+            if (!msg.isMe) {
+              const actions = document.createElement('div');
+              actions.className = 'battle-actions';
+
+              const acceptBtn = document.createElement('button');
+              acceptBtn.type = 'button';
+              acceptBtn.className = 'battle-accept-btn';
+              acceptBtn.textContent = 'Accept';
+              acceptBtn.addEventListener('click', () => respondToBattle(msg.id, channel, 'accepted'));
+
+              const denyBtn = document.createElement('button');
+              denyBtn.type = 'button';
+              denyBtn.className = 'battle-deny-btn';
+              denyBtn.textContent = 'Deny';
+              denyBtn.addEventListener('click', () => respondToBattle(msg.id, channel, 'declined'));
+
+              actions.appendChild(acceptBtn);
+              actions.appendChild(denyBtn);
+              card.appendChild(actions);
+            } else {
+              const wait = document.createElement('div');
+              wait.className = 'battle-status-tag';
+              wait.textContent = 'Challenge sent — waiting...';
+              card.appendChild(wait);
+            }
+          } else if (msg.status === 'accepted') {
+            // Only Accept shown (Deny removed!)
+            const acceptedTag = document.createElement('div');
+            acceptedTag.className = 'battle-status-tag';
+            acceptedTag.textContent = '✓ Accepted';
+            card.appendChild(acceptedTag);
+          } else if (msg.status === 'declined') {
+            const declinedTag = document.createElement('div');
+            declinedTag.className = 'battle-status-tag declined';
+            declinedTag.textContent = '✕ Denied';
+            card.appendChild(declinedTag);
+          }
+
+          const meta = document.createElement('div');
+          meta.className = 'chat-meta';
+          meta.innerHTML = `<span>${escapeHtml(msg.time)}</span>`;
+          card.appendChild(meta);
+
+          chatMessagesEl.appendChild(card);
+          return;
+        }
+
+        const bubble = document.createElement('div');
+        bubble.className = `chat-bubble ${msg.isMe ? 'me' : 'them'}`;
+
+        const textEl = document.createElement('div');
+        textEl.textContent = msg.text;
+
+        const metaEl = document.createElement('div');
+        metaEl.className = 'chat-meta';
+        metaEl.innerHTML = `<span>${escapeHtml(msg.sender)}</span><span>${escapeHtml(msg.time)}</span>`;
+
+        bubble.appendChild(textEl);
+        bubble.appendChild(metaEl);
+        chatMessagesEl.appendChild(bubble);
+      });
+
+      chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+    }
+
+    function sendChatMessage() {
+      const text = chatInput.value.trim();
+      if (!text) return;
+
+      const channel = selectedPlayerForChat === 'friend' ? 'personal' : 'server';
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const sender = getMyName();
+      const targetList = channel === 'server' ? serverChatHistory : personalChatHistory;
+
+      targetList.push({ kind: 'text', sender, text, time, isMe: true });
+      chatInput.value = '';
+      renderChat();
+      playChatSound();
+
+      if (conn && conn.open) {
+        conn.send({ type: 'chat', channel, sender, text, time });
+      }
+    }
+
+    function sendBattleChallenge() {
+      const channel = selectedPlayerForChat === 'friend' ? 'personal' : 'server';
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const sender = getMyName();
+      const id = `btl_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+      const targetList = channel === 'server' ? serverChatHistory : personalChatHistory;
+
+      targetList.push({
+        kind: 'battle',
+        id,
+        sender,
+        time,
+        isMe: true,
+        status: 'pending'
+      });
+      renderChat();
+      playChatSound();
+
+      if (conn && conn.open) {
+        conn.send({
+          type: 'battleInvite',
+          id,
+          channel,
+          sender,
+          time
+        });
+      }
+    }
+
+    function respondToBattle(id, channel, decision) {
+      const list = channel === 'server' ? serverChatHistory : personalChatHistory;
+      const item = list.find((m) => m.kind === 'battle' && m.id === id);
+      if (item) {
+        item.status = decision;
+      }
+      renderChat();
+
+      const myProfile = {
+        name: getMyName(),
+        level: level >= MAX_LEVEL ? '100 (MAX)' : String(level),
+        title: activeTitle,
+        xSym: X_SYMBOLS[xTheme] || 'X',
+        oSym: O_SYMBOLS[oTheme] || 'O'
+      };
+
+      if (conn && conn.open) {
+        conn.send({
+          type: 'battleResponse',
+          id,
+          channel,
+          decision,
+          accepter: myProfile
+        });
+      }
+
+      if (decision === 'accepted') {
+        startNewRound(false);
+      }
+    }
+
+    function showBattleAcceptedNotification(accepter) {
+      battleNotifyBody.innerHTML =
+        `<strong>${escapeHtml(accepter.name)}</strong> accepted your battle!<br>` +
+        `Level: <strong>${escapeHtml(accepter.level)}</strong> • Title: <strong>${escapeHtml(accepter.title)}</strong><br>` +
+        `X Theme: <strong>${escapeHtml(accepter.xSym)}</strong> • O Theme: <strong>${escapeHtml(accepter.oSym)}</strong>`;
+      battleNotify.classList.add('visible');
+      playWinSound('X');
+    }
+
+    function updateShareLinks(code) {
+      const baseUrl = window.location.href.split('?')[0];
+      const inviteUrl = `${baseUrl}?room=${code}`;
+      const waText = encodeURIComponent(`Join my Tic-Tac-Toe room! Code: ${code} — ${inviteUrl}`);
+      whatsappShareBtn.href = `https://wa.me/?text=${waText}`;
+    }
+
+    // 11. Online PeerJS helpers
+    function cleanupPeer() {
+      if (conn) {
+        try { conn.close(); } catch (e) {}
+        conn = null;
+      }
+      if (peer) {
+        try { peer.destroy(); } catch (e) {}
+        peer = null;
+      }
+      isOnlineConnected = false;
+      selectedPlayerForChat = null;
+      activeRoomCode = '';
+      friendName = 'Friend';
+      unreadPersonal = 0;
+      shareRow.classList.remove('visible');
+      updateOnlineRoster();
+      renderChat();
+    }
+
+    function setupConnection(connection) {
+      conn = connection;
+
+      conn.on('open', () => {
+        isOnlineConnected = true;
+        conn.send({ type: 'hello', name: getMyName() });
+        roomInfo.innerHTML = `Connected to room <span class="room-code-badge">${activeRoomCode}</span> — Tap <strong>${escapeHtml(friendName)}</strong> on the left to start Personal Chat!`;
+        updateOnlineRoster();
+        resetScores(false);
+        playChatSound();
+      });
+
+      conn.on('data', (data) => {
+        if (!data || typeof data !== 'object') return;
+        if (data.type === 'hello' && data.name) {
+          const incomingName = String(data.name).slice(0, 18);
+          if (incomingName.toLowerCase() === getMyName().toLowerCase()) {
+            friendName = `${incomingName} (2)`;
+            roomInfo.innerHTML = `Connected! Both players used "${escapeHtml(incomingName)}", so your friend is shown as "${escapeHtml(friendName)}".`;
+          } else {
+            friendName = incomingName;
+          }
+          updateOnlineRoster();
+          updateLabelsAndTheme();
+        } else if (data.type === 'chat' && data.text) {
+          const ch = data.channel === 'personal' ? 'personal' : 'server';
+          const targetList = ch === 'personal' ? personalChatHistory : serverChatHistory;
+
+          targetList.push({
+            kind: 'text',
+            sender: data.sender || friendName,
+            text: data.text,
+            time: data.time || '',
+            isMe: false
+          });
+
+          const currentChannel = selectedPlayerForChat === 'friend' ? 'personal' : 'server';
+          if (ch === 'personal' && currentChannel !== 'personal') {
+            unreadPersonal++;
+            updateOnlineRoster();
+          } else {
+            renderChat();
+          }
+          playChatSound();
+        } else if (data.type === 'battleInvite') {
+          const ch = data.channel === 'personal' ? 'personal' : 'server';
+          const targetList = ch === 'personal' ? personalChatHistory : serverChatHistory;
+
+          targetList.push({
+            kind: 'battle',
+            id: data.id,
+            sender: data.sender || friendName,
+            time: data.time || '',
+            isMe: false,
+            status: 'pending'
+          });
+
+          const currentChannel = selectedPlayerForChat === 'friend' ? 'personal' : 'server';
+          if (ch === 'personal' && currentChannel !== 'personal') {
+            unreadPersonal++;
+            updateOnlineRoster();
+          } else {
+            renderChat();
+          }
+          playBossIntroSound();
+        } else if (data.type === 'battleResponse') {
+          const ch = data.channel === 'personal' ? 'personal' : 'server';
+          const list = ch === 'personal' ? personalChatHistory : serverChatHistory;
+          const item = list.find((m) => m.kind === 'battle' && m.id === data.id);
+          if (item) {
+            item.status = data.decision;
+          }
+          renderChat();
+          if (data.decision === 'accepted' && data.accepter) {
+            showBattleAcceptedNotification(data.accepter);
+            startNewRound(false);
+          }
+        } else if (data.type === 'move' && typeof data.index === 'number') {
+          if (!gameOver && board[data.index] === '') {
+            makeMove(data.index);
+          }
+        } else if (data.type === 'newRound') {
+          startNewRound(false);
+        } else if (data.type === 'resetScore') {
+          resetScores(false);
+        }
+      });
+
+      conn.on('close', () => {
+        isOnlineConnected = false;
+        selectedPlayerForChat = null;
+        updateOnlineRoster();
+        renderChat();
+        roomInfo.textContent = 'Friend disconnected. Create or join a room to play again.';
+        statusEl.textContent = 'Friend disconnected';
+      });
+
+      conn.on('error', () => {
+        isOnlineConnected = false;
+        updateOnlineRoster();
+        roomInfo.textContent = 'Connection error. Please try creating or joining the room again.';
+      });
+    }
+
+    function createOnlineRoom() {
+      if (typeof Peer === 'undefined') {
+        roomInfo.textContent = 'Online service is still loading or blocked. Check your internet connection.';
+        return;
+      }
+
+      cleanupPeer();
+      mySymbol = 'X';
+      const code = String(Math.floor(1000 + Math.random() * 9000));
+      activeRoomCode = code;
+      roomInfo.textContent = 'Creating room...';
+
+      try {
+        peer = new Peer(ROOM_PREFIX + code);
+
+        peer.on('open', () => {
+          roomInfo.innerHTML = `Room <span class="room-code-badge">${code}</span> ready! Share this code or link on WhatsApp.`;
+          updateShareLinks(code);
+          shareRow.classList.add('visible');
+          statusEl.textContent = 'Waiting for friend to join...';
+          updateOnlineRoster();
+        });
+
+        peer.on('connection', (incomingConn) => {
+          if (conn && conn.open) {
+            incomingConn.close();
+            return;
+          }
+          setupConnection(incomingConn);
+        });
+
+        peer.on('error', (err) => {
+          if (err && err.type === 'unavailable-id') {
+            createOnlineRoom();
+          } else {
+            roomInfo.textContent = 'Could not connect to room server. Check your internet and try again.';
+          }
+        });
+      } catch (e) {
+        roomInfo.textContent = 'Could not start online room. Check your internet connection.';
+      }
+    }
+
+    function joinOnlineRoom(explicitCode) {
+      if (typeof Peer === 'undefined') {
+        roomInfo.textContent = 'Online service is still loading or blocked. Check your internet connection.';
+        return;
+      }
+
+      const code = (explicitCode || roomCodeInput.value).trim();
+      if (!/^\d{4}$/.test(code)) {
+        roomInfo.textContent = 'Please enter a valid 4-digit room code.';
+        return;
+      }
+
+      cleanupPeer();
+      mySymbol = 'O';
+      activeRoomCode = code;
+      roomCodeInput.value = code;
+      roomInfo.textContent = `Joining room ${code}...`;
+
+      try {
+        peer = new Peer();
+
+        peer.on('open', () => {
+          const outgoingConn = peer.connect(ROOM_PREFIX + code, { reliable: true });
+          setupConnection(outgoingConn);
+        });
+
+        peer.on('error', () => {
+          isOnlineConnected = false;
+          updateOnlineRoster();
+          roomInfo.textContent = `Could not find room ${code}. Make sure your friend created it first.`;
+        });
+      } catch (e) {
+        roomInfo.textContent = 'Could not join room. Check your internet connection.';
+      }
+    }
+
+    function copyText(text, btn, defaultLabel) {
+      const showCopied = () => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = defaultLabel; }, 1500);
+      };
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(showCopied).catch(() => fallbackCopy(text, showCopied));
+      } else {
+        fallbackCopy(text, showCopied);
+      }
+    }
+
+    function fallbackCopy(text, onDone) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      if (onDone) onDone();
+    }
+
+    // 12. Place a move on the board and check game status
+    function makeMove(index) {
+      board[index] = currentPlayer;
+      const cell = cells[index];
+      cell.textContent = getMarkDisplay(currentPlayer);
+      cell.classList.add(currentPlayer === 'X' ? 'x-color' : 'o-color', 'placed');
+      cell.disabled = true;
+
+      playMoveSound(currentPlayer);
+
+      const winningLine = getWinnerLine(board);
+      if (winningLine) {
+        gameOver = true;
+        winningLine.forEach((i) => cells[i].classList.add('win'));
+        cells.forEach((c) => (c.disabled = true));
+        scores[currentPlayer]++;
+        updateScoreboard();
+        playWinSound(currentPlayer);
+        awardMatchRewards();
+
+        if (gameMode === 'cpu') {
+          if (currentPlayer === 'X') {
+            statusEl.textContent = 'You win!';
+          } else {
+            statusEl.textContent = difficulty === 'boss' ? 'The Boss wins!' : 'Computer wins!';
+          }
+        } else if (gameMode === 'online') {
+          statusEl.textContent = currentPlayer === mySymbol ? 'You win!' : `${friendName} wins!`;
+        } else {
+          statusEl.textContent = `Player ${currentPlayer} wins!`;
+        }
+        return;
+      }
+
+      if (!board.includes('')) {
+        gameOver = true;
+        statusEl.textContent = difficulty === 'boss' && gameMode === 'cpu'
+          ? 'Draw! You survived the Boss!'
+          : "It's a draw!";
+        scores.draw++;
+        updateScoreboard();
+        playDrawSound();
+        awardMatchRewards();
+        return;
+      }
+
+      currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+      updateTurnStatus();
+
+      if (gameMode === 'cpu' && currentPlayer === 'O' && !gameOver) {
+        isComputerThinking = true;
+        cpuTimer = setTimeout(() => {
+          isComputerThinking = false;
+          const move = chooseComputerMove();
+          if (move !== -1) makeMove(move);
+        }, 350);
+      }
+    }
+
+    function handleCellClick(event) {
+      if (isComputerThinking || gameOver) return;
+      if (gameMode === 'online') {
+        if (!isOnlineConnected || currentPlayer !== mySymbol) return;
+      }
+      const index = Number(event.target.dataset.index);
+      if (board[index] !== '') return;
+
+      makeMove(index);
+      if (gameMode === 'online' && conn && conn.open) {
+        conn.send({ type: 'move', index });
+      }
+    }
+
+    function updateTurnStatus() {
+      if (gameMode === '2p') {
+        statusEl.textContent = `Player ${currentPlayer}'s turn`;
+      } else if (gameMode === 'cpu') {
+        if (currentPlayer === 'X') {
+          statusEl.textContent = 'Your turn (X)';
+        } else {
+          statusEl.textContent = difficulty === 'boss' ? 'Boss is thinking...' : 'Computer is thinking...';
+        }
+      } else {
+        if (!isOnlineConnected) {
+          statusEl.textContent = activeRoomCode ? 'Waiting for friend to join...' : 'Create or join a room to start';
+        } else if (currentPlayer === mySymbol) {
+          statusEl.textContent = `Your turn (${mySymbol})`;
+        } else {
+          statusEl.textContent = `${friendName}'s turn (${currentPlayer})`;
+        }
+      }
+    }
+
+    function updateScoreboard() {
+      scoreXEl.textContent = scores.X;
+      scoreOEl.textContent = scores.O;
+      scoreDrawEl.textContent = scores.draw;
+    }
+
+    function updateLabelsAndTheme() {
+      document.body.classList.remove('easy-theme', 'normal-theme', 'hard-theme', 'boss-theme');
+
+      if (gameMode === '2p') {
+        labelXEl.textContent = 'Player X';
+        labelOEl.textContent = 'Player O';
+      } else if (gameMode === 'cpu') {
+        labelXEl.textContent = 'You (X)';
+        labelOEl.textContent = difficulty === 'boss' ? 'Boss (O)' : 'Computer (O)';
+        document.body.classList.add(`${difficulty}-theme`);
+      } else {
+        labelXEl.textContent = mySymbol === 'X' ? `${getMyName()} (X)` : `${friendName} (X)`;
+        labelOEl.textContent = mySymbol === 'O' ? `${getMyName()} (O)` : `${friendName} (O)`;
+      }
+    }
+
+    function startNewRound(broadcast = true) {
+      if (cpuTimer) {
+        clearTimeout(cpuTimer);
+        cpuTimer = null;
+      }
+      isComputerThinking = false;
+      board = ['', '', '', '', '', '', '', '', ''];
+      currentPlayer = 'X';
+      gameOver = false;
+
+      cells.forEach((cell) => {
+        cell.textContent = '';
+        cell.disabled = false;
+        cell.classList.remove('x-color', 'o-color', 'win', 'placed');
+      });
+
+      updateLabelsAndTheme();
+      updateTurnStatus();
+
+      if (broadcast && gameMode === 'online' && conn && conn.open) {
+        conn.send({ type: 'newRound' });
+      }
+    }
+
+    function resetScores(broadcast = true) {
+      scores = { X: 0, O: 0, draw: 0 };
+      updateScoreboard();
+      startNewRound(false);
+
+      if (broadcast && gameMode === 'online' && conn && conn.open) {
+        conn.send({ type: 'resetScore' });
+      }
+    }
+
+    function setGameMode(mode) {
+      if (mode !== 'online') {
+        cleanupPeer();
+      }
+      gameMode = mode;
+      mode2pBtn.classList.toggle('active', mode === '2p');
+      modeCpuBtn.classList.toggle('active', mode === 'cpu');
+      modeOnlineBtn.classList.toggle('active', mode === 'online');
+      difficultyBar.classList.toggle('visible', mode === 'cpu');
+      onlinePanel.classList.toggle('visible', mode === 'online');
+      updateOnlineRoster();
+      renderChat();
+      resetScores(false);
+    }
+
+    function setDifficulty(diff) {
+      difficulty = diff;
+      diffButtons.forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.diff === diff);
+      });
+      resetScores(false);
+      if (diff === 'boss') {
+        playBossIntroSound();
+      }
+    }
+
+    // 13. Connect all event listeners
+    closeNotifyBtn.addEventListener('click', () => battleNotify.classList.remove('visible'));
+
+    document.getElementById('authAreaBtn').addEventListener('click', () => {
+      const isOpen = document.getElementById('authPanel').classList.toggle('visible');
+      document.getElementById('authAreaBtn').setAttribute('aria-expanded', String(isOpen));
+      document.getElementById('authMsg').textContent = '';
+    });
+    document.getElementById('authSignInBtn').addEventListener('click', () => firebaseAuthAction('signIn'));
+    document.getElementById('authSignUpBtn').addEventListener('click', () => firebaseAuthAction('signUp'));
+
+    redeemAreaBtn.addEventListener('click', () => {
+      const isOpen = redeemPanel.classList.toggle('visible');
+      redeemAreaBtn.setAttribute('aria-expanded', String(isOpen));
+      redeemMsg.textContent = '';
+    });
+    document.getElementById('redeemBtn').addEventListener('click', handleRedeemCode);
+    document.getElementById('redeemInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleRedeemCode(); });
+
+    titlesAreaBtn.addEventListener('click', toggleTitlesPanel);
+    titleToggleBtn.addEventListener('click', toggleTitlesPanel);
+
+    themeToggleBtn.addEventListener('click', () => {
+      const isOpen = themePanel.classList.toggle('visible');
+      themeToggleBtn.classList.toggle('active', isOpen);
+      themeToggleBtn.setAttribute('aria-expanded', String(isOpen));
+      themeMsg.textContent = '';
+    });
+
+    bgOptions.forEach((btn) => btn.addEventListener('click', () => handleThemeGroupClick(btn, 'bg')));
+    xOptions.forEach((btn) => btn.addEventListener('click', () => handleThemeGroupClick(btn, 'x')));
+    oOptions.forEach((btn) => btn.addEventListener('click', () => handleThemeGroupClick(btn, 'o')));
+
+    soundToggleBtn.addEventListener('click', () => {
+      isMuted = !isMuted;
+      soundToggleBtn.textContent = isMuted ? 'Sound: Off' : 'Sound: On';
+      soundToggleBtn.classList.toggle('muted', isMuted);
+      soundToggleBtn.setAttribute('aria-pressed', String(isMuted));
+      if (!isMuted) playTone(520, 0.07, 'sine', 0.1, 0);
+    });
+
+    cells.forEach((cell) => cell.addEventListener('click', handleCellClick));
+    newRoundBtn.addEventListener('click', () => startNewRound(true));
+    resetScoreBtn.addEventListener('click', () => resetScores(true));
+    mode2pBtn.addEventListener('click', () => setGameMode('2p'));
+    modeCpuBtn.addEventListener('click', () => setGameMode('cpu'));
+    modeOnlineBtn.addEventListener('click', () => setGameMode('online'));
+    diffButtons.forEach((btn) => {
+      btn.addEventListener('click', () => setDifficulty(btn.dataset.diff));
+    });
+
+    saveNameBtn.addEventListener('click', saveUsername);
+    playerNameInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') saveUsername();
+    });
+
+    battleBtn.addEventListener('click', sendBattleChallenge);
+    micBtn.addEventListener('click', toggleMic);
+
+    createRoomBtn.addEventListener('click', createOnlineRoom);
+    joinRoomBtn.addEventListener('click', () => joinOnlineRoom());
+    roomCodeInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') joinOnlineRoom();
+    });
+    copyCodeBtn.addEventListener('click', () => {
+      if (activeRoomCode) copyText(activeRoomCode, copyCodeBtn, 'Copy Code');
+    });
+    copyLinkBtn.addEventListener('click', () => {
+      if (activeRoomCode) {
+        const baseUrl = window.location.href.split('?')[0];
+        copyText(`${baseUrl}?room=${activeRoomCode}`, copyLinkBtn, 'Copy Invite Link');
+      }
+    });
+
+    sendChatBtn.addEventListener('click', sendChatMessage);
+    chatInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') sendChatMessage();
+    });
+
+    // 14. Init on load (works whether DOMContentLoaded already fired or not)
+    if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
+    function initApp() {
+      try {
+        try {
+          const savedAuth = JSON.parse(localStorage.getItem(STORAGE_AUTH_KEY) || 'null');
+          if (savedAuth && savedAuth.uid) {
+            firebaseUid = savedAuth.uid;
+            firebaseToken = savedAuth.token || null;
+            if (savedAuth.email) {
+              activeEmail = savedAuth.email;
+              document.getElementById('authEmailInput').value = savedAuth.email;
+              document.getElementById('authAreaBtn').textContent = savedAuth.email.split('@')[0].slice(0, 10);
+            }
+          }
+        } catch (e) {}
+        loadProgress();
+        loadSavedUsername();
+        updateOnlineRoster();
+        renderChat();
+        const params = new URLSearchParams(window.location.search);
+        const roomParam = params.get('room');
+        if (roomParam && /^\d{4}$/.test(roomParam)) {
+          setGameMode('online');
+          joinOnlineRoom(roomParam);
+        }
+      } catch (e) {}
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js" async defer></script>
+</body>
+</html>
