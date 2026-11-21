@@ -17,11 +17,6 @@
       padding: 0;
     }
 
-    html, body {
-      overscroll-behavior: none;
-      overscroll-behavior-y: contain;
-    }
-
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: #f4f6fb;
@@ -1111,74 +1106,6 @@
     body.boss-theme .board.theme-classic { background: #150c22; }
     body.boss-theme .board.theme-classic .cell { background: #1a0f2b; border-color: #4c2875; }
 
-    /* Combo Board 1: Cricket Pitch */
-    .board.theme-cricket {
-      background: repeating-linear-gradient(90deg, #15803d, #15803d 28px, #16a34a 28px, #16a34a 56px);
-      border: 3px solid #fef08a;
-      box-shadow: inset 0 0 18px rgba(0,0,0,0.25);
-    }
-    .board.theme-cricket .cell {
-      background: rgba(255, 255, 255, 0.88);
-      border: 2px solid #86efac;
-    }
-    .board.theme-cricket .cell:hover:not(:disabled) { background: #dcfce7; }
-    .board.theme-cricket .cell.win { background: #fef08a; border-color: #ca8a04; }
-
-    /* Combo Board 2: Fire & Ice */
-    .board.theme-fireice {
-      background: linear-gradient(135deg, #7f1d1d, #1e293b 50%, #0c4a6e);
-      border: 2px solid #38bdf8;
-      box-shadow: 0 8px 24px rgba(14, 165, 233, 0.25);
-    }
-    .board.theme-fireice .cell {
-      background: rgba(15, 23, 42, 0.78);
-      border: 2px solid #f87171;
-    }
-    .board.theme-fireice .cell:hover:not(:disabled) { background: rgba(30, 41, 59, 0.95); border-color: #38bdf8; }
-    .board.theme-fireice .cell.win { background: #14532d; border-color: #4ade80; }
-
-    /* Combo Board 3: Royal Gold & Obsidian */
-    .board.theme-royalgold {
-      background: linear-gradient(135deg, #09090b, #27272a);
-      border: 3px solid #f59e0b;
-      box-shadow: 0 10px 26px rgba(245, 158, 11, 0.25);
-    }
-    .board.theme-royalgold .cell {
-      background: #18181b;
-      border: 2px solid #d97706;
-    }
-    .board.theme-royalgold .cell:hover:not(:disabled) { background: #27272a; border-color: #fbbf24; }
-    .board.theme-royalgold .cell.win { background: #422006; border-color: #facc15; }
-
-    .combo-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 7px;
-      margin-bottom: 6px;
-    }
-    .combo-card {
-      padding: 9px 10px;
-      border-radius: 10px;
-      border: 2px solid #cbd5e1;
-      background: #ffffff;
-      color: #1e293b;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      cursor: pointer;
-      text-align: left;
-      transition: transform 0.12s, border-color 0.15s;
-    }
-    .combo-card:hover { transform: translateY(-1px); }
-    .combo-card.active { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2); }
-    .combo-info { display: flex; flex-direction: column; gap: 2px; }
-    .combo-name { font-size: 0.82rem; font-weight: 700; }
-    .combo-sub { font-size: 0.7rem; color: #64748b; }
-    .combo-price { font-size: 0.74rem; font-weight: 700; color: #b45309; white-space: nowrap; }
-    .combo-card.owned .combo-price { color: #16a34a; }
-    .cricket-bats-icon { display: inline-flex; align-items: center; justify-content: center; width: 1.2em; height: 1.2em; }
-
     /* Neon Arcade */
     .board.theme-neon {
       background: #090d16;
@@ -1307,7 +1234,7 @@
         <button id="authAreaBtn" class="pill-btn login-btn" type="button" aria-expanded="false">Account</button>
           <button id="redeemAreaBtn" class="pill-btn" type="button" aria-expanded="false">Redeem</button>
         <button id="titlesAreaBtn" class="pill-btn" type="button" aria-expanded="false">Titles</button>
-        <button id="themeToggleBtn" class="pill-btn" type="button" aria-expanded="false">Marketplace</button>
+        <button id="themeToggleBtn" class="pill-btn" type="button" aria-expanded="false">Theme Shop</button>
         <button id="soundToggleBtn" class="pill-btn" type="button" aria-pressed="false">Sound: On</button>
       </div>
     </div>
@@ -1370,33 +1297,8 @@
       <div id="titlesList" class="titles-grid"></div>
     </div>
 
-    <!-- MARKETPLACE PANEL: COMBO THEMES (3), BACKGROUND THEME (6), X (6), O (6) -->
+    <!-- THEME SHOP PANEL: BACKGROUND THEME (6), X (6), O (6) -->
     <div id="themePanel" class="theme-panel">
-      <div class="theme-section-title">Combo Themes (BG + X + O)</div>
-      <div class="combo-grid">
-        <button class="combo-card" type="button" data-combo="cricket" data-bg="cricket" data-x="cricket_bats" data-o="cricket_ball" data-price="150">
-          <div class="combo-info">
-            <span class="combo-name">🏏 Cricket Pitch Combo</span>
-            <span class="combo-sub">Grass Pitch + Crossed Bats (X) + Leather Ball (O)</span>
-          </div>
-          <span class="combo-price">150 Coins</span>
-        </button>
-        <button class="combo-card" type="button" data-combo="fireice" data-bg="fireice" data-x="redx" data-o="bluering" data-price="250">
-          <div class="combo-info">
-            <span class="combo-name">🔥❄️ Fire &amp; Ice Combo</span>
-            <span class="combo-sub">Fire-Ice Arena + Crimson X + Frost Ring O</span>
-          </div>
-          <span class="combo-price">250 Coins</span>
-        </button>
-        <button class="combo-card" type="button" data-combo="royalgold" data-bg="royalgold" data-x="swords" data-o="goldring" data-price="400">
-          <div class="combo-info">
-            <span class="combo-name">👑 Royal Gold Combo</span>
-            <span class="combo-sub">Obsidian Gold Board + Crossed Swords X + Gold O</span>
-          </div>
-          <span class="combo-price">400 Coins</span>
-        </button>
-      </div>
-
       <div class="theme-section-title">Background Theme</div>
       <div class="theme-grid">
         <button class="theme-option bg-option owned active" type="button" data-theme="classic" data-price="0">
@@ -1433,68 +1335,68 @@
 
       <div class="theme-section-title">X</div>
       <div class="theme-grid">
-        <button class="theme-option x-option owned active" type="button" data-xtheme="classic" data-price="0">
+        <button class="theme-option x-option owned active" type="button" data-xtheme="classic" data-symbol="X" data-price="0">
           <span class="mark-preview x-color">X</span>
           <span>Classic X</span>
           <span class="theme-price">Free</span>
         </button>
-        <button class="theme-option x-option" type="button" data-xtheme="swords" data-price="10">
-          <span class="mark-preview">⚔️</span>
-          <span>Battle Swords</span>
+        <button class="theme-option x-option" type="button" data-xtheme="bolt" data-symbol="⚡" data-price="10">
+          <span class="mark-preview">⚡</span>
+          <span>Bolt</span>
           <span class="theme-price">10 Coins</span>
         </button>
-        <button class="theme-option x-option" type="button" data-xtheme="heavyx" data-price="25">
-          <span class="mark-preview">✖️</span>
-          <span>Heavy X</span>
+        <button class="theme-option x-option" type="button" data-xtheme="fire" data-symbol="🔥" data-price="25">
+          <span class="mark-preview">🔥</span>
+          <span>Fire</span>
           <span class="theme-price">25 Coins</span>
         </button>
-        <button class="theme-option x-option" type="button" data-xtheme="redx" data-price="50">
-          <span class="mark-preview">❌</span>
-          <span>Crimson X</span>
+        <button class="theme-option x-option" type="button" data-xtheme="sword" data-symbol="⚔️" data-price="50">
+          <span class="mark-preview">⚔️</span>
+          <span>Blades</span>
           <span class="theme-price">50 Coins</span>
         </button>
-        <button class="theme-option x-option" type="button" data-xtheme="tools" data-price="120">
-          <span class="mark-preview">⚒️</span>
-          <span>Cross Hammers</span>
+        <button class="theme-option x-option" type="button" data-xtheme="diamond" data-symbol="💎" data-price="120">
+          <span class="mark-preview">💎</span>
+          <span>Diamond</span>
           <span class="theme-price">120 Coins</span>
         </button>
-        <button class="theme-option x-option" type="button" data-xtheme="sparkx" data-price="250">
-          <span class="mark-preview x-color">✕</span>
-          <span>Sharp Cross</span>
+        <button class="theme-option x-option" type="button" data-xtheme="crown" data-symbol="👑" data-price="250">
+          <span class="mark-preview">👑</span>
+          <span>Crown</span>
           <span class="theme-price">250 Coins</span>
         </button>
       </div>
 
       <div class="theme-section-title">O</div>
       <div class="theme-grid">
-        <button class="theme-option o-option owned active" type="button" data-otheme="classic" data-price="0">
+        <button class="theme-option o-option owned active" type="button" data-otheme="classic" data-symbol="O" data-price="0">
           <span class="mark-preview o-color">O</span>
           <span>Classic O</span>
           <span class="theme-price">Free</span>
         </button>
-        <button class="theme-option o-option" type="button" data-otheme="redring" data-price="10">
-          <span class="mark-preview">⭕</span>
-          <span>Red Ring</span>
+        <button class="theme-option o-option" type="button" data-otheme="star" data-symbol="⭐" data-price="10">
+          <span class="mark-preview">⭐</span>
+          <span>Star</span>
           <span class="theme-price">10 Coins</span>
         </button>
-        <button class="theme-option o-option" type="button" data-otheme="bluering" data-price="25">
-          <span class="mark-preview">🔵</span>
-          <span>Blue Orb</span>
+        <button class="theme-option o-option" type="button" data-otheme="moon" data-symbol="🌙" data-price="25">
+          <span class="mark-preview">🌙</span>
+          <span>Moon</span>
           <span class="theme-price">25 Coins</span>
         </button>
-        <button class="theme-option o-option" type="button" data-otheme="purplering" data-price="50">
-          <span class="mark-preview">🟣</span>
-          <span>Purple Orb</span>
+        <button class="theme-option o-option" type="button" data-otheme="target" data-symbol="🎯" data-price="50">
+          <span class="mark-preview">🎯</span>
+          <span>Target</span>
           <span class="theme-price">50 Coins</span>
         </button>
-        <button class="theme-option o-option" type="button" data-otheme="disc" data-price="120">
-          <span class="mark-preview">💿</span>
-          <span>Silver Disc</span>
+        <button class="theme-option o-option" type="button" data-otheme="shield" data-symbol="🛡️" data-price="120">
+          <span class="mark-preview">🛡️</span>
+          <span>Shield</span>
           <span class="theme-price">120 Coins</span>
         </button>
-        <button class="theme-option o-option" type="button" data-otheme="goldring" data-price="250">
-          <span class="mark-preview">🪙</span>
-          <span>Gold Coin O</span>
+        <button class="theme-option o-option" type="button" data-otheme="galaxy" data-symbol="🌀" data-price="250">
+          <span class="mark-preview">🌀</span>
+          <span>Vortex</span>
           <span class="theme-price">250 Coins</span>
         </button>
       </div>
@@ -1624,26 +1526,21 @@
 
     const X_SYMBOLS = {
       classic: 'X',
-      swords: '⚔️',
-      heavyx: '✖️',
-      redx: '❌',
-      tools: '⚒️',
-      sparkx: '✕',
-      cricket_bats: '🏏'
+      bolt: '⚡',
+      fire: '🔥',
+      sword: '⚔️',
+      diamond: '💎',
+      crown: '👑'
     };
 
     const O_SYMBOLS = {
       classic: 'O',
-      redring: '⭕',
-      bluering: '🔵',
-      purplering: '🟣',
-      disc: '💿',
-      goldring: '🪙',
-      cricket_ball: '🔴'
+      star: '⭐',
+      moon: '🌙',
+      target: '🎯',
+      shield: '🛡️',
+      galaxy: '🌀'
     };
-
-    const CROSSED_BATS_SVG = '<svg class="cricket-bats-icon" viewBox="0 0 64 64" aria-hidden="true"><g transform="rotate(45 32 32)"><rect x="28" y="6" width="8" height="16" rx="2" fill="#1e293b"/><rect x="25" y="21" width="14" height="36" rx="4" fill="#d97706" stroke="#78350f" stroke-width="2"/></g><g transform="rotate(-45 32 32)"><rect x="28" y="6" width="8" height="16" rx="2" fill="#1e293b"/><rect x="25" y="21" width="14" height="36" rx="4" fill="#f59e0b" stroke="#78350f" stroke-width="2"/></g></svg>';
-    const CRICKET_BALL_SVG = '<svg class="cricket-bats-icon" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="24" fill="#b91c1c" stroke="#7f1d1d" stroke-width="3"/><path d="M16 18 Q32 32 48 46" stroke="#fef2f2" stroke-width="3" stroke-dasharray="4 3" fill="none"/></svg>';
 
     // Firebase Auth & Firestore Cloud Sync (project: tic-tac-toe-e0de4)
     const FIREBASE_PROJECT_ID = 'tic-tac-toe-e0de4';
@@ -1678,7 +1575,6 @@
     let unlockedThemes = ['classic'];
     let unlockedXThemes = ['classic'];
     let unlockedOThemes = ['classic'];
-    let unlockedCombos = [];
     let activeTitle = 'Rookie';
     let isOwner = false;
     let redeemedCodes = [];
@@ -1693,10 +1589,10 @@
     let savedUsername = '';
     let usernameChangesUsed = 0;
 
-    // Online multiplayer & inline 1/4 + 3/4 chat state (Firebase Firestore Room Sync)
-    let roomPollTimer = null;
-    let roomRoundId = 1;
-    let lastNotifiedBattleId = '';
+    // Online multiplayer & inline 1/4 + 3/4 chat state
+    const ROOM_PREFIX = 'ttt-gem-';
+    let peer = null;
+    let conn = null;
     let mySymbol = 'X';
     let activeRoomCode = '';
     let isOnlineConnected = false;
@@ -1704,9 +1600,6 @@
     let selectedPlayerForChat = null; // null = Server Chat; 'friend' = Personal Chat
     let serverChatHistory = [];
     let personalChatHistory = [];
-    let roomMessages = [];
-    let lastMessagesJson = "[]";
-    let lastRosterKey = "";
     let unreadPersonal = 0;
     let recognition = null;
     let isListening = false;
@@ -1916,7 +1809,6 @@
         setCloudStatus('☁️ Syncing...');
         const payload = toFirestoreFields({
           coins, level, xp, unlockedThemes, unlockedXThemes, unlockedOThemes,
-          unlockedCombos,
           boardTheme, xTheme, oTheme, activeTitle, isOwner, redeemedCodes
         });
         const res = await fetch(`${FIRESTORE_BASE}/players/${encodeURIComponent(pid)}?key=${FIREBASE_API_KEY}`, {
@@ -1982,7 +1874,6 @@
           unlockedThemes,
           unlockedXThemes,
           unlockedOThemes,
-          unlockedCombos,
           boardTheme,
           xTheme,
           oTheme,
@@ -2007,10 +1898,9 @@
         level = MAX_LEVEL;
         xp = 0;
         coins = data && typeof data.coins === 'number' ? Math.max(900000, data.coins) : 900000;
-        unlockedThemes = ['classic', 'dots', 'wood', 'pixel', 'galaxy', 'neon', 'cricket', 'fireice', 'royalgold'];
-        unlockedXThemes = ['classic', 'swords', 'heavyx', 'redx', 'tools', 'sparkx', 'cricket_bats'];
-        unlockedOThemes = ['classic', 'redring', 'bluering', 'purplering', 'disc', 'goldring', 'cricket_ball'];
-        unlockedCombos = ['cricket', 'fireice', 'royalgold'];
+        unlockedThemes = ['classic', 'dots', 'wood', 'pixel', 'galaxy', 'neon'];
+        unlockedXThemes = ['classic', 'bolt', 'fire', 'sword', 'diamond', 'crown'];
+        unlockedOThemes = ['classic', 'star', 'moon', 'target', 'shield', 'galaxy'];
         boardTheme = data && data.boardTheme ? data.boardTheme : 'classic';
         xTheme = data && data.xTheme ? data.xTheme : 'classic';
         oTheme = data && data.oTheme ? data.oTheme : 'classic';
@@ -2077,10 +1967,9 @@
         level = MAX_LEVEL;
         xp = 0;
         coins = Math.max(coins, 900000);
-        unlockedThemes = ['classic', 'dots', 'wood', 'pixel', 'galaxy', 'neon', 'cricket', 'fireice', 'royalgold'];
-        unlockedXThemes = ['classic', 'swords', 'heavyx', 'redx', 'tools', 'sparkx', 'cricket_bats'];
-        unlockedOThemes = ['classic', 'redring', 'bluering', 'purplering', 'disc', 'goldring', 'cricket_ball'];
-        unlockedCombos = ['cricket', 'fireice', 'royalgold'];
+        unlockedThemes = ['classic', 'dots', 'wood', 'pixel', 'galaxy', 'neon'];
+        unlockedXThemes = ['classic', 'bolt', 'fire', 'sword', 'diamond', 'crown'];
+        unlockedOThemes = ['classic', 'star', 'moon', 'target', 'shield', 'galaxy'];
         activeTitle = 'Owner';
         saveProgress();
         updateProgressUI();
@@ -2110,15 +1999,15 @@
         if (level >= MAX_LEVEL) xp = 0;
         rewardMsg = `Redeemed! Jumped to Level ${level >= MAX_LEVEL ? '100 (MAX)' : level}!`;
       } else if (raw === 'firex') {
-        if (!unlockedXThemes.includes('redx')) unlockedXThemes.push('redx');
-        xTheme = 'redx';
+        if (!unlockedXThemes.includes('fire')) unlockedXThemes.push('fire');
+        xTheme = 'fire';
         refreshBoardMarks();
-        rewardMsg = 'Redeemed! Crimson X (❌) unlocked and equipped!';
+        rewardMsg = 'Redeemed! Fire (🔥) X Theme unlocked and equipped!';
       } else if (raw === 'staro') {
-        if (!unlockedOThemes.includes('goldring')) unlockedOThemes.push('goldring');
-        oTheme = 'goldring';
+        if (!unlockedOThemes.includes('star')) unlockedOThemes.push('star');
+        oTheme = 'star';
         refreshBoardMarks();
-        rewardMsg = 'Redeemed! Gold Coin O (🪙) unlocked and equipped!';
+        rewardMsg = 'Redeemed! Star (⭐) O Theme unlocked and equipped!';
       } else {
         redeemMsg.textContent = 'Invalid redeem code.';
         playDrawSound();
@@ -2138,26 +2027,11 @@
 
 
     function awardMatchRewards() {
-      let xpGain = 1;
-      let coinGain = 1;
-
-      if (gameMode === '2p') {
-        xpGain = 0.1;
-        coinGain = 1;
-      } else if (gameMode === 'cpu') {
-        if (difficulty === 'easy') { xpGain = 1; coinGain = 2; }
-        else if (difficulty === 'normal') { xpGain = 3; coinGain = 2; }
-        else if (difficulty === 'hard') { xpGain = 7; coinGain = 5; }
-        else if (difficulty === 'boss') { xpGain = 100000; coinGain = 100000; }
-      } else if (gameMode === 'online') {
-        xpGain = 1;
-        coinGain = 1;
-      }
-
-      coins += coinGain;
+      const reward = gameMode === 'online' ? 1 : 0.5;
+      coins += reward;
 
       if (level < MAX_LEVEL) {
-        xp += xpGain;
+        xp += reward;
         let leveledUp = false;
         while (level < MAX_LEVEL && xp >= getMaxXpForLevel(level)) {
           xp -= getMaxXpForLevel(level);
@@ -2232,20 +2106,10 @@
       return O_SYMBOLS[oTheme] || 'O';
     }
 
-    function setCellMark(cell, player) {
-      if (player === 'X' && xTheme === 'cricket_bats') {
-        cell.innerHTML = CROSSED_BATS_SVG;
-      } else if (player === 'O' && oTheme === 'cricket_ball') {
-        cell.innerHTML = CRICKET_BALL_SVG;
-      } else {
-        cell.textContent = getMarkDisplay(player);
-      }
-    }
-
     function refreshBoardMarks() {
       cells.forEach((cell, i) => {
         if (board[i] === 'X' || board[i] === 'O') {
-          setCellMark(cell, board[i]);
+          cell.textContent = getMarkDisplay(board[i]);
         }
       });
     }
@@ -2277,67 +2141,10 @@
       });
     }
 
-    const comboCards = document.querySelectorAll('.combo-card');
-    function updateComboShopUI() {
-      comboCards.forEach((btn) => {
-        const key = btn.dataset.combo;
-        const price = Number(btn.dataset.price || 0);
-        const owned = unlockedCombos.includes(key);
-        const isActive = boardTheme === btn.dataset.bg && xTheme === btn.dataset.x && oTheme === btn.dataset.o;
-        btn.classList.toggle('owned', owned);
-        btn.classList.toggle('active', isActive);
-        const priceEl = btn.querySelector('.combo-price');
-        if (priceEl) {
-          if (isActive) priceEl.textContent = 'Active';
-          else if (owned) priceEl.textContent = 'Owned';
-          else priceEl.textContent = `${price} Coins`;
-        }
-      });
-    }
-
-    function handleComboClick(btn) {
-      const key = btn.dataset.combo;
-      const bg = btn.dataset.bg;
-      const xKey = btn.dataset.x;
-      const oKey = btn.dataset.o;
-      const price = Number(btn.dataset.price || 0);
-      const name = btn.querySelector('.combo-name').textContent;
-
-      if (!unlockedCombos.includes(key)) {
-        if (coins < price) {
-          themeMsg.textContent = `Need ${formatNum(price - coins)} more coins for ${name}.`;
-          playDrawSound();
-          return;
-        }
-        coins -= price;
-        unlockedCombos.push(key);
-        if (!unlockedThemes.includes(bg)) unlockedThemes.push(bg);
-        if (!unlockedXThemes.includes(xKey)) unlockedXThemes.push(xKey);
-        if (!unlockedOThemes.includes(oKey)) unlockedOThemes.push(oKey);
-        themeMsg.textContent = `Unlocked ${name}!`;
-        playWinSound('X');
-      } else {
-        themeMsg.textContent = '';
-        playTone(620, 0.06, 'sine', 0.1, 0);
-      }
-
-      boardTheme = bg;
-      xTheme = xKey;
-      oTheme = oKey;
-      applyBoardTheme(bg, false);
-      refreshBoardMarks();
-      saveProgress();
-      updateProgressUI();
-      updateThemeShopUI();
-      updateComboShopUI();
-    }
-    comboCards.forEach((btn) => btn.addEventListener('click', () => handleComboClick(btn)));
-
     function updateThemeShopUI() {
       updateOptionGroup(bgOptions, 'theme', unlockedThemes, boardTheme);
       updateOptionGroup(xOptions, 'xtheme', unlockedXThemes, xTheme);
       updateOptionGroup(oOptions, 'otheme', unlockedOThemes, oTheme);
-      updateComboShopUI();
     }
 
     function handleThemeGroupClick(btn, type) {
@@ -2475,8 +2282,8 @@
       updateLabelsAndTheme();
       pullFromCloud().then(pushToCloud);
 
-      if (gameMode === 'online' && activeRoomCode) {
-        patchRoomFields(mySymbol === 'X' ? { hostName: getMyName() } : { guestName: getMyName() });
+      if (conn && conn.open) {
+        conn.send({ type: 'hello', name: getMyName() });
       }
     }
 
@@ -2873,9 +2680,8 @@
       renderChat();
       playChatSound();
 
-      if (gameMode === 'online' && activeRoomCode) {
-        roomMessages.push({ kind: 'text', channel, sender, text, time });
-        patchRoomFields({ messages: JSON.stringify(roomMessages) });
+      if (conn && conn.open) {
+        conn.send({ type: 'chat', channel, sender, text, time });
       }
     }
 
@@ -2897,9 +2703,14 @@
       renderChat();
       playChatSound();
 
-      if (gameMode === 'online' && activeRoomCode) {
-        roomMessages.push({ kind: 'battle', id, channel, sender, time, status: 'pending' });
-        patchRoomFields({ messages: JSON.stringify(roomMessages) });
+      if (conn && conn.open) {
+        conn.send({
+          type: 'battleInvite',
+          id,
+          channel,
+          sender,
+          time
+        });
       }
     }
 
@@ -2919,10 +2730,14 @@
         oSym: O_SYMBOLS[oTheme] || 'O'
       };
 
-      if (gameMode === 'online' && activeRoomCode) {
-        const rm = roomMessages.find((m) => m.kind === 'battle' && m.id === id);
-        if (rm) { rm.status = decision; if (decision === 'accepted') rm.accepter = myProfile; }
-        patchRoomFields({ messages: JSON.stringify(roomMessages) });
+      if (conn && conn.open) {
+        conn.send({
+          type: 'battleResponse',
+          id,
+          channel,
+          decision,
+          accepter: myProfile
+        });
       }
 
       if (decision === 'accepted') {
@@ -2946,240 +2761,179 @@
       whatsappShareBtn.href = `https://wa.me/?text=${waText}`;
     }
 
-    // 11. Firebase Firestore Room Sync (reliable across all Wi-Fi & mobile networks)
+    // 11. Online PeerJS helpers
     function cleanupPeer() {
-      if (roomPollTimer) {
-        clearInterval(roomPollTimer);
-        roomPollTimer = null;
+      if (conn) {
+        try { conn.close(); } catch (e) {}
+        conn = null;
+      }
+      if (peer) {
+        try { peer.destroy(); } catch (e) {}
+        peer = null;
       }
       isOnlineConnected = false;
       selectedPlayerForChat = null;
       activeRoomCode = '';
       friendName = 'Friend';
-      roomMessages = [];
-      serverChatHistory = [];
-      personalChatHistory = [];
       unreadPersonal = 0;
       shareRow.classList.remove('visible');
       updateOnlineRoster();
       renderChat();
     }
 
-    function parseRoomDoc(doc) {
-      const f = doc && doc.fields;
-      if (!f) return null;
-      const str = (k, d='') => (f[k] && typeof f[k].stringValue === 'string' ? f[k].stringValue : d);
-      const num = (k, d=1) => (f[k] && f[k].integerValue ? Number(f[k].integerValue) : d);
-      let b = ['', '', '', '', '', '', '', '', ''];
-      let sc = { X: 0, O: 0, draw: 0 };
-      let msgs = [];
-      try { b = JSON.parse(str('board', '[]')); } catch (e) {}
-      try { sc = JSON.parse(str('scores', '{}')); } catch (e) {}
-      try { msgs = JSON.parse(str('messages', '[]')); } catch (e) {}
-      return {
-        hostName: str('hostName', 'Host'),
-        guestName: str('guestName', ''),
-        board: Array.isArray(b) && b.length === 9 ? b : ['', '', '', '', '', '', '', '', ''],
-        turn: str('turn', 'X'),
-        roundId: num('roundId', 1),
-        scores: { X: sc.X || 0, O: sc.O || 0, draw: sc.draw || 0 },
-        messages: Array.isArray(msgs) ? msgs : []
-      };
-    }
+    function setupConnection(connection) {
+      conn = connection;
 
-    async function patchRoomFields(fieldsObj) {
-      if (!activeRoomCode) return;
-      const fields = {};
-      for (const [k, v] of Object.entries(fieldsObj)) {
-        if (typeof v === 'number') fields[k] = { integerValue: String(v) };
-        else fields[k] = { stringValue: String(v) };
-      }
-      const mask = Object.keys(fields).map(k => 'updateMask.fieldPaths=' + encodeURIComponent(k)).join('&');
-      try {
-        await fetch(`${FIRESTORE_BASE}/rooms/${activeRoomCode}?${mask}&key=${FIREBASE_API_KEY}`, {
-          method: 'PATCH',
-          headers: getCloudHeaders(),
-          body: JSON.stringify({ fields })
-        });
-      } catch (e) {}
-    }
+      conn.on('open', () => {
+        isOnlineConnected = true;
+        conn.send({ type: 'hello', name: getMyName() });
+        roomInfo.innerHTML = `Connected to room <span class="room-code-badge">${activeRoomCode}</span> — Tap <strong>${escapeHtml(friendName)}</strong> on the left to start Personal Chat!`;
+        updateOnlineRoster();
+        resetScores(false);
+        playChatSound();
+      });
 
-    function applyOnlineBoardState(room) {
-      // Check if round reset
-      if (room.roundId !== roomRoundId) {
-        roomRoundId = room.roundId;
-        board = ['', '', '', '', '', '', '', '', ''];
-        currentPlayer = 'X';
-        gameOver = false;
-        cells.forEach((cell) => {
-          cell.textContent = '';
-          cell.disabled = false;
-          cell.classList.remove('x-color', 'o-color', 'win', 'placed');
-        });
-      }
+      conn.on('data', (data) => {
+        if (!data || typeof data !== 'object') return;
+        if (data.type === 'hello' && data.name) {
+          const incomingName = String(data.name).slice(0, 18);
+          if (incomingName.toLowerCase() === getMyName().toLowerCase()) {
+            friendName = `${incomingName} (2)`;
+            roomInfo.innerHTML = `Connected! Both players used "${escapeHtml(incomingName)}", so your friend is shown as "${escapeHtml(friendName)}".`;
+          } else {
+            friendName = incomingName;
+          }
+          updateOnlineRoster();
+          updateLabelsAndTheme();
+        } else if (data.type === 'chat' && data.text) {
+          const ch = data.channel === 'personal' ? 'personal' : 'server';
+          const targetList = ch === 'personal' ? personalChatHistory : serverChatHistory;
 
-      // Sync board cells
-      let changed = false;
-      for (let i = 0; i < 9; i++) {
-        if (board[i] !== room.board[i] && (room.board[i] === 'X' || room.board[i] === 'O')) {
-          board[i] = room.board[i];
-          const cell = cells[i];
-          setCellMark(cell, board[i]);
-          cell.classList.add(board[i] === 'X' ? 'x-color' : 'o-color', 'placed');
-          cell.disabled = true;
-          playMoveSound(board[i]);
-          changed = true;
-        }
-      }
+          targetList.push({
+            kind: 'text',
+            sender: data.sender || friendName,
+            text: data.text,
+            time: data.time || '',
+            isMe: false
+          });
 
-      currentPlayer = room.turn;
-      scores = room.scores;
-      updateScoreboard();
+          const currentChannel = selectedPlayerForChat === 'friend' ? 'personal' : 'server';
+          if (ch === 'personal' && currentChannel !== 'personal') {
+            unreadPersonal++;
+            updateOnlineRoster();
+          } else {
+            renderChat();
+          }
+          playChatSound();
+        } else if (data.type === 'battleInvite') {
+          const ch = data.channel === 'personal' ? 'personal' : 'server';
+          const targetList = ch === 'personal' ? personalChatHistory : serverChatHistory;
 
-      const winningLine = getWinnerLine(board);
-      if (winningLine && !gameOver) {
-        gameOver = true;
-        winningLine.forEach((i) => cells[i].classList.add('win'));
-        cells.forEach((c) => (c.disabled = true));
-        const winner = board[winningLine[0]];
-        playWinSound(winner);
-        awardMatchRewards();
-        statusEl.textContent = winner === mySymbol ? 'You win!' : `${friendName} wins!`;
-      } else if (!board.includes('') && !gameOver) {
-        gameOver = true;
-        playDrawSound();
-        awardMatchRewards();
-        statusEl.textContent = "It's a draw!";
-      } else if (!gameOver) {
-        updateTurnStatus();
-      }
-    }
+          targetList.push({
+            kind: 'battle',
+            id: data.id,
+            sender: data.sender || friendName,
+            time: data.time || '',
+            isMe: false,
+            status: 'pending'
+          });
 
-    function syncRoomMessages(msgs) {
-      const jsonNow = JSON.stringify(msgs);
-      if (jsonNow === lastMessagesJson) return;
-      lastMessagesJson = jsonNow;
-      const prevLen = roomMessages.length;
-      const myName = getMyName();
-      roomMessages = msgs;
-      serverChatHistory = [];
-      personalChatHistory = [];
-
-      msgs.forEach((m) => {
-        const isMe = m.sender === myName;
-        const entry = {
-          kind: m.kind || 'text',
-          id: m.id,
-          sender: m.sender,
-          text: m.text,
-          time: m.time,
-          isMe,
-          status: m.status
-        };
-        if (m.channel === 'personal') personalChatHistory.push(entry);
-        else serverChatHistory.push(entry);
-
-        if (m.kind === 'battle' && m.status === 'accepted' && isMe && m.accepter && lastNotifiedBattleId !== m.id) {
-          lastNotifiedBattleId = m.id;
-          showBattleAcceptedNotification(m.accepter);
+          const currentChannel = selectedPlayerForChat === 'friend' ? 'personal' : 'server';
+          if (ch === 'personal' && currentChannel !== 'personal') {
+            unreadPersonal++;
+            updateOnlineRoster();
+          } else {
+            renderChat();
+          }
+          playBossIntroSound();
+        } else if (data.type === 'battleResponse') {
+          const ch = data.channel === 'personal' ? 'personal' : 'server';
+          const list = ch === 'personal' ? personalChatHistory : serverChatHistory;
+          const item = list.find((m) => m.kind === 'battle' && m.id === data.id);
+          if (item) {
+            item.status = data.decision;
+          }
+          renderChat();
+          if (data.decision === 'accepted' && data.accepter) {
+            showBattleAcceptedNotification(data.accepter);
+            startNewRound(false);
+          }
+        } else if (data.type === 'move' && typeof data.index === 'number') {
+          if (!gameOver && board[data.index] === '') {
+            makeMove(data.index);
+          }
+        } else if (data.type === 'newRound') {
+          startNewRound(false);
+        } else if (data.type === 'resetScore') {
+          resetScores(false);
         }
       });
 
-      if (msgs.length > prevLen) {
-        const latest = msgs[msgs.length - 1];
-        if (latest.sender !== myName) {
-          playChatSound();
-          if (latest.channel === 'personal' && selectedPlayerForChat !== 'friend') {
-            unreadPersonal++;
-            updateOnlineRoster();
-          }
-        }
+      conn.on('close', () => {
+        isOnlineConnected = false;
+        selectedPlayerForChat = null;
+        updateOnlineRoster();
+        renderChat();
+        roomInfo.textContent = 'Friend disconnected. Create or join a room to play again.';
+        statusEl.textContent = 'Friend disconnected';
+      });
+
+      conn.on('error', () => {
+        isOnlineConnected = false;
+        updateOnlineRoster();
+        roomInfo.textContent = 'Connection error. Please try creating or joining the room again.';
+      });
+    }
+
+    function createOnlineRoom() {
+      if (typeof Peer === 'undefined') {
+        roomInfo.textContent = 'Online service is still loading or blocked. Check your internet connection.';
+        return;
       }
-      renderChat();
-    }
 
-    async function pollRoom() {
-      if (!activeRoomCode || gameMode !== 'online') return;
-      try {
-        const res = await fetch(`${FIRESTORE_BASE}/rooms/${activeRoomCode}?key=${FIREBASE_API_KEY}`, {
-          headers: firebaseToken ? { 'Authorization': `Bearer ${firebaseToken}` } : {}
-        });
-        if (!res.ok) return;
-        const doc = await res.json();
-        const room = parseRoomDoc(doc);
-        if (!room) return;
-
-        // Detect partner joining
-        if (mySymbol === 'X' && room.guestName) {
-          const wasConnected = isOnlineConnected;
-          isOnlineConnected = true;
-          friendName = room.guestName;
-          if (!wasConnected) {
-            roomInfo.innerHTML = `Connected to room <span class="room-code-badge">${activeRoomCode}</span> — Tap <strong>${escapeHtml(friendName)}</strong> on the left for Personal Chat!`;
-            playChatSound();
-          }
-          const rKey = `${isOnlineConnected}|${friendName}|${unreadPersonal}`;
-          if (rKey !== lastRosterKey) {
-            lastRosterKey = rKey;
-            updateOnlineRoster();
-            updateLabelsAndTheme();
-          }
-        } else if (mySymbol === 'O' && room.hostName) {
-          isOnlineConnected = true;
-          friendName = room.hostName;
-          const rKey = `${isOnlineConnected}|${friendName}|${unreadPersonal}`;
-          if (rKey !== lastRosterKey) {
-            lastRosterKey = rKey;
-            updateOnlineRoster();
-            updateLabelsAndTheme();
-          }
-        }
-
-        applyOnlineBoardState(room);
-        syncRoomMessages(room.messages);
-      } catch (e) {}
-    }
-
-    async function createOnlineRoom() {
       cleanupPeer();
       mySymbol = 'X';
       const code = String(Math.floor(1000 + Math.random() * 9000));
       activeRoomCode = code;
-      roomRoundId = 1;
       roomInfo.textContent = 'Creating room...';
 
-      const fields = {
-        hostName: { stringValue: getMyName() },
-        guestName: { stringValue: '' },
-        board: { stringValue: JSON.stringify(['', '', '', '', '', '', '', '', '']) },
-        turn: { stringValue: 'X' },
-        roundId: { integerValue: '1' },
-        scores: { stringValue: JSON.stringify({ X: 0, O: 0, draw: 0 }) },
-        messages: { stringValue: '[]' }
-      };
-
       try {
-        const res = await fetch(`${FIRESTORE_BASE}/rooms/${code}?key=${FIREBASE_API_KEY}`, {
-          method: 'PATCH',
-          headers: getCloudHeaders(),
-          body: JSON.stringify({ fields })
+        peer = new Peer(ROOM_PREFIX + code);
+
+        peer.on('open', () => {
+          roomInfo.innerHTML = `Room <span class="room-code-badge">${code}</span> ready! Share this code or link on WhatsApp.`;
+          updateShareLinks(code);
+          shareRow.classList.add('visible');
+          statusEl.textContent = 'Waiting for friend to join...';
+          updateOnlineRoster();
         });
-        if (!res.ok) {
-          roomInfo.textContent = 'Could not create room. Check Firestore rules (test mode).';
-          return;
-        }
-        roomInfo.innerHTML = `Room <span class="room-code-badge">${code}</span> ready! Share this code or link on WhatsApp.`;
-        updateShareLinks(code);
-        shareRow.classList.add('visible');
-        statusEl.textContent = 'Waiting for friend to join...';
-        updateOnlineRoster();
-        roomPollTimer = setInterval(pollRoom, 1200);
+
+        peer.on('connection', (incomingConn) => {
+          if (conn && conn.open) {
+            incomingConn.close();
+            return;
+          }
+          setupConnection(incomingConn);
+        });
+
+        peer.on('error', (err) => {
+          if (err && err.type === 'unavailable-id') {
+            createOnlineRoom();
+          } else {
+            roomInfo.textContent = 'Could not connect to room server. Check your internet and try again.';
+          }
+        });
       } catch (e) {
-        roomInfo.textContent = 'Network error creating room. Check your internet.';
+        roomInfo.textContent = 'Could not start online room. Check your internet connection.';
       }
     }
 
-    async function joinOnlineRoom(explicitCode) {
+    function joinOnlineRoom(explicitCode) {
+      if (typeof Peer === 'undefined') {
+        roomInfo.textContent = 'Online service is still loading or blocked. Check your internet connection.';
+        return;
+      }
+
       const code = (explicitCode || roomCodeInput.value).trim();
       if (!/^\d{4}$/.test(code)) {
         roomInfo.textContent = 'Please enter a valid 4-digit room code.';
@@ -3193,37 +2947,18 @@
       roomInfo.textContent = `Joining room ${code}...`;
 
       try {
-        const res = await fetch(`${FIRESTORE_BASE}/rooms/${code}?key=${FIREBASE_API_KEY}`, {
-          headers: firebaseToken ? { 'Authorization': `Bearer ${firebaseToken}` } : {}
+        peer = new Peer();
+
+        peer.on('open', () => {
+          const outgoingConn = peer.connect(ROOM_PREFIX + code, { reliable: true });
+          setupConnection(outgoingConn);
         });
-        if (!res.ok) {
-          roomInfo.textContent = `Room ${code} not found. Make sure your friend created it first.`;
-          activeRoomCode = '';
-          return;
-        }
-        const doc = await res.json();
-        const room = parseRoomDoc(doc);
-        if (!room) {
-          roomInfo.textContent = `Room ${code} not found.`;
-          activeRoomCode = '';
-          return;
-        }
 
-        let myName = getMyName();
-        if (myName.toLowerCase() === room.hostName.toLowerCase()) {
-          myName = `${myName} (2)`;
-        }
-        friendName = room.hostName;
-        isOnlineConnected = true;
-
-        await patchRoomFields({ guestName: myName });
-        roomInfo.innerHTML = `Connected to room <span class="room-code-badge">${code}</span> — Tap <strong>${escapeHtml(friendName)}</strong> on the left for Personal Chat!`;
-        updateOnlineRoster();
-        updateLabelsAndTheme();
-        applyOnlineBoardState(room);
-        syncRoomMessages(room.messages);
-        playChatSound();
-        roomPollTimer = setInterval(pollRoom, 1200);
+        peer.on('error', () => {
+          isOnlineConnected = false;
+          updateOnlineRoster();
+          roomInfo.textContent = `Could not find room ${code}. Make sure your friend created it first.`;
+        });
       } catch (e) {
         roomInfo.textContent = 'Could not join room. Check your internet connection.';
       }
@@ -3258,7 +2993,7 @@
     function makeMove(index) {
       board[index] = currentPlayer;
       const cell = cells[index];
-      setCellMark(cell, currentPlayer);
+      cell.textContent = getMarkDisplay(currentPlayer);
       cell.classList.add(currentPlayer === 'X' ? 'x-color' : 'o-color', 'placed');
       cell.disabled = true;
 
@@ -3322,12 +3057,8 @@
       if (board[index] !== '') return;
 
       makeMove(index);
-      if (gameMode === 'online' && activeRoomCode) {
-        patchRoomFields({
-          board: JSON.stringify(board),
-          turn: currentPlayer,
-          scores: JSON.stringify(scores)
-        });
+      if (gameMode === 'online' && conn && conn.open) {
+        conn.send({ type: 'move', index });
       }
     }
 
@@ -3392,14 +3123,8 @@
       updateLabelsAndTheme();
       updateTurnStatus();
 
-      if (broadcast && gameMode === 'online' && activeRoomCode) {
-        roomRoundId++;
-        patchRoomFields({
-          board: JSON.stringify(board),
-          turn: 'X',
-          roundId: roomRoundId,
-          scores: JSON.stringify(scores)
-        });
+      if (broadcast && gameMode === 'online' && conn && conn.open) {
+        conn.send({ type: 'newRound' });
       }
     }
 
@@ -3408,14 +3133,8 @@
       updateScoreboard();
       startNewRound(false);
 
-      if (broadcast && gameMode === 'online' && activeRoomCode) {
-        roomRoundId++;
-        patchRoomFields({
-          board: JSON.stringify(board),
-          turn: 'X',
-          roundId: roomRoundId,
-          scores: JSON.stringify(scores)
-        });
+      if (broadcast && gameMode === 'online' && conn && conn.open) {
+        conn.send({ type: 'resetScore' });
       }
     }
 
@@ -3560,5 +3279,6 @@
       initApp();
     }
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js" async defer></script>
 </body>
 </html>
