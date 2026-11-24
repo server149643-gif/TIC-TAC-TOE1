@@ -627,8 +627,10 @@
     .name-row {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
       gap: 6px;
       margin-bottom: 4px;
+      max-width: 100%;
     }
 
     .name-row label {
@@ -638,8 +640,14 @@
       white-space: nowrap;
     }
 
+    .name-row .online-btn {
+      flex-shrink: 0;
+    }
+
     .name-input {
-      flex: 1;
+      flex: 1 1 110px;
+      min-width: 0;
+      width: 100%;
       padding: 7px 10px;
       font-size: 0.88rem;
       border: 1.5px solid #cbd5e1;
@@ -739,7 +747,7 @@
       border-radius: 12px;
       overflow: hidden;
       background: #ffffff;
-      min-height: 270px;
+      height: 255px;
     }
 
     .players-col {
@@ -749,6 +757,10 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      overscroll-behavior: contain;
     }
 
     .players-col-title {
@@ -763,8 +775,8 @@
 
     .player-name-btn {
       width: 100%;
-      padding: 9px 6px;
-      font-size: 0.84rem;
+      padding: 7px 5px;
+      font-size: 0.74rem;
       font-weight: 700;
       border-radius: 8px;
       border: 1.5px solid #cbd5e1;
@@ -773,10 +785,16 @@
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
       text-align: left;
-      word-break: break-word;
+      min-width: 0;
       transition: all 0.15s;
+    }
+    .player-name-btn span:not(.status-dot):not(.unread-badge) {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
     }
 
     .player-name-btn:hover {
@@ -1436,8 +1454,8 @@
 
     .settings-icon-btn {
       position: absolute;
-      top: 14px;
-      right: 14px;
+      top: 3px;
+      right: 12px;
       z-index: 10;
       display: inline-flex;
       align-items: center;
@@ -1458,10 +1476,423 @@
       background: #e2e8f0;
       transform: rotate(22deg) scale(1.06);
     }
+    .wheel-icon-btn {
+      position: absolute;
+      top: 47px;
+      right: 12px;
+      z-index: 10;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      border-radius: 999px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      color: #0f172a;
+      font-size: 1.65rem;
+      line-height: 1;
+      cursor: pointer;
+      transition: transform 0.18s ease, background 0.15s ease;
+    }
+    .wheel-icon-btn:hover {
+      background: #e2e8f0;
+      transform: rotate(-22deg) scale(1.06);
+    }
+    body.boss-theme .wheel-icon-btn {
+      background: #2e2646;
+      border-color: #5b21b6;
+      color: #f8fafc;
+    }
+    .stats-bar {
+      padding-right: 54px;
+    }
     body.boss-theme .settings-icon-btn {
       background: #2e2646;
       border-color: #5b21b6;
       color: #f8fafc;
+    }
+
+    /* Marketplace 1/4 + 3/4 Split Layout */
+    .market-split {
+      display: flex;
+      height: 215px;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #ffffff;
+    }
+    body.boss-theme .market-split {
+      background: #1e1b2e;
+      border-color: #5b21b6;
+    }
+    .market-nav {
+      width: 25%;
+      min-width: 82px;
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      overscroll-behavior: contain;
+      border-right: 1px solid #cbd5e1;
+      background: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      padding: 6px;
+      gap: 5px;
+    }
+    body.boss-theme .market-nav {
+      background: #261f3d;
+      border-right-color: #5b21b6;
+    }
+    .market-tab-btn {
+      width: 100%;
+      padding: 9px 6px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #334155;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+      flex-shrink: 0;
+    }
+    .market-tab-btn:hover { background: #e2e8f0; }
+    .market-tab-btn.active { background: #2563eb; color: #ffffff; }
+    body.boss-theme .market-tab-btn { color: #e2e8f0; }
+    body.boss-theme .market-tab-btn:hover { background: #3b2d63; }
+    body.boss-theme .market-tab-btn.active { background: #7c3aed; color: #ffffff; }
+    .market-content {
+      width: 75%;
+      flex: 1;
+      height: 100%;
+      padding: 10px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      overscroll-behavior: contain;
+    }
+    .market-content .theme-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .market-section { display: none; }
+    .market-section.active { display: block; }
+
+
+    /* Lucky Spin Wheel Modal */
+    .wheel-wrap {
+      position: relative;
+      width: 246px;
+      height: 246px;
+      margin: 6px auto 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .wheel-pointer {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 12px solid transparent;
+      border-right: 12px solid transparent;
+      border-top: 22px solid #dc2626;
+      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.35));
+      z-index: 5;
+    }
+    .wheel-rotator {
+      width: 236px;
+      height: 236px;
+      border-radius: 50%;
+      border: 5px solid #0f172a;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.28);
+      transition: transform 4s cubic-bezier(0.14, 0.86, 0.22, 1);
+      will-change: transform;
+    }
+    .wheel-hub {
+      position: absolute;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 4px solid #0f172a;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.28);
+      z-index: 4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+    }
+    .wheel-result {
+      min-height: 22px;
+      text-align: center;
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #16a34a;
+      margin-bottom: 10px;
+    }
+    body.boss-theme .wheel-result { color: #fde047; }
+    .wheel-spin-btn {
+      width: 100%;
+      padding: 11px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, #f59e0b, #dc2626);
+      color: #ffffff;
+      font-size: 0.95rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 6px 14px rgba(220, 38, 38, 0.28);
+    }
+    .wheel-spin-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    /* 24/7 Cloud Leaderboard inside Online Room */
+    .leaderboard-box {
+      margin-top: 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      background: #ffffff;
+      overflow: hidden;
+    }
+    body.boss-theme .leaderboard-box {
+      background: #1e1b2e;
+      border-color: #5b21b6;
+    }
+    .leaderboard-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    body.boss-theme .leaderboard-head {
+      background: #261f3d;
+      border-bottom-color: #5b21b6;
+      color: #f8fafc;
+    }
+    .lb-refresh-btn {
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #334155;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .leaderboard-list {
+      max-height: 170px;
+      overflow-y: auto;
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .lb-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 7px 9px;
+      border-radius: 9px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      font-size: 0.78rem;
+    }
+    .lb-row.me {
+      background: #eff6ff;
+      border-color: #60a5fa;
+    }
+    body.boss-theme .lb-row {
+      background: #2e2646;
+      border-color: #4c1d95;
+      color: #f8fafc;
+    }
+    body.boss-theme .lb-row.me {
+      background: #3b2d63;
+      border-color: #a855f7;
+    }
+    .lb-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+    .lb-rank {
+      font-weight: 800;
+      min-width: 26px;
+      color: #0f172a;
+    }
+    body.boss-theme .lb-rank { color: #fde047; }
+    .lb-name {
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .lb-title {
+      font-size: 0.66rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      color: #334155;
+      flex-shrink: 0;
+    }
+    .lb-stats {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #475569;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    body.boss-theme .lb-stats { color: #cbd5e1; }
+
+    .online-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: stretch;
+    }
+    .online-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .online-label {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #0f172a;
+      min-width: 46px;
+    }
+    body.boss-theme .online-label { color: #f8fafc; }
+    .code-display {
+      width: 102px;
+      flex: 0 0 auto;
+      padding: 7px 8px;
+      border-radius: 8px;
+      border: 1.5px dashed #94a3b8;
+      background: #f8fafc;
+      color: #0f172a;
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-align: center;
+    }
+    .online-row .room-input {
+      width: 102px;
+      flex: 0 0 auto;
+      text-align: center;
+      letter-spacing: 2px;
+    }
+    body.boss-theme .code-display {
+      background: #2e2646;
+      border-color: #7c3aed;
+      color: #fde047;
+    }
+
+    .chat-col {
+      height: 100%;
+      min-width: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .chat-messages {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      overscroll-behavior: contain;
+    }
+
+    /* Cosmic Nebula Background (mixes with Cosmic Blade X & Cosmic Ring O) */
+    .swatch-cosmic {
+      background: radial-gradient(circle at 30% 30%, #22d3ee, #4c1d95 55%, #0f172a 100%);
+      border-color: #fde047;
+    }
+    .board.theme-cosmic {
+      background-color: #071330;
+      background-image:
+        radial-gradient(circle at 20% 20%, rgba(34, 211, 238, 0.36) 0%, transparent 46%),
+        radial-gradient(circle at 82% 78%, rgba(37, 99, 235, 0.42) 0%, transparent 48%),
+        radial-gradient(#ffffff 1px, transparent 1.6px),
+        radial-gradient(#38bdf8 1px, transparent 1.5px),
+        linear-gradient(135deg, #071330, #0f2966, #1e1b4b);
+      background-size: 100% 100%, 100% 100%, 34px 34px, 26px 26px, 100% 100%;
+      background-position: 0 0, 0 0, 6px 8px, 18px 14px, 0 0;
+      border: 2.5px solid #38bdf8;
+      box-shadow: 0 0 22px rgba(56, 189, 248, 0.32), inset 0 0 22px rgba(29, 78, 216, 0.4);
+    }
+    .board.theme-cosmic .cell {
+      background: rgba(240, 249, 255, 0.9);
+      border: 2px solid #38bdf8;
+      box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.9), 0 0 10px rgba(56, 189, 248, 0.25);
+    }
+    .board.theme-cosmic .cell:hover:not(:disabled) {
+      background: rgba(30, 41, 59, 0.88);
+      border-color: #fde047;
+    }
+    .board.theme-cosmic .cell.win {
+      background: rgba(34, 211, 238, 0.24);
+      border-color: #fde047;
+      box-shadow: 0 0 16px rgba(250, 204, 21, 0.55);
+    }
+
+    /* 5-Server Status Bar (A, B, C, D, E) */
+    .server-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-top: 8px;
+      padding: 6px 8px;
+      border-radius: 10px;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      flex-wrap: wrap;
+    }
+    body.boss-theme .server-bar {
+      background: #261f3d;
+      border-color: #5b21b6;
+    }
+    .server-bar-label {
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    body.boss-theme .server-bar-label { color: #fde047; }
+    .server-pills {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .server-pill {
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      background: #e2e8f0;
+      color: #334155;
+      border: 1px solid transparent;
+    }
+    .server-pill.mine {
+      background: #dcfce7;
+      color: #166534;
+      border-color: #22c55e;
+    }
+    .server-pill.full {
+      background: #fee2e2;
+      color: #991b1b;
     }
   </style>
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -1476,6 +1907,7 @@
     <div class="top-header">
       <h1>Tic-Tac-Toe</h1>
       <div class="header-actions">
+        <button id="wheelBtn" class="wheel-icon-btn" type="button" aria-haspopup="dialog" aria-label="Lucky Spin Wheel" title="Lucky Spin Wheel"><svg viewBox="0 0 64 64" width="26" height="26" aria-hidden="true"><circle cx="32" cy="34" r="24" fill="#0f172a"/><path d="M32,34 L32,12 A22,22 0 0,1 47.5,18.4 Z" fill="#3b82f6"/><path d="M32,34 L47.5,18.4 A22,22 0 0,1 54,34 Z" fill="#10b981"/><path d="M32,34 L54,34 A22,22 0 0,1 47.5,49.6 Z" fill="#f59e0b"/><path d="M32,34 L47.5,49.6 A22,22 0 0,1 32,56 Z" fill="#ec4899"/><path d="M32,34 L32,56 A22,22 0 0,1 16.5,49.6 Z" fill="#7c3aed"/><path d="M32,34 L16.5,49.6 A22,22 0 0,1 10,34 Z" fill="#0ea5e9"/><path d="M32,34 L10,34 A22,22 0 0,1 16.5,18.4 Z" fill="#6366f1"/><path d="M32,34 L16.5,18.4 A22,22 0 0,1 32,12 Z" fill="#14b8a6"/><circle cx="32" cy="34" r="22" fill="none" stroke="#0f172a" stroke-width="2.5"/><circle cx="32" cy="34" r="5.5" fill="#ffffff" stroke="#0f172a" stroke-width="2"/><polygon points="32,14 26,4 38,4" fill="#dc2626" stroke="#ffffff" stroke-width="1.2"/></svg></button>
         <button id="titlesAreaBtn" class="pill-btn" type="button" aria-expanded="false">Titles</button>
         <button id="themeToggleBtn" class="pill-btn" type="button" aria-expanded="false">Marketplace</button>
         <button id="settingsBtn" class="settings-icon-btn" type="button" aria-haspopup="dialog" aria-label="Settings" title="Settings">&#9881;&#65039;</button>
@@ -1515,34 +1947,18 @@
       <div id="titlesList" class="titles-grid"></div>
     </div>
 
-    <!-- MARKETPLACE PANEL: COMBO THEMES (3), BACKGROUND THEME (6), X (6), O (6) -->
+    <!-- MARKETPLACE PANEL: 1/4 NAV + 3/4 CONTENT (OPENS TO BACKGROUND) -->
     <div id="themePanel" class="theme-panel">
-      <div class="theme-section-title">Combo Themes (BG + X + O)</div>
-      <div class="combo-grid">
-        <button class="combo-card" type="button" data-combo="cricket" data-bg="cricket" data-x="cricket_bats" data-o="cricket_ball" data-price="150">
-          <div class="combo-info">
-            <span class="combo-name">🏏 Cricket Pitch Combo</span>
-            <span class="combo-sub">Grass Pitch + Crossed Bats (X) + Leather Ball (O)</span>
-          </div>
-          <span class="combo-price">150 Coins</span>
-        </button>
-        <button class="combo-card" type="button" data-combo="shooting" data-bg="shooting" data-x="shooting_guns" data-o="shooting_bullet" data-price="250">
-          <div class="combo-info">
-            <span class="combo-name">🎯 Shooting Range Combo</span>
-            <span class="combo-sub">Target Card w/ Bullet Holes + Crossed Guns (X) + Bullet (O)</span>
-          </div>
-          <span class="combo-price">250 Coins</span>
-        </button>
-        <button class="combo-card" type="button" data-combo="football" data-bg="football" data-x="football_spikes" data-o="football_ball" data-price="400">
-          <div class="combo-info">
-            <span class="combo-name">⚽ Football Stadium Combo</span>
-            <span class="combo-sub">Stadium Turf + Spikes Shoes (X) + Football (O)</span>
-          </div>
-          <span class="combo-price">400 Coins</span>
-        </button>
-      </div>
-
-      <div class="theme-section-title">Background Theme</div>
+      <div class="market-split">
+        <div class="market-nav" role="tablist" aria-label="Marketplace categories">
+          <button class="market-tab-btn active" type="button" data-market-tab="bg" role="tab" aria-selected="true">Background</button>
+          <button class="market-tab-btn" type="button" data-market-tab="combo" role="tab" aria-selected="false">Combo</button>
+          <button class="market-tab-btn" type="button" data-market-tab="x" role="tab" aria-selected="false">X Skin</button>
+          <button class="market-tab-btn" type="button" data-market-tab="o" role="tab" aria-selected="false">O Skin</button>
+        </div>
+        <div class="market-content">
+          <div id="marketSecBg" class="market-section active">
+            <div class="theme-section-title">Background Theme</div>
       <div class="theme-grid">
         <button class="theme-option bg-option owned active" type="button" data-theme="classic" data-price="0">
           <span class="theme-swatch swatch-classic"></span>
@@ -1574,19 +1990,43 @@
           <span>Neon Arcade</span>
           <span class="theme-price">300 Coins</span>
         </button>
+        <button class="theme-option bg-option" type="button" data-theme="cosmic" data-price="200">
+          <span class="theme-swatch swatch-cosmic"></span>
+          <span>Cosmic Nebula</span>
+          <span class="theme-price">200 Coins</span>
+        </button>
       </div>
-
-      <div class="theme-section-title">X</div>
+          </div>
+          <div id="marketSecCombo" class="market-section">
+            <div class="theme-section-title">Combo Themes</div>
+      <div class="combo-grid">
+        <button class="combo-card" type="button" data-combo="cricket" data-bg="cricket" data-x="cricket_bats" data-o="cricket_ball" data-price="150">
+          <div class="combo-info">
+            <span class="combo-name">🏏 Cricket Pitch Combo</span>
+          </div>
+          <span class="combo-price">150 Coins</span>
+        </button>
+        <button class="combo-card" type="button" data-combo="shooting" data-bg="shooting" data-x="shooting_guns" data-o="shooting_bullet" data-price="250">
+          <div class="combo-info">
+            <span class="combo-name">🎯 Shooting Range Combo</span>
+          </div>
+          <span class="combo-price">250 Coins</span>
+        </button>
+        <button class="combo-card" type="button" data-combo="football" data-bg="football" data-x="football_spikes" data-o="football_ball" data-price="400">
+          <div class="combo-info">
+            <span class="combo-name">⚽ Football Stadium Combo</span>
+          </div>
+          <span class="combo-price">400 Coins</span>
+        </button>
+      </div>
+          </div>
+          <div id="marketSecX" class="market-section">
+            <div class="theme-section-title">X</div>
       <div class="theme-grid">
         <button class="theme-option x-option owned active" type="button" data-xtheme="classic" data-price="0">
           <span class="mark-preview x-color">X</span>
           <span>Classic X</span>
           <span class="theme-price">Free</span>
-        </button>
-        <button class="theme-option x-option" type="button" data-xtheme="swords" data-price="10">
-          <span class="mark-preview">⚔️</span>
-          <span>Battle Swords</span>
-          <span class="theme-price">10 Coins</span>
         </button>
         <button class="theme-option x-option" type="button" data-xtheme="heavyx" data-price="25">
           <span class="mark-preview">✖️</span>
@@ -1608,9 +2048,15 @@
           <span>Sharp Cross</span>
           <span class="theme-price">250 Coins</span>
         </button>
+        <button class="theme-option x-option" type="button" data-xtheme="crystal_x" data-price="0" data-exclusive="1">
+          <span class="mark-preview"><svg viewBox="0 0 64 64" width="22" height="22" aria-hidden="true"><g transform="rotate(45 32 32)"><rect x="24" y="6" width="16" height="52" rx="7" fill="#0284c7" stroke="#1d4ed8" stroke-width="2"/><rect x="26" y="8" width="12" height="48" rx="5" fill="#e0f2fe"/></g><g transform="rotate(-45 32 32)"><rect x="24" y="6" width="16" height="52" rx="7" fill="#0284c7" stroke="#1d4ed8" stroke-width="2"/><rect x="26" y="8" width="12" height="48" rx="5" fill="#e0f2fe"/></g></svg></span>
+          <span>Cosmic Blue X</span>
+          <span class="theme-price">From Spin Wheel</span>
+        </button>
       </div>
-
-      <div class="theme-section-title">O</div>
+          </div>
+          <div id="marketSecO" class="market-section">
+            <div class="theme-section-title">O</div>
       <div class="theme-grid">
         <button class="theme-option o-option owned active" type="button" data-otheme="classic" data-price="0">
           <span class="mark-preview o-color">O</span>
@@ -1642,8 +2088,15 @@
           <span>Gold Coin O</span>
           <span class="theme-price">250 Coins</span>
         </button>
+        <button class="theme-option o-option" type="button" data-otheme="cosmic_o" data-price="0" data-exclusive="1">
+          <span class="mark-preview"><svg viewBox="0 0 64 64" width="22" height="22" aria-hidden="true"><circle cx="32" cy="32" r="22" fill="none" stroke="#0284c7" stroke-width="10"/><circle cx="32" cy="32" r="20" fill="none" stroke="#e0f2fe" stroke-width="5"/><circle cx="32" cy="32" r="15" fill="none" stroke="#22d3ee" stroke-width="2.5"/></svg></span>
+          <span>Cosmic Blue O</span>
+          <span class="theme-price">From Spin Wheel</span>
+        </button>
       </div>
-
+          </div>
+        </div>
+      </div>
       <div id="themeMsg" class="theme-msg"></div>
     </div>
 
@@ -1662,25 +2115,26 @@
 
     <!-- ONLINE ROOM PANEL (RIGHT BELOW ONLINE BUTTON) -->
     <div id="onlinePanel" class="online-panel">
-      <div class="name-row">
-        <label for="playerNameInput">Username:</label>
-        <input id="playerNameInput" class="name-input" type="text" maxlength="18" placeholder="Pick your username" />
-        <button id="saveNameBtn" class="online-btn secondary" type="button">Save</button>
-      </div>
-      <div id="nameHint" class="name-hint">Save your username (can be changed only once later).</div>
-
       <div class="online-controls">
-        <button id="createRoomBtn" class="online-btn" type="button">Create Room</button>
-        <input
-          id="roomCodeInput"
-          class="room-input"
-          type="text"
-          maxlength="4"
-          inputmode="numeric"
-          placeholder="4-digit code"
-          aria-label="4-digit room code"
-        />
-        <button id="joinRoomBtn" class="online-btn secondary" type="button">Join</button>
+        <div class="online-row">
+          <span class="online-label">Code</span>
+          <span id="generatedCodeBox" class="code-display">----</span>
+          <button id="createRoomBtn" class="online-btn" type="button">Make</button>
+        </div>
+        <div class="online-row">
+          <button id="joinRoomBtn" class="online-btn secondary" type="button">Join</button>
+          <input
+            id="roomCodeInput"
+            class="room-input"
+            type="tel"
+            maxlength="4"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            placeholder="Code"
+            aria-label="4-digit room code"
+            style="width:102px; flex:0 0 auto;"
+          />
+        </div>
       </div>
 
       <div id="roomInfo" class="room-info">Create a room to get a 4-digit code, or enter your friend's code to join.</div>
@@ -1689,6 +2143,18 @@
         <button id="copyCodeBtn" class="online-btn secondary" type="button">Copy Code</button>
         <button id="copyLinkBtn" class="online-btn secondary" type="button">Copy Invite Link</button>
         <a id="whatsappShareBtn" class="online-btn whatsapp" href="#" target="_blank" rel="noopener noreferrer">Share on WhatsApp</a>
+      </div>
+
+      <!-- 5 SERVERS (A, B, C, D, E — 20 MAX EACH, AUTO-SPILL AT 15) -->
+      <div class="server-bar">
+        <span id="assignedServerLabel" class="server-bar-label">Server A (1/20)</span>
+        <div id="serverPills" class="server-pills">
+          <span class="server-pill mine">A: 1/20</span>
+          <span class="server-pill">B: 0/20</span>
+          <span class="server-pill">C: 0/20</span>
+          <span class="server-pill">D: 0/20</span>
+          <span class="server-pill">E: 0/20</span>
+        </div>
       </div>
 
       <!-- 1/4 PLAYERS + VERTICAL DIVIDER + 3/4 SERVER CHAT / PERSONAL CHAT -->
@@ -1712,6 +2178,17 @@
             <button id="sendChatBtn" class="online-btn whatsapp" type="button">Send</button>
           </div>
           <div id="micStatus" class="mic-status"></div>
+        </div>
+      </div>
+
+      <!-- 24/7 GLOBAL LEADERBOARD -->
+      <div class="leaderboard-box">
+        <div class="leaderboard-head">
+          <span>&#127942; Global Leaderboard (24/7)</span>
+          <button id="refreshLeaderboardBtn" class="lb-refresh-btn" type="button">&#128260; Refresh</button>
+        </div>
+        <div id="leaderboardList" class="leaderboard-list">
+          <div class="chat-empty">Loading 24/7 leaderboard...</div>
         </div>
       </div>
     </div>
@@ -1781,6 +2258,14 @@
             <span id="accountStateLabel" class="settings-badge">Sign In</span>
           </button>
 
+          <button id="openUsernameSubBtn" class="settings-item-btn" type="button">
+            <div>
+              &#127991;&#65039; Username
+              <span class="settings-item-sub">Choose your player name (requires account)</span>
+            </div>
+            <span id="usernameStateLabel" class="settings-badge">Player1000</span>
+          </button>
+
           <button id="openRedeemSubBtn" class="settings-item-btn" type="button">
             <div>
               &#127873; Redeem Code
@@ -1831,6 +2316,20 @@
         </div>
       </div>
 
+      <!-- Username Submenu -->
+      <div id="settingsUsernameView" class="subview">
+        <p class="login-desc">Current Name: <strong id="usernameCurrentText">Player1000</strong></p>
+        <div class="name-row">
+          <input id="playerNameInput" class="name-input" type="text" maxlength="18" placeholder="Pick your username" aria-label="Username" />
+          <button id="saveNameBtn" class="online-btn secondary" type="button">Save</button>
+        </div>
+        <div id="nameHint" class="name-hint"></div>
+        <div class="modal-footer">
+          <button id="usernameBackBtn" class="modal-btn back" type="button">Back</button>
+          <button id="usernameCancelBtn" class="modal-btn cancel" type="button">Cancel</button>
+        </div>
+      </div>
+
       <!-- Redeem Submenu -->
       <div id="settingsRedeemView" class="subview">
         <p class="login-desc">Enter a valid code below to unlock rewards immediately.</p>
@@ -1862,6 +2361,45 @@
     </div>
   </div>
 
+
+  <!-- LUCKY SPIN WHEEL MODAL (8 SLICES: 7 REWARDS + 1 EXCLUSIVE X SKIN) -->
+  <div id="wheelModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="wheelModalTitle">
+    <div class="modal-card" style="max-width:360px;">
+      <div class="modal-head">
+        <span id="wheelModalTitle" class="modal-title"><svg viewBox="0 0 64 64" width="20" height="20" style="vertical-align:-4px; margin-right:5px;" aria-hidden="true"><circle cx="32" cy="34" r="24" fill="#0f172a"/><path d="M32,34 L32,12 A22,22 0 0,1 47.5,18.4 Z" fill="#3b82f6"/><path d="M32,34 L47.5,18.4 A22,22 0 0,1 54,34 Z" fill="#10b981"/><path d="M32,34 L54,34 A22,22 0 0,1 47.5,49.6 Z" fill="#f59e0b"/><path d="M32,34 L47.5,49.6 A22,22 0 0,1 32,56 Z" fill="#ec4899"/><path d="M32,34 L32,56 A22,22 0 0,1 16.5,49.6 Z" fill="#7c3aed"/><path d="M32,34 L16.5,49.6 A22,22 0 0,1 10,34 Z" fill="#0ea5e9"/><path d="M32,34 L10,34 A22,22 0 0,1 16.5,18.4 Z" fill="#6366f1"/><path d="M32,34 L16.5,18.4 A22,22 0 0,1 32,12 Z" fill="#14b8a6"/><circle cx="32" cy="34" r="22" fill="none" stroke="#0f172a" stroke-width="2.5"/><circle cx="32" cy="34" r="5.5" fill="#ffffff" stroke="#0f172a" stroke-width="2"/><polygon points="32,14 26,4 38,4" fill="#dc2626" stroke="#ffffff" stroke-width="1.2"/></svg>Lucky Spin Wheel</span>
+        <button id="wheelCloseX" class="modal-close-x" type="button" aria-label="Close wheel">&times;</button>
+      </div>
+      <div class="wheel-wrap">
+        <div class="wheel-pointer" aria-hidden="true"></div>
+        <div id="wheelRotator" class="wheel-rotator">
+          <svg id="wheelSvg" viewBox="0 0 240 240" width="100%" height="100%" aria-hidden="true"></svg>
+        </div>
+        <div class="wheel-hub" aria-hidden="true">&#11088;</div>
+      </div>
+      <div id="wheelStats" style="text-align:center; font-size:0.78rem; font-weight:700; color:#475569; margin-bottom:6px;">Matches: 0 / 50 &bull; Spins Ready: 0 &bull; Cost: 100 Coins</div>
+      <div id="wheelResult" class="wheel-result">1 Free Daily Spin! Or play 50 games + 100 Coins (1% Cosmic X)!</div>
+      <button id="spinWheelBtn" class="wheel-spin-btn" type="button">Spin Wheel (100 Coins)</button>
+      <div class="modal-footer" style="margin-top:12px;">
+        <button id="wheelCancelBtn" class="modal-btn cancel" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ACCOUNT NEEDED MODAL FOR LOCKED ONLINE ROOM -->
+  <div id="accountNeededModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="accountNeededTitle" style="z-index:1350;">
+    <div class="modal-card" style="max-width:340px; text-align:center;">
+      <div class="modal-head" style="justify-content:center; margin-bottom:8px;">
+        <span id="accountNeededTitle" class="modal-title">&#128274; Account Needed</span>
+      </div>
+      <p style="font-size:0.9rem; line-height:1.45; margin-bottom:14px;">Online Room is locked for Guests. Please sign in or create an account to play Online!</p>
+      <div class="modal-footer" style="justify-content:center; margin-top:6px;">
+        <button id="accountNeededGoBtn" class="online-btn" type="button">Open Account</button>
+        <button id="accountNeededCloseBtn" class="modal-btn cancel" type="button">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // 1. Game state
     let board = ['', '', '', '', '', '', '', '', ''];
@@ -1878,14 +2416,15 @@
 
     const X_SYMBOLS = {
       classic: 'X',
-      swords: '⚔️',
       heavyx: '✖️',
       redx: '❌',
       tools: '⚒️',
       sparkx: '✕',
       cricket_bats: '🏏',
       shooting_guns: '🔫',
-      football_spikes: '👟'
+      football_spikes: '👟',
+      cosmic_x: '⚡',
+      crystal_x: '💠'
     };
 
     const O_SYMBOLS = {
@@ -1897,12 +2436,16 @@
       goldring: '🪙',
       cricket_ball: '🔴',
       shooting_bullet: '🟡',
-      football_ball: '⚽'
+      football_ball: '⚽',
+      cosmic_o: '🌀'
     };
 
     const CROSSED_BATS_SVG = '<svg class="cricket-bats-icon" viewBox="0 0 64 64" aria-hidden="true"><g transform="rotate(45 32 32)"><rect x="28" y="6" width="8" height="16" rx="2" fill="#1e293b"/><rect x="25" y="21" width="14" height="36" rx="4" fill="#d97706" stroke="#78350f" stroke-width="2"/></g><g transform="rotate(-45 32 32)"><rect x="28" y="6" width="8" height="16" rx="2" fill="#1e293b"/><rect x="25" y="21" width="14" height="36" rx="4" fill="#f59e0b" stroke="#78350f" stroke-width="2"/></g></svg>';
     const CROSSED_GUNS_SVG = '<svg class="cricket-bats-icon" viewBox="0 0 64 64" aria-hidden="true"><g transform="rotate(-38 32 32)"><rect x="11" y="22" width="38" height="8" rx="1.5" fill="#334155" stroke="#0f172a" stroke-width="1.2"/><rect x="46" y="23" width="6" height="5" rx="1" fill="#64748b"/><rect x="13" y="20" width="3" height="2" fill="#0f172a"/><rect x="43" y="20" width="2.5" height="2" fill="#0f172a"/><rect x="25" y="23.5" width="9" height="3" rx="0.8" fill="#94a3b8"/><path d="M14 30 L34 30 L33 34 L25 34 L22 47 L13 46 Z" fill="#1e293b" stroke="#0f172a" stroke-width="1.2"/><path d="M15 34 L21 34 L19.5 44.5 L14 44 Z" fill="#78350f"/><path d="M24 34 L31 34 L30 39 L24 39 Z" fill="none" stroke="#0f172a" stroke-width="1.5"/><path d="M27.5 34 L26.5 37.5" stroke="#0f172a" stroke-width="1.4" stroke-linecap="round"/></g><g transform="translate(64 0) scale(-1 1) rotate(-38 32 32)"><rect x="11" y="22" width="38" height="8" rx="1.5" fill="#475569" stroke="#0f172a" stroke-width="1.2"/><rect x="46" y="23" width="6" height="5" rx="1" fill="#94a3b8"/><rect x="13" y="20" width="3" height="2" fill="#0f172a"/><rect x="43" y="20" width="2.5" height="2" fill="#0f172a"/><rect x="25" y="23.5" width="9" height="3" rx="0.8" fill="#cbd5e1"/><path d="M14 30 L34 30 L33 34 L25 34 L22 47 L13 46 Z" fill="#334155" stroke="#0f172a" stroke-width="1.2"/><path d="M15 34 L21 34 L19.5 44.5 L14 44 Z" fill="#92400e"/><path d="M24 34 L31 34 L30 39 L24 39 Z" fill="none" stroke="#0f172a" stroke-width="1.5"/><path d="M27.5 34 L26.5 37.5" stroke="#0f172a" stroke-width="1.4" stroke-linecap="round"/></g></svg>';
     const CYLINDER_BULLET_SVG = '<svg class="cricket-bats-icon" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="copperTip" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#9a3412"/><stop offset="40%" stop-color="#ea580c"/><stop offset="70%" stop-color="#fdba74"/><stop offset="100%" stop-color="#7c2d12"/></linearGradient><linearGradient id="brassCase" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#a16207"/><stop offset="38%" stop-color="#facc15"/><stop offset="68%" stop-color="#fef08a"/><stop offset="100%" stop-color="#854d0e"/></linearGradient></defs><path d="M23 27 C23 15 27.5 7 32 7 C36.5 7 41 15 41 27 Z" fill="url(#copperTip)" stroke="#431407" stroke-width="1.5"/><rect x="22" y="27" width="20" height="22" rx="1.5" fill="url(#brassCase)" stroke="#713f12" stroke-width="1.5"/><line x1="22" y1="31" x2="42" y2="31" stroke="#854d0e" stroke-width="1.5"/><rect x="23" y="49" width="18" height="2.5" fill="#713f12"/><rect x="20" y="51.5" width="24" height="4.5" rx="1.5" fill="url(#brassCase)" stroke="#713f12" stroke-width="1.5"/></svg>';
+    const COSMIC_ORB_SVG = '<svg class="cricket-bats-icon" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="crystalRim" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0284c7"/><stop offset="35%" stop-color="#22d3ee"/><stop offset="70%" stop-color="#1d4ed8"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient><radialGradient id="crystalGlass" cx="42%" cy="35%" r="60%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/><stop offset="55%" stop-color="#e0f2fe" stop-opacity="0.9"/><stop offset="100%" stop-color="#93c5fd" stop-opacity="0.88"/></radialGradient></defs><circle cx="32" cy="32" r="24" fill="none" stroke="url(#crystalRim)" stroke-width="11"/><circle cx="32" cy="32" r="21" fill="none" stroke="url(#crystalGlass)" stroke-width="6.5"/><circle cx="32" cy="32" r="15.5" fill="none" stroke="url(#crystalRim)" stroke-width="3.2"/><path d="M14 24 A20 20 0 0 1 36 12" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" opacity="0.85"/><circle cx="48" cy="46" r="2.2" fill="#ffffff" opacity="0.9"/></svg>';
+    const CRYSTAL_X_SVG = '<svg class="cricket-bats-icon" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="crystalXRim" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0284c7"/><stop offset="40%" stop-color="#22d3ee"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient><linearGradient id="crystalXBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="60%" stop-color="#e0f2fe"/><stop offset="100%" stop-color="#93c5fd"/></linearGradient></defs><g transform="rotate(45 32 32)"><rect x="23" y="5" width="18" height="54" rx="8" fill="url(#crystalXRim)" stroke="#1e40af" stroke-width="1.5"/><rect x="26.5" y="8.5" width="11" height="47" rx="5" fill="url(#crystalXBody)"/><path d="M29 12 L29 28" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/></g><g transform="rotate(-45 32 32)"><rect x="23" y="5" width="18" height="54" rx="8" fill="url(#crystalXRim)" stroke="#1e40af" stroke-width="1.5"/><rect x="26.5" y="8.5" width="11" height="47" rx="5" fill="url(#crystalXBody)"/><path d="M29 12 L29 28" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/></g></svg>';
+    const COSMIC_BLADE_SVG = '<svg class="cricket-bats-icon" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="cosmicBladeA" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fde047"/><stop offset="48%" stop-color="#22d3ee"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient><linearGradient id="cosmicBladeB" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f472b6"/><stop offset="50%" stop-color="#facc15"/><stop offset="100%" stop-color="#2563eb"/></linearGradient></defs><g transform="rotate(45 32 32)"><path d="M29 5 L35 5 L33.5 46 L30.5 46 Z" fill="url(#cosmicBladeA)" stroke="#0f172a" stroke-width="1.3"/><rect x="24" y="45" width="16" height="4" rx="1.5" fill="#fbbf24" stroke="#78350f" stroke-width="1"/><rect x="29.5" y="49" width="5" height="9" rx="1.5" fill="#1e293b"/></g><g transform="rotate(-45 32 32)"><path d="M29 5 L35 5 L33.5 46 L30.5 46 Z" fill="url(#cosmicBladeB)" stroke="#0f172a" stroke-width="1.3"/><rect x="24" y="45" width="16" height="4" rx="1.5" fill="#fbbf24" stroke="#78350f" stroke-width="1"/><rect x="29.5" y="49" width="5" height="9" rx="1.5" fill="#1e293b"/></g><circle cx="32" cy="32" r="5" fill="#fef08a" stroke="#dc2626" stroke-width="1.8"/><circle cx="14" cy="14" r="2" fill="#fde047"/><circle cx="50" cy="14" r="2" fill="#22d3ee"/><circle cx="14" cy="50" r="2" fill="#f472b6"/><circle cx="50" cy="50" r="2" fill="#fde047"/></svg>';
     const CROSSED_SPIKES_SVG = '<svg class="cricket-bats-icon" viewBox="0 0 64 64" aria-hidden="true"><g transform="rotate(-38 32 32)"><path d="M12 24 L26 24 L31 29 L48 31 C52 31.5 54 35 53 38 L12 38 Z" fill="#1e293b" stroke="#0f172a" stroke-width="1.5"/><path d="M24 26 L30 31 M28 26 L34 31" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round"/><rect x="11" y="38" width="42" height="3.5" rx="1.5" fill="#f8fafc" stroke="#0f172a" stroke-width="1"/><rect x="14" y="41.5" width="3.5" height="4.5" rx="1" fill="#cbd5e1" stroke="#0f172a" stroke-width="0.9"/><rect x="23" y="41.5" width="3.5" height="4.5" rx="1" fill="#cbd5e1" stroke="#0f172a" stroke-width="0.9"/><rect x="35" y="41.5" width="3.5" height="4.5" rx="1" fill="#cbd5e1" stroke="#0f172a" stroke-width="0.9"/><rect x="44" y="41.5" width="3.5" height="4.5" rx="1" fill="#cbd5e1" stroke="#0f172a" stroke-width="0.9"/></g><g transform="translate(64 0) scale(-1 1) rotate(-38 32 32)"><path d="M12 24 L26 24 L31 29 L48 31 C52 31.5 54 35 53 38 L12 38 Z" fill="#dc2626" stroke="#7f1d1d" stroke-width="1.5"/><path d="M24 26 L30 31 M28 26 L34 31" stroke="#fef08a" stroke-width="2.2" stroke-linecap="round"/><rect x="11" y="38" width="42" height="3.5" rx="1.5" fill="#f8fafc" stroke="#0f172a" stroke-width="1"/><rect x="14" y="41.5" width="3.5" height="4.5" rx="1" fill="#e2e8f0" stroke="#0f172a" stroke-width="0.9"/><rect x="23" y="41.5" width="3.5" height="4.5" rx="1" fill="#e2e8f0" stroke="#0f172a" stroke-width="0.9"/><rect x="35" y="41.5" width="3.5" height="4.5" rx="1" fill="#e2e8f0" stroke="#0f172a" stroke-width="0.9"/><rect x="44" y="41.5" width="3.5" height="4.5" rx="1" fill="#e2e8f0" stroke="#0f172a" stroke-width="0.9"/></g></svg>';
     const CRICKET_BALL_SVG = '<svg class="cricket-bats-icon" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="24" fill="#b91c1c" stroke="#7f1d1d" stroke-width="3"/><path d="M16 18 Q32 32 48 46" stroke="#fef2f2" stroke-width="3" stroke-dasharray="4 3" fill="none"/></svg>';
 
@@ -1943,6 +2486,9 @@
     let activeTitle = 'Rookie';
     let isOwner = false;
     let redeemedCodes = [];
+    let totalMatchesPlayed = 0;
+    let spinsUsed = 0;
+    let totalWins = 0;
 
     // Sound state
     let audioCtx = null;
@@ -1997,6 +2543,7 @@
     const settingsModalTitle = document.getElementById('settingsModalTitle');
     const settingsMainView = document.getElementById('settingsMainView');
     const settingsAccountView = document.getElementById('settingsAccountView');
+    const settingsUsernameView = document.getElementById('settingsUsernameView');
     const settingsRedeemView = document.getElementById('settingsRedeemView');
     const soundStateLabel = document.getElementById('soundStateLabel');
     const accountStateLabel = document.getElementById('accountStateLabel');
@@ -2101,6 +2648,8 @@
         logoutStateLabel.textContent = isSignedIn ? 'Logout' : 'Guest';
         logoutStateLabel.classList.toggle('off', isSignedIn);
       }
+      if (typeof updateUsernameUI === 'function') updateUsernameUI();
+      if (typeof updateOnlineLockUI === 'function') updateOnlineLockUI();
     }
 
     function performLogout() {
@@ -2121,6 +2670,9 @@
       activeTitle = 'Rookie';
       isOwner = false;
       redeemedCodes = [];
+      totalMatchesPlayed = 0;
+      spinsUsed = 0;
+      totalWins = 0;
 
       applyBoardTheme('classic', false);
       xTheme = 'classic';
@@ -2136,7 +2688,9 @@
       updateProgressUI();
       updateThemeShopUI();
       renderTitles();
+      ensureGuestName(true);
       updateAccountViewUI();
+      if (gameMode === 'online') setGameMode('2p');
       setCloudStatus('☁️ Local Saved');
       const authMsg = document.getElementById('authMsg');
       if (authMsg) authMsg.textContent = 'Logged out. Started fresh at Level 1!';
@@ -2147,8 +2701,8 @@
       const password = document.getElementById('authPassInput').value;
       const authMsg = document.getElementById('authMsg');
 
-      if (!email || !email.includes('@') || !email.includes('.')) {
-        authMsg.textContent = 'Please enter a valid Gmail ID.';
+      if (!email || !email.endsWith('@gmail.com') || email.length < 12) {
+        authMsg.textContent = 'Please enter a real @gmail.com address.';
         return;
       }
       if (!password || password.length < 6) {
@@ -2170,6 +2724,34 @@
           authMsg.textContent = `Error: ${code}. Make sure Email/Password is enabled in Firebase Auth.`;
           return;
         }
+        // Verify that the Gmail address is real and verified via Firebase email link
+        let isVerified = false;
+        try {
+          const lookupRes = await fetch(`${FIREBASE_AUTH_BASE}:lookup?key=${FIREBASE_API_KEY}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken: data.idToken })
+          });
+          if (lookupRes.ok) {
+            const lookupData = await lookupRes.json();
+            const userObj = lookupData && Array.isArray(lookupData.users) ? lookupData.users[0] : null;
+            isVerified = Boolean(userObj && userObj.emailVerified);
+          }
+        } catch (e) {}
+
+        if (!isVerified) {
+          try {
+            await fetch(`${FIREBASE_AUTH_BASE}:sendOobCode?key=${FIREBASE_API_KEY}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ requestType: 'VERIFY_EMAIL', idToken: data.idToken })
+            });
+          } catch (e) {}
+          authMsg.textContent = `Verification link sent to ${email}! Open your real Gmail inbox, click the link, then tap Sign In. Fake Gmail addresses cannot verify.`;
+          playDrawSound();
+          return;
+        }
+
         firebaseUid = data.localId;
         firebaseToken = data.idToken;
         activeEmail = email;
@@ -2181,12 +2763,14 @@
         authMsg.textContent = `Signed in as ${email}! Syncing cloud progress...`;
         if (mode === 'signUp') {
           await pushToCloud();
-          authMsg.textContent = `Account created for ${email}!`;
+          authMsg.textContent = `Account verified & created for ${email}!`;
         } else {
           loadAccount(email);
           await pullFromCloud();
           saveProgress();
           authMsg.textContent = `Signed in as ${email}! Progress loaded.`;
+          syncServerAssignment();
+          pushLeaderboardRecord();
         }
         playWinSound('X');
       } catch (e) {
@@ -2213,7 +2797,10 @@
           oTheme: { stringValue: String(obj.oTheme || 'classic') },
           activeTitle: { stringValue: String(obj.activeTitle || 'Rookie') },
           isOwner: { booleanValue: Boolean(obj.isOwner) },
-          redeemedCodes: { stringValue: JSON.stringify(obj.redeemedCodes || []) }
+          redeemedCodes: { stringValue: JSON.stringify(obj.redeemedCodes || []) },
+          totalMatchesPlayed: { integerValue: String(obj.totalMatchesPlayed || 0) },
+          spinsUsed: { integerValue: String(obj.spinsUsed || 0) },
+          totalWins: { integerValue: String(obj.totalWins || 0) }
         }
       };
     }
@@ -2235,8 +2822,124 @@
         oTheme: fields.oTheme ? fields.oTheme.stringValue : 'classic',
         activeTitle: fields.activeTitle ? fields.activeTitle.stringValue : 'Rookie',
         isOwner: fields.isOwner ? Boolean(fields.isOwner.booleanValue) : false,
-        redeemedCodes: parseArr(fields.redeemedCodes, [])
+        redeemedCodes: parseArr(fields.redeemedCodes, []),
+        totalMatchesPlayed: fields.totalMatchesPlayed ? Number(fields.totalMatchesPlayed.integerValue ?? 0) : 0,
+        spinsUsed: fields.spinsUsed ? Number(fields.spinsUsed.integerValue ?? 0) : 0,
+        totalWins: fields.totalWins ? Number(fields.totalWins.integerValue ?? 0) : 0
       };
+    }
+
+    async function pushLeaderboardRecord() {
+      if (!isUserSignedIn() || !firebaseUid) return;
+      const pid = firebaseUid;
+      try {
+        const body = {
+          fields: {
+            uid: { stringValue: String(firebaseUid) },
+            isAccount: { booleanValue: true },
+            name: { stringValue: String(getMyName() || 'Player') },
+            level: { integerValue: String(level || 1) },
+            xp: { doubleValue: Number(xp || 0) },
+            coins: { doubleValue: Number(coins || 0) },
+            wins: { integerValue: String(totalWins || 0) },
+            title: { stringValue: String(activeTitle || 'Rookie') },
+            updatedAt: { integerValue: String(Date.now()) }
+          }
+        };
+        await fetch(`${FIRESTORE_BASE}/leaderboard/${encodeURIComponent(pid)}?key=${FIREBASE_API_KEY}`, {
+          method: 'PATCH',
+          headers: getCloudHeaders(),
+          body: JSON.stringify(body)
+        });
+      } catch (e) {}
+    }
+
+    function renderLeaderboardRows(rows) {
+      const listEl = document.getElementById('leaderboardList');
+      if (!listEl) return;
+      if (!rows || !rows.length) {
+        listEl.innerHTML = '<div class="chat-empty">No account scores yet. Sign in under Settings → Account to join the leaderboard!</div>';
+        return;
+      }
+      const myName = getMyName();
+      listEl.innerHTML = rows.slice(0, 25).map((r, i) => {
+        const rankStr = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`;
+        const isMe = r.isMe || (myName && r.name === myName);
+        return `
+          <div class="lb-row${isMe ? ' me' : ''}">
+            <div class="lb-left">
+              <span class="lb-rank">${rankStr}</span>
+              <span class="lb-name">${escapeHtml(r.name)}${isMe ? ' (You)' : ''}</span>
+              <span class="lb-title">${escapeHtml(r.title || 'Rookie')}</span>
+            </div>
+            <span class="lb-stats">Lv ${r.level} &bull; ${r.wins}W &bull; ${formatCoins(r.coins)}c</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function fetchLeaderboard() {
+      const rawRows = [];
+      const myName = getMyName();
+      try {
+        const res = await fetch(`${FIRESTORE_BASE}/leaderboard?pageSize=50&key=${FIREBASE_API_KEY}`, {
+          headers: firebaseToken ? { 'Authorization': `Bearer ${firebaseToken}` } : {}
+        });
+        if (res.ok) {
+          const json = await res.json();
+          const docs = Array.isArray(json.documents) ? json.documents : [];
+          docs.forEach((doc) => {
+            const f = doc.fields || {};
+            const docId = doc.name ? doc.name.split('/').pop() : '';
+            const rName = f.name ? f.name.stringValue : '';
+            const isAcc = f.isAccount ? Boolean(f.isAccount.booleanValue) : false;
+            const rUid = f.uid ? f.uid.stringValue : '';
+            // Only keep real signed-in account entries (skip old guest/anonymous docs)
+            if (!isAcc || !rUid || !rName || /^Player\d{4}$/.test(rName)) return;
+            rawRows.push({
+              id: docId,
+              uid: rUid,
+              name: rName,
+              level: f.level ? Number(f.level.integerValue ?? 1) : 1,
+              coins: f.coins ? Number(f.coins.doubleValue ?? f.coins.integerValue ?? 0) : 0,
+              wins: f.wins ? Number(f.wins.integerValue ?? 0) : 0,
+              title: f.title ? f.title.stringValue : 'Rookie',
+              isMe: Boolean(firebaseUid && rUid === firebaseUid)
+            });
+          });
+        }
+      } catch (e) {}
+
+      // Add/update current signed-in player's single live entry
+      if (isUserSignedIn() && firebaseUid) {
+        const meRow = {
+          id: firebaseUid,
+          uid: firebaseUid,
+          name: myName || 'Player',
+          level,
+          coins,
+          wins: totalWins,
+          title: activeTitle || 'Rookie',
+          isMe: true
+        };
+        const idx = rawRows.findIndex((r) => r.uid === firebaseUid);
+        if (idx >= 0) rawRows[idx] = meRow;
+        else rawRows.push(meRow);
+      }
+
+      // Sort highest first, then deduplicate so each unique player/name has only 1 rank
+      rawRows.sort((a, b) => (b.level - a.level) || (b.wins - a.wins) || (b.coins - a.coins));
+      const seenUids = new Set();
+      const seenNames = new Set();
+      const rows = [];
+      for (const r of rawRows) {
+        const nameKey = r.name.trim().toLowerCase();
+        if (seenUids.has(r.uid) || seenNames.has(nameKey)) continue;
+        seenUids.add(r.uid);
+        seenNames.add(nameKey);
+        rows.push(r);
+      }
+      renderLeaderboardRows(rows);
     }
 
     async function pushToCloud() {
@@ -2250,7 +2953,7 @@
         const payload = toFirestoreFields({
           coins, level, xp, unlockedThemes, unlockedXThemes, unlockedOThemes,
           unlockedCombos,
-          boardTheme, xTheme, oTheme, activeTitle, isOwner, redeemedCodes
+          boardTheme, xTheme, oTheme, activeTitle, isOwner, redeemedCodes, totalMatchesPlayed, spinsUsed
         });
         const res = await fetch(`${FIRESTORE_BASE}/players/${encodeURIComponent(pid)}?key=${FIREBASE_API_KEY}`, {
           method: 'PATCH',
@@ -2259,6 +2962,7 @@
         });
         if (res.ok) {
           setCloudStatus('☁️ Cloud Synced');
+          pushLeaderboardRecord(pid);
         } else {
           setCloudStatus('☁️ Local Saved');
         }
@@ -2290,10 +2994,13 @@
           unlockedThemes = Array.from(new Set([...unlockedThemes, ...data.unlockedThemes]));
           unlockedXThemes = Array.from(new Set([...unlockedXThemes, ...data.unlockedXThemes]));
           unlockedOThemes = Array.from(new Set([...unlockedOThemes, ...data.unlockedOThemes]));
-          ['cricket', 'shooting', 'football'].forEach((cid) => {
+          ['cricket', 'shooting', 'football', 'cosmic'].forEach((cid) => {
             if (unlockedThemes.includes(cid) && !unlockedCombos.includes(cid)) unlockedCombos.push(cid);
           });
           redeemedCodes = Array.from(new Set([...redeemedCodes, ...data.redeemedCodes]));
+          totalMatchesPlayed = Math.max(totalMatchesPlayed, data.totalMatchesPlayed || 0);
+          spinsUsed = Math.max(spinsUsed, data.spinsUsed || 0);
+          totalWins = Math.max(totalWins, data.totalWins || 0);
           if (data.isOwner) isOwner = true;
           if (data.activeTitle) activeTitle = data.activeTitle;
           applyBoardTheme(data.boardTheme || boardTheme, false);
@@ -2326,7 +3033,10 @@
           oTheme,
           activeTitle,
           isOwner,
-          redeemedCodes
+          redeemedCodes,
+          totalMatchesPlayed,
+          spinsUsed,
+          totalWins
         };
         localStorage.setItem(STORAGE_ACCOUNTS_KEY, JSON.stringify(accounts));
         localStorage.setItem(STORAGE_ACTIVE_EMAIL_KEY, activeEmail);
@@ -2345,10 +3055,10 @@
         level = MAX_LEVEL;
         xp = 0;
         coins = data && typeof data.coins === 'number' ? Math.max(900000, data.coins) : 900000;
-        unlockedThemes = ['classic', 'dots', 'wood', 'pixel', 'galaxy', 'neon', 'cricket', 'shooting', 'football'];
-        unlockedXThemes = ['classic', 'swords', 'heavyx', 'redx', 'tools', 'sparkx', 'cricket_bats', 'shooting_guns', 'football_spikes'];
-        unlockedOThemes = ['classic', 'redring', 'bluering', 'purplering', 'disc', 'goldring', 'cricket_ball', 'shooting_bullet', 'football_ball'];
-        unlockedCombos = ['cricket', 'shooting', 'football'];
+        unlockedThemes = ['classic', 'dots', 'wood', 'pixel', 'galaxy', 'neon', 'cricket', 'shooting', 'football', 'cosmic'];
+        unlockedXThemes = ['classic', 'heavyx', 'redx', 'tools', 'sparkx', 'cricket_bats', 'shooting_guns', 'football_spikes', 'cosmic_x', 'crystal_x'];
+        unlockedOThemes = ['classic', 'redring', 'bluering', 'purplering', 'disc', 'goldring', 'cricket_ball', 'shooting_bullet', 'football_ball', 'cosmic_o'];
+        unlockedCombos = ['cricket', 'shooting', 'football', 'cosmic'];
         boardTheme = data && data.boardTheme ? data.boardTheme : 'classic';
         xTheme = data && data.xTheme ? data.xTheme : 'classic';
         oTheme = data && data.oTheme ? data.oTheme : 'classic';
@@ -2367,6 +3077,9 @@
         activeTitle = typeof data.activeTitle === 'string' ? data.activeTitle : 'Rookie';
         isOwner = false;
         redeemedCodes = Array.isArray(data.redeemedCodes) ? data.redeemedCodes : [];
+      totalMatchesPlayed = Number(data.totalMatchesPlayed || 0);
+      spinsUsed = Number(data.spinsUsed || 0);
+      totalWins = Number(data.totalWins || 0);
       } else {
         coins = 0;
         level = 1;
@@ -2415,10 +3128,10 @@
         level = MAX_LEVEL;
         xp = 0;
         coins = Math.max(coins, 900000);
-        unlockedThemes = ['classic', 'dots', 'wood', 'pixel', 'galaxy', 'neon', 'cricket', 'shooting', 'football'];
-        unlockedXThemes = ['classic', 'swords', 'heavyx', 'redx', 'tools', 'sparkx', 'cricket_bats', 'shooting_guns', 'football_spikes'];
-        unlockedOThemes = ['classic', 'redring', 'bluering', 'purplering', 'disc', 'goldring', 'cricket_ball', 'shooting_bullet', 'football_ball'];
-        unlockedCombos = ['cricket', 'shooting', 'football'];
+        unlockedThemes = ['classic', 'dots', 'wood', 'pixel', 'galaxy', 'neon', 'cricket', 'shooting', 'football', 'cosmic'];
+        unlockedXThemes = ['classic', 'heavyx', 'redx', 'tools', 'sparkx', 'cricket_bats', 'shooting_guns', 'football_spikes', 'cosmic_x', 'crystal_x'];
+        unlockedOThemes = ['classic', 'redring', 'bluering', 'purplering', 'disc', 'goldring', 'cricket_ball', 'shooting_bullet', 'football_ball', 'cosmic_o'];
+        unlockedCombos = ['cricket', 'shooting', 'football', 'cosmic'];
         activeTitle = 'Owner';
         saveProgress();
         updateProgressUI();
@@ -2457,6 +3170,60 @@
         oTheme = 'goldring';
         refreshBoardMarks();
         rewardMsg = 'Redeemed! Gold Coin O (🪙) unlocked and equipped!';
+      } else if (raw === 'clash100') {
+        coins += 100;
+        rewardMsg = 'Redeemed! +100 Coins added.';
+      } else if (raw === 'boost300') {
+        coins += 300;
+        rewardMsg = 'Redeemed! +300 Coins added.';
+      } else if (raw === 'mega500') {
+        coins += 500;
+        rewardMsg = 'Redeemed! +500 Coins added.';
+      } else if (raw === 'xp50') {
+        if (level < MAX_LEVEL) {
+          xp += 50;
+          while (level < MAX_LEVEL && xp >= getMaxXpForLevel(level)) {
+            xp -= getMaxXpForLevel(level);
+            level++;
+          }
+          if (level >= MAX_LEVEL) { level = MAX_LEVEL; xp = 0; }
+        }
+        rewardMsg = 'Redeemed! +50 XP added.';
+      } else if (raw === 'xp150') {
+        if (level < MAX_LEVEL) {
+          xp += 150;
+          while (level < MAX_LEVEL && xp >= getMaxXpForLevel(level)) {
+            xp -= getMaxXpForLevel(level);
+            level++;
+          }
+          if (level >= MAX_LEVEL) { level = MAX_LEVEL; xp = 0; }
+        }
+        rewardMsg = 'Redeemed! +150 XP added.';
+      } else if (raw === 'proplayer') {
+        coins += 250;
+        if (level < MAX_LEVEL) {
+          xp += 100;
+          while (level < MAX_LEVEL && xp >= getMaxXpForLevel(level)) {
+            xp -= getMaxXpForLevel(level);
+            level++;
+          }
+          if (level >= MAX_LEVEL) { level = MAX_LEVEL; xp = 0; }
+        }
+        rewardMsg = 'Redeemed! +250 Coins & +100 XP added.';
+      } else if (raw === 'champion') {
+        coins += 400;
+        level = Math.min(MAX_LEVEL, level + 1);
+        if (level >= MAX_LEVEL) xp = 0;
+        rewardMsg = `Redeemed! +400 Coins & Level ${level >= MAX_LEVEL ? '100 (MAX)' : level}!`;
+      } else if (raw === 'cricket25') {
+        coins += 150;
+        rewardMsg = 'Redeemed! +150 Coins added.';
+      } else if (raw === 'sniper50') {
+        coins += 250;
+        rewardMsg = 'Redeemed! +250 Coins added.';
+      } else if (raw === 'striker') {
+        coins += 400;
+        rewardMsg = 'Redeemed! +400 Coins added.';
       } else {
         redeemMsg.textContent = 'Invalid redeem code.';
         playDrawSound();
@@ -2475,18 +3242,32 @@
 
 
 
-    function awardMatchRewards() {
-      let xpGain = 1;
-      let coinGain = 1;
+    function awardMatchRewards(outcome = 'win', winner = null) {
+      totalMatchesPlayed++;
+      if (outcome === 'win') {
+        if (gameMode === '2p' || (gameMode === 'cpu' && winner === 'X') || (gameMode === 'online' && winner === mySymbol)) {
+          totalWins++;
+        }
+      }
+      let xpGain = 0;
+      let coinGain = 0;
 
       if (gameMode === '2p') {
         xpGain = 0.1;
         coinGain = 1;
       } else if (gameMode === 'cpu') {
-        if (difficulty === 'easy') { xpGain = 1; coinGain = 2; }
-        else if (difficulty === 'normal') { xpGain = 3; coinGain = 2; }
-        else if (difficulty === 'hard') { xpGain = 7; coinGain = 5; }
-        else if (difficulty === 'boss') { xpGain = 100000; coinGain = 100000; }
+        if (outcome === 'win' && winner === 'X') {
+          if (difficulty === 'easy') { xpGain = 1; coinGain = 2; }
+          else if (difficulty === 'normal') { xpGain = 3; coinGain = 2; }
+          else if (difficulty === 'hard') { xpGain = 7; coinGain = 5; }
+          else if (difficulty === 'boss') { xpGain = 100000; coinGain = 100000; }
+        } else if (outcome === 'draw' && difficulty === 'boss') {
+          xpGain = 10;
+          coinGain = 10;
+        } else {
+          saveProgress();
+          return;
+        }
       } else if (gameMode === 'online') {
         xpGain = 1;
         coinGain = 1;
@@ -2577,10 +3358,16 @@
         cell.innerHTML = CROSSED_GUNS_SVG;
       } else if (player === 'X' && xTheme === 'football_spikes') {
         cell.innerHTML = CROSSED_SPIKES_SVG;
+      } else if (player === 'X' && xTheme === 'cosmic_x') {
+        cell.innerHTML = COSMIC_BLADE_SVG;
+      } else if (player === 'X' && xTheme === 'crystal_x') {
+        cell.innerHTML = CRYSTAL_X_SVG;
       } else if (player === 'O' && oTheme === 'cricket_ball') {
         cell.innerHTML = CRICKET_BALL_SVG;
       } else if (player === 'O' && oTheme === 'shooting_bullet') {
         cell.innerHTML = CYLINDER_BULLET_SVG;
+      } else if (player === 'O' && oTheme === 'cosmic_o') {
+        cell.innerHTML = COSMIC_ORB_SVG;
       } else {
         cell.textContent = getMarkDisplay(player);
       }
@@ -2604,6 +3391,7 @@
     function updateOptionGroup(nodeList, attrKey, unlockedList, activeKey) {
       nodeList.forEach((btn) => {
         const key = btn.dataset[attrKey];
+
         const price = Number(btn.dataset.price || 0);
         const owned = unlockedList.includes(key);
         btn.classList.toggle('owned', owned);
@@ -2613,7 +3401,9 @@
           if (activeKey === key) {
             priceEl.textContent = 'Active';
           } else if (owned) {
-            priceEl.textContent = price === 0 ? 'Free' : 'Owned';
+            priceEl.textContent = (price === 0 && btn.dataset.exclusive !== '1') ? 'Free' : 'Owned';
+          } else if (btn.dataset.exclusive === '1') {
+            priceEl.textContent = 'From Spin Wheel';
           } else {
             priceEl.textContent = `${price} Coins`;
           }
@@ -2709,6 +3499,11 @@
         }
       } else if (type === 'x') {
         const key = btn.dataset.xtheme;
+        if (btn.dataset.exclusive === '1' && !unlockedXThemes.includes(key)) {
+          themeMsg.textContent = `Spin the Lucky Wheel to unlock ${label}!`;
+          playDrawSound();
+          return;
+        }
         if (unlockedXThemes.includes(key)) {
           themeMsg.textContent = '';
           xTheme = key;
@@ -2734,6 +3529,11 @@
         }
       } else if (type === 'o') {
         const key = btn.dataset.otheme;
+        if (btn.dataset.exclusive === '1' && !unlockedOThemes.includes(key)) {
+          themeMsg.textContent = `Spin the Lucky Wheel to unlock ${label}!`;
+          playDrawSound();
+          return;
+        }
         if (unlockedOThemes.includes(key)) {
           themeMsg.textContent = '';
           oTheme = key;
@@ -2761,7 +3561,38 @@
     }
 
     // 5. Persistent Username Logic (saved in localStorage, changeable once)
+    const STORAGE_GUEST_NAME_KEY = 'ttt_guest_random_name';
+    let guestRandomName = '';
+
+    function generateGuestName() {
+      return 'Player' + String(Math.floor(1000 + Math.random() * 9000));
+    }
+
+    function ensureGuestName(forceNew = false) {
+      if (forceNew) {
+        guestRandomName = generateGuestName();
+        try { localStorage.setItem(STORAGE_GUEST_NAME_KEY, guestRandomName); } catch (e) {}
+        return guestRandomName;
+      }
+      if (!guestRandomName) {
+        try {
+          const stored = localStorage.getItem(STORAGE_GUEST_NAME_KEY);
+          if (stored && /^Player\d{4}$/.test(stored)) guestRandomName = stored;
+        } catch (e) {}
+      }
+      if (!guestRandomName) {
+        guestRandomName = generateGuestName();
+        try { localStorage.setItem(STORAGE_GUEST_NAME_KEY, guestRandomName); } catch (e) {}
+      }
+      return guestRandomName;
+    }
+
+    function isUserSignedIn() {
+      return Boolean(firebaseUid || (activeEmail && activeEmail !== 'guest'));
+    }
+
     function loadSavedUsername() {
+      ensureGuestName(false);
       try {
         const storedName = localStorage.getItem(STORAGE_NAME_KEY);
         const storedChanges = Number(localStorage.getItem(STORAGE_CHANGES_KEY) || '0');
@@ -2771,11 +3602,26 @@
         }
       } catch (e) {}
 
-      playerNameInput.value = savedUsername || '';
+      playerNameInput.value = isUserSignedIn() ? (savedUsername || '') : '';
       updateUsernameUI();
     }
 
     function updateUsernameUI() {
+      const currentName = getMyName();
+      const curText = document.getElementById('usernameCurrentText');
+      const badgeEl = document.getElementById('usernameStateLabel');
+      if (curText) curText.textContent = currentName;
+      if (badgeEl) badgeEl.textContent = currentName.slice(0, 12);
+
+      if (!isUserSignedIn()) {
+        playerNameInput.value = '';
+        playerNameInput.disabled = true;
+        saveNameBtn.disabled = true;
+        saveNameBtn.textContent = 'Locked';
+        nameHint.textContent = `Sign in with Gmail & Password in Account to choose your own username. Playing as ${currentName}.`;
+        return;
+      }
+
       if (usernameChangesUsed >= 2) {
         playerNameInput.disabled = true;
         saveNameBtn.disabled = true;
@@ -2795,6 +3641,10 @@
     }
 
     function saveUsername() {
+      if (!isUserSignedIn()) {
+        nameHint.textContent = 'Please sign in with Gmail & Password in Account first!';
+        return;
+      }
       if (usernameChangesUsed >= 2) return;
       const entered = playerNameInput.value.trim();
       if (!entered) {
@@ -2825,7 +3675,8 @@
     }
 
     function getMyName() {
-      return savedUsername || playerNameInput.value.trim() || 'Player';
+      if (isUserSignedIn() && savedUsername) return savedUsername;
+      return ensureGuestName(false);
     }
 
     // 6. Synthesized Sound Effects (Web Audio API)
@@ -3130,17 +3981,47 @@
         if (selectedPlayerForChat === 'friend') {
           selectedPlayerForChat = null;
         }
-        const waitChip = document.createElement('div');
-        waitChip.className = 'player-name-btn self-chip';
-        waitChip.innerHTML = `<span class="status-dot waiting"></span> <span>Waiting...</span>`;
-        playersListEl.appendChild(waitChip);
+        const seenPeerNames = new Set([myName]);
+        const srvPeers = (serverPlayersMap[currentServer] || []).filter((p) => {
+          if (!p || !p.name || seenPeerNames.has(p.name) || p.isSignedIn === false) return false;
+          seenPeerNames.add(p.name);
+          return true;
+        });
+        if (srvPeers.length > 0) {
+          srvPeers.slice(0, 19).forEach((p) => {
+            const pBtn = document.createElement('button');
+            pBtn.type = 'button';
+            pBtn.className = 'player-name-btn';
+            if (selectedPlayerForChat === 'friend' && friendName === p.name) {
+              pBtn.classList.add('selected');
+            }
+            pBtn.innerHTML = `<span class="status-dot"></span> <span>${escapeHtml(p.name)}</span>`;
+            pBtn.addEventListener('click', () => {
+              if (selectedPlayerForChat === 'friend' && friendName === p.name) {
+                selectedPlayerForChat = null;
+              } else {
+                friendName = p.name;
+                selectedPlayerForChat = 'friend';
+                unreadPersonal = 0;
+              }
+              updateOnlineRoster();
+              renderChat();
+            });
+            playersListEl.appendChild(pBtn);
+          });
+        } else {
+          const waitChip = document.createElement('div');
+          waitChip.className = 'player-name-btn self-chip';
+          waitChip.innerHTML = `<span class="status-dot waiting"></span> <span>Waiting...</span>`;
+          playersListEl.appendChild(waitChip);
+        }
       }
 
       if (selectedPlayerForChat === 'friend') {
-        chatHeaderTitle.textContent = `Personal Chat: ${friendName}`;
+        chatHeaderTitle.textContent = `${friendName} Chat`;
         chatHeaderSub.textContent = 'Tap name again for Server';
       } else {
-        chatHeaderTitle.textContent = 'Server Chat';
+        chatHeaderTitle.textContent = `Server ${currentServer} Chat`;
         chatHeaderSub.textContent = isOnlineConnected ? 'Tap player for personal' : 'Always open';
       }
     }
@@ -3359,7 +4240,9 @@
       try { msgs = JSON.parse(str('messages', '[]')); } catch (e) {}
       return {
         hostName: str('hostName', 'Host'),
+        hostUid: str('hostUid', ''),
         guestName: str('guestName', ''),
+        serverName: str('serverName', ''),
         board: Array.isArray(b) && b.length === 9 ? b : ['', '', '', '', '', '', '', '', ''],
         turn: str('turn', 'X'),
         roundId: num('roundId', 1),
@@ -3424,12 +4307,12 @@
         cells.forEach((c) => (c.disabled = true));
         const winner = board[winningLine[0]];
         playWinSound(winner);
-        awardMatchRewards();
+        awardMatchRewards('win', winner);
         statusEl.textContent = winner === mySymbol ? 'You win!' : `${friendName} wins!`;
       } else if (!board.includes('') && !gameOver) {
         gameOver = true;
         playDrawSound();
-        awardMatchRewards();
+        awardMatchRewards('draw', null);
         statusEl.textContent = "It's a draw!";
       } else if (!gameOver) {
         updateTurnStatus();
@@ -3526,12 +4409,16 @@
       mySymbol = 'X';
       const code = String(Math.floor(1000 + Math.random() * 9000));
       activeRoomCode = code;
+      const genBox = document.getElementById('generatedCodeBox');
+      if (genBox) genBox.textContent = code;
       roomRoundId = 1;
       roomInfo.textContent = 'Creating room...';
 
       const fields = {
         hostName: { stringValue: getMyName() },
+        hostUid: { stringValue: String(firebaseUid || activeEmail || '') },
         guestName: { stringValue: '' },
+        serverName: { stringValue: currentServer },
         board: { stringValue: JSON.stringify(['', '', '', '', '', '', '', '', '']) },
         turn: { stringValue: 'X' },
         roundId: { integerValue: '1' },
@@ -3566,6 +4453,10 @@
         roomInfo.textContent = 'Please enter a valid 4-digit room code.';
         return;
       }
+      if (activeRoomCode && code === activeRoomCode) {
+        roomInfo.textContent = `You are already in room ${code}! Share this code with a friend.`;
+        return;
+      }
 
       cleanupPeer();
       mySymbol = 'O';
@@ -3590,10 +4481,16 @@
           return;
         }
 
-        let myName = getMyName();
-        if (myName.toLowerCase() === room.hostName.toLowerCase()) {
-          myName = `${myName} (2)`;
+        if (room.serverName && SERVER_NAMES.includes(room.serverName) && room.serverName !== currentServer) {
+          await movePlayerToServer(room.serverName);
         }
+        if (room.hostUid && firebaseUid && room.hostUid === firebaseUid) {
+          roomInfo.textContent = `You created room ${code}! Share this code with another player to join.`;
+          activeRoomCode = code;
+          mySymbol = 'X';
+          return;
+        }
+        let myName = getMyName();
         friendName = room.hostName;
         isOnlineConnected = true;
 
@@ -3653,7 +4550,7 @@
         scores[currentPlayer]++;
         updateScoreboard();
         playWinSound(currentPlayer);
-        awardMatchRewards();
+        awardMatchRewards('win', currentPlayer);
 
         if (gameMode === 'cpu') {
           if (currentPlayer === 'X') {
@@ -3677,7 +4574,7 @@
         scores.draw++;
         updateScoreboard();
         playDrawSound();
-        awardMatchRewards();
+        awardMatchRewards('draw', null);
         return;
       }
 
@@ -3800,7 +4697,20 @@
       }
     }
 
+    function updateOnlineLockUI() {
+      const signedIn = isUserSignedIn();
+      if (modeOnlineBtn) {
+        modeOnlineBtn.textContent = signedIn ? 'Online' : '🔒 Online';
+      }
+    }
+
     function setGameMode(mode) {
+      if (mode === 'online' && !isUserSignedIn()) {
+        playDrawSound();
+        const modal = document.getElementById('accountNeededModal');
+        if (modal) modal.classList.add('open');
+        return;
+      }
       if (mode !== 'online') {
         cleanupPeer();
       }
@@ -3810,6 +4720,7 @@
       modeOnlineBtn.classList.toggle('active', mode === 'online');
       difficultyBar.classList.toggle('visible', mode === 'cpu');
       onlinePanel.classList.toggle('visible', mode === 'online');
+      if (mode === 'online') { syncServerAssignment(); fetchLeaderboard(); }
       updateOnlineRoster();
       renderChat();
       resetScores(false);
@@ -3832,11 +4743,15 @@
     function showSettingsView(view) {
       settingsMainView.classList.toggle('active', view === 'main');
       settingsAccountView.classList.toggle('active', view === 'account');
+      settingsUsernameView.classList.toggle('active', view === 'username');
       settingsRedeemView.classList.toggle('active', view === 'redeem');
       if (view === 'account') {
         settingsModalTitle.innerHTML = '&#128100; Account';
         document.getElementById('authMsg').textContent = '';
         updateAccountViewUI();
+      } else if (view === 'username') {
+        settingsModalTitle.innerHTML = '&#127991;&#65039; Username';
+        updateUsernameUI();
       } else if (view === 'redeem') {
         settingsModalTitle.innerHTML = '&#127873; Redeem Code';
         redeemMsg.textContent = '';
@@ -3863,6 +4778,9 @@
     document.getElementById('settingsMainBackBtn').addEventListener('click', closeSettingsModal);
     document.getElementById('settingsMainCancelBtn').addEventListener('click', closeSettingsModal);
     document.getElementById('openAccountSubBtn').addEventListener('click', () => { playClickSound(); showSettingsView('account'); });
+    document.getElementById('openUsernameSubBtn').addEventListener('click', () => { playClickSound(); showSettingsView('username'); });
+    document.getElementById('usernameBackBtn').addEventListener('click', () => { playClickSound(); showSettingsView('main'); });
+    document.getElementById('usernameCancelBtn').addEventListener('click', closeSettingsModal);
     document.getElementById('openRedeemSubBtn').addEventListener('click', () => { playClickSound(); showSettingsView('redeem'); });
     document.getElementById('accountBackBtn').addEventListener('click', () => { playClickSound(); showSettingsView('main'); });
     document.getElementById('accountCancelBtn').addEventListener('click', closeSettingsModal);
@@ -3907,10 +4825,31 @@
     titlesAreaBtn.addEventListener('click', toggleTitlesPanel);
     titleToggleBtn.addEventListener('click', toggleTitlesPanel);
 
+    function switchMarketplaceTab(tab) {
+      const map = { bg: 'marketSecBg', combo: 'marketSecCombo', x: 'marketSecX', o: 'marketSecO' };
+      document.querySelectorAll('.market-tab-btn').forEach((btn) => {
+        const active = btn.dataset.marketTab === tab;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-selected', String(active));
+      });
+      Object.entries(map).forEach(([k, id]) => {
+        const sec = document.getElementById(id);
+        if (sec) sec.classList.toggle('active', k === tab);
+      });
+    }
+
+    document.querySelectorAll('.market-tab-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        playClickSound();
+        switchMarketplaceTab(btn.dataset.marketTab);
+      });
+    });
+
     themeToggleBtn.addEventListener('click', () => {
       const isOpen = themePanel.classList.toggle('visible');
       themeToggleBtn.classList.toggle('active', isOpen);
       themeToggleBtn.setAttribute('aria-expanded', String(isOpen));
+      if (isOpen) switchMarketplaceTab('bg');
       themeMsg.textContent = '';
     });
 
@@ -3947,6 +4886,9 @@
 
     createRoomBtn.addEventListener('click', createOnlineRoom);
     joinRoomBtn.addEventListener('click', () => joinOnlineRoom());
+    roomCodeInput.addEventListener('input', () => {
+      roomCodeInput.value = roomCodeInput.value.replace(/[^0-9]/g, '').slice(0, 4);
+    });
     roomCodeInput.addEventListener('keydown', (event) => {
       if (event.key === 'Enter') joinOnlineRoom();
     });
@@ -3966,6 +4908,404 @@
     });
 
     // 14. Init on load (works whether DOMContentLoaded already fired or not)
+
+    // Lucky Spin Wheel Logic (8 slices: 7 regular + 1 Exclusive X Skin)
+    const WHEEL_SLICES = [
+      { label: '+10 Coins', color: '#3b82f6', type: 'coins', val: 10 },
+      { label: '+25 XP', color: '#10b981', type: 'xp', val: 25 },
+      { label: '+50 Coins', color: '#6366f1', type: 'coins', val: 50 },
+      { label: '+100 Coins', color: '#f59e0b', type: 'coins', val: 100 },
+      { label: '+25 Coins', color: '#0ea5e9', type: 'coins', val: 25 },
+      { label: '+200 Coins', color: '#ec4899', type: 'coins', val: 200 },
+      { label: '🔵 Cosmic O', color: '#0284c7', type: 'exclusive_o', val: 'cosmic_o' },
+      { label: '💎 Cosmic X', color: '#7c3aed', type: 'exclusive_x', val: 'crystal_x' }
+    ];
+    const WHEEL_FREE_KEY = 'ttt_wheel_free_date';
+    let wheelRotation = 0;
+    let isSpinning = false;
+
+    function hasFreeSpinToday() {
+      try {
+        const today = new Date().toISOString().slice(0, 10);
+        return localStorage.getItem(WHEEL_FREE_KEY) !== today;
+      } catch (e) { return true; }
+    }
+
+    function getAvailableSpins() {
+      return Math.max(0, Math.floor(totalMatchesPlayed / 50) - spinsUsed);
+    }
+
+    function buildWheelSvg() {
+      const svg = document.getElementById('wheelSvg');
+      if (!svg) return;
+      const cx = 120, cy = 120, r = 116;
+      let html = '';
+      for (let i = 0; i < 8; i++) {
+        const a0 = (i * 45 - 90) * Math.PI / 180;
+        const a1 = ((i + 1) * 45 - 90) * Math.PI / 180;
+        const x1 = cx + r * Math.cos(a0), y1 = cy + r * Math.sin(a0);
+        const x2 = cx + r * Math.cos(a1), y2 = cy + r * Math.sin(a1);
+        const midDeg = i * 45 + 22.5 - 90;
+        html += `<path d="M${cx},${cy} L${x1.toFixed(1)},${y1.toFixed(1)} A${r},${r} 0 0,1 ${x2.toFixed(1)},${y2.toFixed(1)} Z" fill="${WHEEL_SLICES[i].color}" stroke="#ffffff" stroke-width="2"/>`;
+        html += `<text x="${cx}" y="${cy}" fill="#ffffff" font-size="10.5" font-weight="800" text-anchor="end" dominant-baseline="middle" transform="rotate(${midDeg} ${cx} ${cy}) translate(${r - 12}, 0)">${WHEEL_SLICES[i].label}</text>`;
+      }
+      svg.innerHTML = html;
+    }
+
+    function updateWheelButtonLabel() {
+      const btn = document.getElementById('spinWheelBtn');
+      const statsEl = document.getElementById('wheelStats');
+      const freeToday = hasFreeSpinToday();
+      const spinsReady = getAvailableSpins();
+      const progressInCycle = totalMatchesPlayed % 50;
+      if (statsEl) {
+        statsEl.textContent = `${freeToday ? '🎁 1 Free Daily Spin Ready!' : 'Daily Free Spin Used'} • Matches: ${totalMatchesPlayed} (${progressInCycle}/50) • Extra Spins: ${spinsReady}`;
+      }
+      if (btn) {
+        if (freeToday) {
+          btn.textContent = '🎁 Spin Now (Free Daily!)';
+        } else {
+          btn.textContent = spinsReady > 0
+            ? `Spin Wheel (100 Coins) • ${spinsReady} Ready`
+            : `Need ${50 - progressInCycle} More Games to Spin`;
+        }
+      }
+    }
+
+    function openWheelModal() {
+      playClickSound();
+      buildWheelSvg();
+      updateWheelButtonLabel();
+      document.getElementById('wheelModal').classList.add('open');
+    }
+
+    function closeWheelModal() {
+      if (isSpinning) return;
+      playClickSound();
+      document.getElementById('wheelModal').classList.remove('open');
+    }
+
+    function spinLuckyWheel() {
+      if (isSpinning) return;
+      const resultEl = document.getElementById('wheelResult');
+      const freeToday = hasFreeSpinToday();
+      if (freeToday) {
+        try { localStorage.setItem(WHEEL_FREE_KEY, new Date().toISOString().slice(0, 10)); } catch (e) {}
+      } else {
+        const spinsReady = getAvailableSpins();
+        if (spinsReady <= 0) {
+          const rem = 50 - (totalMatchesPlayed % 50);
+          resultEl.textContent = `Free spin used today! Play ${rem} more games for an extra spin.`;
+          playDrawSound();
+          return;
+        }
+        if (coins < 100) {
+          resultEl.textContent = 'Need 100 Coins for an extra spin!';
+          playDrawSound();
+          return;
+        }
+        coins -= 100;
+        spinsUsed++;
+        updateProgressUI();
+        saveProgress();
+      }
+
+      isSpinning = true;
+      const spinBtn = document.getElementById('spinWheelBtn');
+      spinBtn.disabled = true;
+      resultEl.textContent = 'Spinning... Good luck!';
+
+      // 1% chance for Cosmic X (slice 7), 2% for Cosmic O (slice 6), 97% across slices 0-5
+      const roll = Math.random();
+      const idx = roll < 0.01 ? 7 : (roll < 0.03 ? 6 : Math.floor(Math.random() * 6));
+      const sliceCenterDeg = idx * 45 + 22.5;
+      const targetMod = (360 - sliceCenterDeg) % 360;
+      const currentMod = ((wheelRotation % 360) + 360) % 360;
+      const delta = (targetMod - currentMod + 360) % 360;
+      wheelRotation += 1440 + delta;
+
+      document.getElementById('wheelRotator').style.transform = `rotate(${wheelRotation}deg)`;
+
+      const tickTimer = setInterval(() => { playTone(760, 0.03, 'triangle', 0.06, 0); }, 140);
+
+      setTimeout(() => {
+        clearInterval(tickTimer);
+        const prize = WHEEL_SLICES[idx];
+        if (prize.type === 'coins') {
+          coins += prize.val;
+          resultEl.textContent = `You won ${prize.label}!`;
+          playWinSound('X');
+        } else if (prize.type === 'xp') {
+          if (level < MAX_LEVEL) {
+            xp += prize.val;
+            while (level < MAX_LEVEL && xp >= getMaxXpForLevel(level)) {
+              xp -= getMaxXpForLevel(level);
+              level++;
+            }
+            if (level >= MAX_LEVEL) { level = MAX_LEVEL; xp = 0; }
+          }
+          resultEl.textContent = `You won ${prize.label}!`;
+          playWinSound('X');
+        } else if (prize.type === 'exclusive_x') {
+          if (!unlockedXThemes.includes('crystal_x')) {
+            unlockedXThemes.push('crystal_x');
+            xTheme = 'crystal_x';
+            refreshBoardMarks();
+            resultEl.textContent = 'EXCLUSIVE (1%)! Unlocked & equipped Cosmic Blue X!';
+          } else {
+            coins += 500;
+            resultEl.textContent = 'Exclusive Duplicate! +500 Bonus Coins!';
+          }
+          playWinSound('X');
+        } else if (prize.type === 'exclusive_o') {
+          if (!unlockedOThemes.includes('cosmic_o')) {
+            unlockedOThemes.push('cosmic_o');
+            oTheme = 'cosmic_o';
+            refreshBoardMarks();
+            resultEl.textContent = 'EXCLUSIVE! Unlocked & equipped Cosmic Blue O!';
+          } else {
+            coins += 500;
+            resultEl.textContent = 'Exclusive Duplicate! +500 Bonus Coins!';
+          }
+          playWinSound('X');
+        }
+        saveProgress();
+        updateProgressUI();
+        updateThemeShopUI();
+        isSpinning = false;
+        spinBtn.disabled = false;
+        updateWheelButtonLabel();
+      }, 4100);
+    }
+
+    document.getElementById('wheelBtn').addEventListener('click', openWheelModal);
+    document.getElementById('wheelCloseX').addEventListener('click', closeWheelModal);
+    document.getElementById('wheelCancelBtn').addEventListener('click', closeWheelModal);
+    document.getElementById('spinWheelBtn').addEventListener('click', spinLuckyWheel);
+    document.getElementById('wheelModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('wheelModal')) closeWheelModal();
+    });
+
+    document.getElementById('refreshLeaderboardBtn').addEventListener('click', () => {
+      playClickSound();
+      pushLeaderboardRecord().then(fetchLeaderboard);
+    });
+
+
+    // 5-Server Manager (A, B, C, D, E — 20 max each, next server at 15)
+    const SERVER_NAMES = ['A', 'B', 'C', 'D', 'E'];
+    const SERVER_SOFT_CAP = 15;
+    const SERVER_HARD_CAP = 20;
+    const SERVER_TTL_MS = 90000;
+    const SERVER_CLIENT_KEY = 'ttt_server_client_id';
+    let currentServer = 'A';
+    let serverPlayersMap = { A: [], B: [], C: [], D: [], E: [] };
+    let serverHeartbeatTimer = null;
+
+    function getServerClientId() {
+      if (firebaseUid) return `acc_${firebaseUid}`;
+      if (activeEmail && activeEmail !== 'guest') return `acc_${activeEmail}`;
+      return null;
+    }
+
+    function renderServerBar() {
+      const labelEl = document.getElementById('assignedServerLabel');
+      const pillsEl = document.getElementById('serverPills');
+      const myCount = (serverPlayersMap[currentServer] || []).length;
+      if (labelEl) {
+        labelEl.textContent = `Server ${currentServer} (${Math.max(1, myCount)}/${SERVER_HARD_CAP})`;
+      }
+      if (pillsEl) {
+        pillsEl.innerHTML = SERVER_NAMES.map((srv) => {
+          const cnt = (serverPlayersMap[srv] || []).length;
+          const cls = srv === currentServer ? 'server-pill mine' : (cnt >= SERVER_HARD_CAP ? 'server-pill full' : 'server-pill');
+          return `<span class="${cls}">${srv}: ${cnt}/${SERVER_HARD_CAP}</span>`;
+        }).join('');
+      }
+      if (selectedPlayerForChat !== 'friend' && chatHeaderTitle) {
+        chatHeaderTitle.textContent = `Server ${currentServer} Chat`;
+      }
+    }
+
+    async function movePlayerToServer(targetSrv) {
+      if (!isUserSignedIn() || !SERVER_NAMES.includes(targetSrv)) return;
+      const cid = getServerClientId();
+      if (!cid) return;
+      const now = Date.now();
+      const rosters = {};
+      SERVER_NAMES.forEach((sName) => { rosters[sName] = {}; });
+      try {
+        const res = await fetch(`${FIRESTORE_BASE}/servers?pageSize=10&key=${FIREBASE_API_KEY}`, {
+          headers: firebaseToken ? { 'Authorization': `Bearer ${firebaseToken}` } : {}
+        });
+        if (res.ok) {
+          const json = await res.json();
+          const docs = Array.isArray(json.documents) ? json.documents : [];
+          docs.forEach((doc) => {
+            const sName = doc.name ? doc.name.split('/').pop() : '';
+            if (!SERVER_NAMES.includes(sName)) return;
+            const raw = doc.fields && doc.fields.players && doc.fields.players.stringValue ? doc.fields.players.stringValue : '{}';
+            try {
+              const parsed = JSON.parse(raw);
+              Object.entries(parsed).forEach(([k, v]) => {
+                if (v && !k.startsWith('gst_') && v.isSignedIn !== false && (now - (v.lastSeen || 0)) < SERVER_TTL_MS) {
+                  rosters[sName][k] = v;
+                }
+              });
+            } catch (e) {}
+          });
+        }
+      } catch (e) {}
+
+      const changedServers = [];
+      SERVER_NAMES.forEach((sName) => {
+        if (rosters[sName][cid] && sName !== targetSrv) {
+          delete rosters[sName][cid];
+          changedServers.push(sName);
+        }
+      });
+
+      currentServer = targetSrv;
+      rosters[targetSrv][cid] = {
+        name: getMyName(),
+        level,
+        title: activeTitle || 'Rookie',
+        isSignedIn: isUserSignedIn(),
+        lastSeen: now
+      };
+      changedServers.push(targetSrv);
+
+      SERVER_NAMES.forEach((sName) => {
+        serverPlayersMap[sName] = Object.values(rosters[sName]);
+      });
+      renderServerBar();
+      updateOnlineRoster();
+
+      for (const sName of changedServers) {
+        try {
+          await fetch(`${FIRESTORE_BASE}/servers/${sName}?key=${FIREBASE_API_KEY}`, {
+            method: 'PATCH',
+            headers: getCloudHeaders(),
+            body: JSON.stringify({
+              fields: {
+                players: { stringValue: JSON.stringify(rosters[sName]) },
+                updatedAt: { integerValue: String(now) }
+              }
+            })
+          });
+        } catch (e) {}
+      }
+    }
+
+    async function syncServerAssignment() {
+      if (!isUserSignedIn()) return;
+      const cid = getServerClientId();
+      if (!cid) return;
+      const now = Date.now();
+      const rosters = {};
+      SERVER_NAMES.forEach((sName) => { rosters[sName] = {}; });
+
+      try {
+        const res = await fetch(`${FIRESTORE_BASE}/servers?pageSize=10&key=${FIREBASE_API_KEY}`, {
+          headers: firebaseToken ? { 'Authorization': `Bearer ${firebaseToken}` } : {}
+        });
+        if (res.ok) {
+          const json = await res.json();
+          const docs = Array.isArray(json.documents) ? json.documents : [];
+          docs.forEach((doc) => {
+            const sName = doc.name ? doc.name.split('/').pop() : '';
+            if (!SERVER_NAMES.includes(sName)) return;
+            const raw = doc.fields && doc.fields.players && doc.fields.players.stringValue ? doc.fields.players.stringValue : '{}';
+            try {
+              const parsed = JSON.parse(raw);
+              Object.entries(parsed).forEach(([k, v]) => {
+                if (v && !k.startsWith('gst_') && v.isSignedIn !== false && (now - (v.lastSeen || 0)) < SERVER_TTL_MS) {
+                  rosters[sName][k] = v;
+                }
+              });
+            } catch (e) {}
+          });
+        }
+      } catch (e) {}
+
+      // Remove this client from other servers first
+      let existingSrv = null;
+      SERVER_NAMES.forEach((sName) => {
+        if (rosters[sName][cid]) {
+          existingSrv = sName;
+          delete rosters[sName][cid];
+        }
+      });
+
+      // Keep existing server if under hard cap and either under soft cap or already assigned there
+      let chosen = null;
+      if (existingSrv && Object.keys(rosters[existingSrv]).length < SERVER_HARD_CAP) {
+        chosen = existingSrv;
+      } else {
+        for (const sName of SERVER_NAMES) {
+          if (Object.keys(rosters[sName]).length < SERVER_SOFT_CAP) {
+            chosen = sName;
+            break;
+          }
+        }
+        if (!chosen) {
+          // Fallback: least populated server under 20 max
+          chosen = SERVER_NAMES.reduce((best, sName) =>
+            Object.keys(rosters[sName]).length < Object.keys(rosters[best]).length ? sName : best
+          , 'A');
+        }
+      }
+
+      currentServer = chosen;
+      rosters[chosen][cid] = {
+        name: getMyName(),
+        level,
+        title: activeTitle || 'Rookie',
+        isSignedIn: isUserSignedIn(),
+        lastSeen: now
+      };
+
+      SERVER_NAMES.forEach((sName) => {
+        serverPlayersMap[sName] = Object.values(rosters[sName]);
+      });
+      renderServerBar();
+      updateOnlineRoster();
+
+      // Persist chosen server roster to Firestore 24/7
+      try {
+        await fetch(`${FIRESTORE_BASE}/servers/${chosen}?key=${FIREBASE_API_KEY}`, {
+          method: 'PATCH',
+          headers: getCloudHeaders(),
+          body: JSON.stringify({
+            fields: {
+              players: { stringValue: JSON.stringify(rosters[chosen]) },
+              updatedAt: { integerValue: String(now) }
+            }
+          })
+        });
+      } catch (e) {}
+    }
+
+    function startServerHeartbeat() {
+      syncServerAssignment();
+      if (serverHeartbeatTimer) clearInterval(serverHeartbeatTimer);
+      serverHeartbeatTimer = setInterval(syncServerAssignment, 15000);
+    }
+
+    const accountNeededModal = document.getElementById('accountNeededModal');
+    document.getElementById('accountNeededGoBtn').addEventListener('click', () => {
+      playClickSound();
+      accountNeededModal.classList.remove('open');
+      openSettingsModal('account');
+    });
+    document.getElementById('accountNeededCloseBtn').addEventListener('click', () => {
+      playClickSound();
+      accountNeededModal.classList.remove('open');
+    });
+    accountNeededModal.addEventListener('click', (e) => {
+      if (e.target === accountNeededModal) accountNeededModal.classList.remove('open');
+    });
+
     function initApp() {
       try {
         try {
@@ -3983,6 +5323,8 @@
         } catch (e) {}
         loadProgress();
         loadSavedUsername();
+        updateOnlineLockUI();
+        if (isUserSignedIn()) startServerHeartbeat();
         updateOnlineRoster();
         renderChat();
         const params = new URLSearchParams(window.location.search);
@@ -3998,13 +5340,18 @@
     } else {
       initApp();
     }
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=20')
-          .then((reg) => { if (reg && reg.update) reg.update(); })
-          .catch(() => {});
-      });
-    }
+    try {
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.getRegistrations().then((regs) => {
+            regs.forEach((r) => r.unregister());
+          }).catch(() => {});
+        });
+      }
+      if ('caches' in window && window.caches) {
+        caches.keys().then((keys) => keys.forEach((k) => caches.delete(k))).catch(() => {});
+      }
+    } catch (e) {}
   </script>
 </body>
 </html>
