@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta name="google-site-verification" content="PKZzHcZ9jQIU0A8d1VMxTnbavWxvN9zYo_RC0Zn3lZ0" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#2563eb" />
@@ -1925,7 +1924,8 @@
       border-color: #7c3aed;
     }
 
-    /* Hide XO board in Online Room lobby until a battle starts */
+    /* Hide XO board and Level/XP bar in Online Room lobby until a battle starts */
+    body.online-lobby .stats-bar,
     body.online-lobby #status,
     body.online-lobby .scoreboard,
     body.online-lobby #board,
@@ -1935,7 +1935,7 @@
 
     /* Slightly narrower 1/4 players & wider 3/4 server chat */
     .online-panel {
-      padding: 10px 8px;
+      padding: 8px;
     }
     .split-chat-box {
       grid-template-columns: 0.85fr 3.35fr;
@@ -2020,7 +2020,7 @@
     .players-col {
       width: 100%;
       height: auto !important;
-      max-height: 112px;
+      max-height: 86px;
       border-right: none !important;
       border-bottom: 2px solid #cbd5e1;
       padding: 8px !important;
@@ -2039,7 +2039,7 @@
     }
     .chat-col {
       width: 100%;
-      height: 450px !important;
+      height: 220px !important;
     }
 
     /* Red Logout Styling */
@@ -2060,9 +2060,9 @@
       color: #ffffff !important;
     }
     #logoutRequestBtn {
-      background: #dc2626 !important;
-      color: #ffffff !important;
-      border-color: #b91c1c !important;
+      background: #fef2f2 !important;
+      color: #dc2626 !important;
+      border-color: #f87171 !important;
     }
     body.boss-theme #logoutMainBtn {
       background: #450a0a;
@@ -2072,6 +2072,329 @@
     body.boss-theme #logoutMainBtn .settings-item-sub {
       color: #fca5a5;
     }
+
+    /* Leaderboard Dual Tabs (Global Top 25 / Online Players Top 25) */
+    .lb-tabs-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .lb-tabs {
+      display: flex;
+      gap: 4px;
+      flex: 1;
+    }
+    .lb-tab-btn {
+      flex: 1;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      background: #f1f5f9;
+      color: #334155;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .lb-tab-btn.active {
+      background: #2563eb;
+      border-color: #1d4ed8;
+      color: #ffffff;
+    }
+    body.boss-theme .lb-tab-btn {
+      background: #2e2646;
+      border-color: #5b21b6;
+      color: #e2e8f0;
+    }
+    body.boss-theme .lb-tab-btn.active {
+      background: #7c3aed;
+      border-color: #a855f7;
+      color: #ffffff;
+    }
+
+    /* Arcade Game-HUD & 3D Tactile Styling */
+    body {
+      background: radial-gradient(circle at 20% 15%, rgba(56, 189, 248, 0.16), transparent 42%),
+                  radial-gradient(circle at 80% 85%, rgba(168, 85, 247, 0.18), transparent 45%),
+                  linear-gradient(155deg, #0b1120 0%, #172554 52%, #0f172a 100%);
+    }
+    body.easy-theme {
+      background: radial-gradient(circle at 50% 20%, rgba(34, 197, 94, 0.22), transparent 55%),
+                  linear-gradient(155deg, #052e16 0%, #0f172a 100%);
+    }
+    body.normal-theme {
+      background: radial-gradient(circle at 50% 20%, rgba(234, 179, 8, 0.22), transparent 55%),
+                  linear-gradient(155deg, #422006 0%, #0f172a 100%);
+    }
+    body.hard-theme {
+      background: radial-gradient(circle at 50% 20%, rgba(239, 68, 68, 0.24), transparent 55%),
+                  linear-gradient(155deg, #450a0a 0%, #0f172a 100%);
+    }
+    .game-card {
+      border: 2px solid rgba(148, 163, 184, 0.38);
+      box-shadow: 0 22px 48px rgba(2, 6, 23, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      border-radius: 22px;
+    }
+    .top-header h1 {
+      font-weight: 900;
+      letter-spacing: -0.4px;
+      background: linear-gradient(135deg, #0f172a 0%, #2563eb 65%, #7c3aed 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    body.boss-theme .top-header h1 {
+      background: linear-gradient(135deg, #fde047 0%, #f472b6 55%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .pill-btn, .settings-icon-btn, .wheel-icon-btn {
+      border-bottom: 3px solid #94a3b8;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.1);
+    }
+    .pill-btn:active, .settings-icon-btn:active, .wheel-icon-btn:active {
+      transform: translateY(1.5px);
+      border-bottom-width: 1.5px;
+    }
+    .stats-bar {
+      background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+      border: 1.5px solid #cbd5e1;
+      border-bottom: 3px solid #94a3b8;
+      border-radius: 14px;
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06);
+    }
+    body.boss-theme .stats-bar {
+      background: linear-gradient(180deg, #2e1f47 0%, #1e1433 100%);
+      border-color: #6d28d9;
+      border-bottom-color: #4c1d95;
+    }
+    .xp-fill {
+      background: linear-gradient(90deg, #22c55e, #38bdf8, #6366f1);
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.45);
+    }
+    .mode-bar {
+      background: #e2e8f0;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 4px;
+      gap: 4px;
+    }
+    .mode-btn {
+      font-weight: 800;
+      border-radius: 9px;
+      padding: 9px 4px;
+    }
+    .mode-btn.active {
+      background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+      border-bottom: 3px solid #2563eb;
+      color: #0f172a;
+      box-shadow: 0 3px 8px rgba(37, 99, 235, 0.18);
+    }
+    .diff-btn {
+      font-weight: 800;
+      border-bottom: 3px solid #94a3b8;
+      border-radius: 10px;
+    }
+    .diff-btn:active {
+      transform: translateY(1.5px);
+      border-bottom-width: 1.5px;
+    }
+    .scoreboard {
+      gap: 8px;
+    }
+    .score-box {
+      background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+      border: 1.5px solid #cbd5e1;
+      border-bottom: 3px solid #94a3b8;
+      border-radius: 12px;
+      box-shadow: 0 3px 8px rgba(15, 23, 42, 0.06);
+    }
+    body.boss-theme .score-box {
+      background: linear-gradient(180deg, #2e1f47 0%, #1e1433 100%);
+      border-color: #6d28d9;
+      border-bottom-color: #4c1d95;
+    }
+    .board.theme-classic {
+      border: 2px solid #cbd5e1;
+      box-shadow: inset 0 2px 8px rgba(15, 23, 42, 0.08);
+    }
+    .board.theme-classic .cell {
+      border-bottom: 4px solid #cbd5e1;
+      box-shadow: 0 3px 6px rgba(15, 23, 42, 0.08);
+    }
+    .board.theme-classic .cell:active:not(:disabled) {
+      transform: translateY(2px);
+      border-bottom-width: 2px;
+    }
+    .actions button {
+      border-bottom: 3px solid rgba(15, 23, 42, 0.25);
+      font-weight: 800;
+      border-radius: 11px;
+    }
+    .actions button:active {
+      transform: translateY(1.5px);
+      border-bottom-width: 1.5px;
+    }
+
+    /* Ultra-Compact Single-Screen Fit (Board + Restart + Reset Score Always Visible, Zero Scroll) */
+    html, body {
+      height: 100dvh;
+      width: 100vw;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+    }
+    .game-card {
+      width: 100%;
+      max-width: 100%;
+      height: 100dvh;
+      max-height: 100dvh;
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+      padding: 10px 12px 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .top-header {
+      margin-bottom: 8px;
+      min-height: 40px;
+      padding-right: 52px;
+      align-items: center;
+    }
+    .top-header h1 { font-size: 1.2rem; }
+    .header-actions { gap: 6px; }
+    .stats-bar { padding: 8px 10px; margin-bottom: 9px; }
+    .stats-top { margin-bottom: 5px; }
+    .mode-bar { margin-bottom: 9px; padding: 4px; gap: 4px; }
+    .mode-btn { padding: 7px 4px; font-size: 0.78rem; }
+    .difficulty-bar { margin-bottom: 7px; gap: 5px; }
+    .diff-btn { padding: 6px 4px; font-size: 0.76rem; }
+    .boss-banner { margin-bottom: 6px; padding: 5px 8px; font-size: 0.76rem; }
+    .status { margin-bottom: 6px; font-size: 0.92rem; }
+    .scoreboard { margin-bottom: 8px; gap: 8px; }
+    .score-box { padding: 6px 4px; }
+    .score-value { font-size: 1.08rem; }
+    .board {
+      width: 100%;
+      max-width: min(340px, 43dvh);
+      margin: auto;
+      padding: 8px;
+      gap: 8px;
+    }
+    .cell { font-size: 2.15rem; border-radius: 12px; }
+    .actions { gap: 8px; margin-top: 8px; flex-shrink: 0; }
+    .actions button { padding: 8px 10px; font-size: 0.85rem; }
+    .theme-panel.visible,
+    .titles-panel.visible {
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      flex: 1;
+      min-height: 0;
+    }
+    .online-panel.visible {
+      overflow: hidden;
+      flex: 1;
+      min-height: 0;
+      display: flex !important;
+      flex-direction: column;
+      padding: 6px 8px;
+    }
+    .online-panel .online-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      align-items: center;
+    }
+    .online-panel .online-row { gap: 4px; }
+    .online-panel .online-label { display: none; }
+    .online-panel .code-display,
+    .online-panel .online-row .room-input {
+      width: 68px !important;
+      padding: 5px 4px;
+      font-size: 0.84rem;
+      letter-spacing: 1px;
+    }
+    .online-panel .online-row .online-btn {
+      padding: 6px 8px;
+      font-size: 0.76rem;
+    }
+    .online-panel .room-info { margin: 3px 0; font-size: 0.72rem; line-height: 1.2; }
+    .online-panel .share-row { margin-top: 3px; gap: 4px; }
+    .online-panel .share-row .online-btn { padding: 5px 8px; font-size: 0.74rem; }
+    .online-panel .server-bar { margin-top: 4px; padding: 3px 8px; }
+    .online-panel .lb-icon-btn { width: 28px; height: 28px; font-size: 0.92rem; }
+    .online-panel .split-chat-box { margin-top: 5px; flex: 1; min-height: 0; }
+    .online-panel .players-col { max-height: 68px; padding: 4px 6px !important; flex-shrink: 0; }
+    .online-panel .players-col-title { margin-bottom: 2px; font-size: 0.68rem; }
+    .online-panel .chat-col { flex: 1; min-height: 220px; height: auto !important; }
+    .online-panel .chat-col-header { padding: 5px 8px; }
+    .online-panel .chat-messages { flex: 1; min-height: 125px; padding: 8px; }
+
+    /* Prevent flex shrinking/overlapping in vs Computer & Boss modes */
+    .top-header,
+    .stats-bar,
+    .mode-bar,
+    .difficulty-bar,
+    .boss-banner,
+    .status,
+    .scoreboard,
+    .actions {
+      flex-shrink: 0 !important;
+      position: relative;
+    }
+    .board {
+      width: min(100%, 41dvh);
+      max-width: min(340px, 41dvh);
+      aspect-ratio: 1 / 1;
+      margin: auto;
+      flex-shrink: 0;
+    }
+    body.cpu-mode .board {
+      width: min(100%, 34dvh);
+      max-width: min(300px, 34dvh);
+    }
+
+    /* Servers A-Z Picker Modal */
+    .servers-az-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+      max-height: 280px;
+      overflow-y: auto;
+      padding: 2px;
+    }
+    .srv-az-btn {
+      padding: 8px 4px;
+      border-radius: 10px;
+      border: 1.5px solid #cbd5e1;
+      background: #f8fafc;
+      color: #0f172a;
+      font-size: 0.76rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .srv-az-btn:hover { background: #eff6ff; border-color: #60a5fa; }
+    .srv-az-btn.mine {
+      background: #dcfce7;
+      border-color: #22c55e;
+      color: #166534;
+    }
+    .srv-az-btn.full {
+      background: #fee2e2;
+      border-color: #f87171;
+      color: #991b1b;
+      opacity: 0.75;
+      cursor: not-allowed;
+    }
+    .srv-az-count { font-size: 0.68rem; font-weight: 700; opacity: 0.85; }
+    body.boss-theme .srv-az-btn { background: #2e2646; border-color: #5b21b6; color: #f8fafc; }
+    body.boss-theme .srv-az-btn.mine { background: #064e3b; border-color: #34d399; color: #ecfdf5; }
   </style>
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
@@ -2279,8 +2602,8 @@
     </div>
 
     <div class="mode-switch" role="group" aria-label="Game mode">
-      <button id="mode2pBtn" class="mode-btn active" type="button">2 Players</button>
-      <button id="modeCpuBtn" class="mode-btn" type="button">vs Computer</button>
+      <button id="mode2pBtn" class="mode-btn active" type="button">&#128101; 2 Players</button>
+      <button id="modeCpuBtn" class="mode-btn" type="button">&#129302; vs Computer</button>
       <button id="modeOnlineBtn" class="mode-btn" type="button">Online Room</button>
     </div>
 
@@ -2323,16 +2646,12 @@
         <a id="whatsappShareBtn" class="online-btn whatsapp" href="#" target="_blank" rel="noopener noreferrer">Share on WhatsApp</a>
       </div>
 
-      <!-- 5 SERVERS (A, B, C, D, E — 20 MAX EACH, AUTO-SPILL AT 15) -->
+      <!-- ONLINE STATUS, SERVERS (A-Z) & GLOBAL LEADERBOARD TRIGGERS -->
       <div class="server-bar">
-        <span id="assignedServerLabel" class="server-bar-label">Server A (1/20)</span>
-        <button id="openLeaderboardBtn" class="lb-icon-btn" type="button" aria-haspopup="dialog" aria-label="Global Leaderboard" title="Global Leaderboard">&#127942;</button>
-        <div id="serverPills" class="server-pills">
-          <span class="server-pill mine">A: 1/20</span>
-          <span class="server-pill">B: 0/20</span>
-          <span class="server-pill">C: 0/20</span>
-          <span class="server-pill">D: 0/20</span>
-          <span class="server-pill">E: 0/20</span>
+        <span id="assignedServerLabel" class="server-bar-label">Server A &bull; Online: 1</span>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <button id="openServersBtn" class="lb-icon-btn" type="button" aria-haspopup="dialog" aria-label="All Servers A-Z" title="Choose Server (A-Z)">&#127760;</button>
+          <button id="openLeaderboardBtn" class="lb-icon-btn" type="button" aria-haspopup="dialog" aria-label="Global Leaderboard" title="Global Leaderboard">&#127942;</button>
         </div>
       </div>
 
@@ -2452,12 +2771,8 @@
             <span class="settings-badge">Open</span>
           </button>
 
-          <button id="logoutMainBtn" class="settings-item-btn" type="button">
-            <div>
-              &#128682; Logout
-              <span class="settings-item-sub">Sign out &amp; reset local progress to Level 1</span>
-            </div>
-            <span id="logoutStateLabel" class="settings-badge">Guest</span>
+          <button id="logoutMainBtn" class="settings-item-btn" type="button" style="justify-content:center; border-radius:8px; background:#fef2f2; border-color:#f87171; color:#dc2626; font-weight:900; letter-spacing:1px;">
+            &#128682;&nbsp;<strong>LOGOUT</strong>
           </button>
         </div>
         <div class="modal-footer">
@@ -2472,7 +2787,7 @@
           <div style="font-size:0.84rem; color:#166534; font-weight:700; margin-bottom:8px;">
             Signed in as <span id="signedInEmailText"></span>
           </div>
-          <button id="logoutRequestBtn" class="modal-btn cancel" type="button" style="width:100%;">&#128682; Logout</button>
+          <button id="logoutRequestBtn" class="modal-btn cancel" type="button" style="width:100%; border-radius:8px; font-weight:900; letter-spacing:1px;">&#128682;&nbsp;<strong>LOGOUT</strong></button>
         </div>
         <div id="authFormBox">
           <p class="login-desc">Sign up or sign in with your Gmail and password to sync your progress to Firebase Cloud.</p>
@@ -2598,18 +2913,37 @@
   </div>
 
 
-  <!-- GLOBAL LEADERBOARD MODAL -->
-  <div id="leaderboardModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="leaderboardModalTitle" style="z-index:1250;">
+  <!-- SERVERS A-Z PICKER MODAL -->
+  <div id="serversModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="serversModalTitle" style="z-index:1260;">
     <div class="modal-card" style="max-width:390px;">
       <div class="modal-head">
-        <span id="leaderboardModalTitle" class="modal-title">&#127942; Global Leaderboard (24/7)</span>
+        <span id="serversModalTitle" class="modal-title">&#127760; Servers (A - Z)</span>
+        <button id="srvCloseX" class="modal-close-x" type="button" aria-label="Close servers">&times;</button>
+      </div>
+      <p style="font-size:0.78rem; color:#64748b; margin-bottom:8px;">Tap any server (20 players max each) to join it:</p>
+      <div id="serversAzGrid" class="servers-az-grid"></div>
+      <div class="modal-footer" style="margin-top:10px;">
+        <button id="srvCloseBtn" class="modal-btn cancel" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GLOBAL & ONLINE LEADERBOARD MODAL -->
+  <div id="leaderboardModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="leaderboardModalTitle" style="z-index:1250;">
+    <div class="modal-card" style="max-width:400px;">
+      <div class="modal-head">
+        <span id="leaderboardModalTitle" class="modal-title">&#127942; Leaderboard (Top 25)</span>
         <button id="lbCloseX" class="modal-close-x" type="button" aria-label="Close leaderboard">&times;</button>
       </div>
-      <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
+      <div class="lb-tabs-row">
+        <div class="lb-tabs" role="tablist" aria-label="Leaderboard views">
+          <button id="lbTabGlobal" class="lb-tab-btn active" type="button" role="tab" aria-selected="true">&#127942; Global</button>
+          <button id="lbTabOnline" class="lb-tab-btn" type="button" role="tab" aria-selected="false">&#128994; Online Players</button>
+        </div>
         <button id="refreshLeaderboardBtn" class="lb-refresh-btn" type="button">&#128260; Refresh</button>
       </div>
-      <div id="leaderboardList" class="leaderboard-list" style="max-height:270px;">
-        <div class="chat-empty">Loading 24/7 leaderboard...</div>
+      <div id="leaderboardList" class="leaderboard-list" style="max-height:280px;">
+        <div class="chat-empty">Loading leaderboard...</div>
       </div>
       <div class="modal-footer" style="margin-top:10px;">
         <button id="lbCloseBtn" class="modal-btn cancel" type="button">Close</button>
@@ -2888,16 +3222,21 @@
       if (accountStateLabel) {
         accountStateLabel.textContent = isSignedIn ? activeEmail.split('@')[0].slice(0, 12) : 'Sign In';
       }
-      const logoutStateLabel = document.getElementById('logoutStateLabel');
-      if (logoutStateLabel) {
-        logoutStateLabel.textContent = isSignedIn ? 'Logout' : 'Guest';
-        logoutStateLabel.classList.toggle('off', isSignedIn);
-      }
+
       if (typeof updateUsernameUI === 'function') updateUsernameUI();
       if (typeof updateOnlineLockUI === 'function') updateOnlineLockUI();
     }
 
     function performLogout() {
+      const prevCid = getServerClientId();
+      if (prevCid) {
+        try {
+          fetch(`${FIRESTORE_BASE}/online_players/${encodeURIComponent(prevCid)}?key=${FIREBASE_API_KEY}`, {
+            method: 'DELETE',
+            headers: getCloudHeaders()
+          }).catch(() => {});
+        } catch (e) {}
+      }
       try {
         localStorage.removeItem(STORAGE_AUTH_KEY);
       } catch (e) {}
@@ -2915,6 +3254,8 @@
       activeTitle = 'Rookie';
       isOwner = false;
       redeemedCodes = [];
+      savedUsername = '';
+      usernameChangesUsed = 0;
       totalMatchesPlayed = 0;
       spinsUsed = 0;
       totalWins = 0;
@@ -3046,6 +3387,7 @@
         authMsg.textContent = `Signed in as ${email}! Syncing cloud progress...`;
         if (mode === 'signUp') {
           await pushToCloud();
+          await pushLeaderboardRecord();
           authMsg.textContent = `Account created for ${email}!`;
         } else {
           loadAccount(email);
@@ -3083,7 +3425,9 @@
           redeemedCodes: { stringValue: JSON.stringify(obj.redeemedCodes || []) },
           totalMatchesPlayed: { integerValue: String(obj.totalMatchesPlayed || 0) },
           spinsUsed: { integerValue: String(obj.spinsUsed || 0) },
-          totalWins: { integerValue: String(obj.totalWins || 0) }
+          totalWins: { integerValue: String(obj.totalWins || 0) },
+          username: { stringValue: String(obj.username || '') },
+          usernameChangesUsed: { integerValue: String(obj.usernameChangesUsed || 0) }
         }
       };
     }
@@ -3108,7 +3452,9 @@
         redeemedCodes: parseArr(fields.redeemedCodes, []),
         totalMatchesPlayed: fields.totalMatchesPlayed ? Number(fields.totalMatchesPlayed.integerValue ?? 0) : 0,
         spinsUsed: fields.spinsUsed ? Number(fields.spinsUsed.integerValue ?? 0) : 0,
-        totalWins: fields.totalWins ? Number(fields.totalWins.integerValue ?? 0) : 0
+        totalWins: fields.totalWins ? Number(fields.totalWins.integerValue ?? 0) : 0,
+        username: fields.username ? fields.username.stringValue : '',
+        usernameChangesUsed: fields.usernameChangesUsed ? Number(fields.usernameChangesUsed.integerValue ?? 0) : 0
       };
     }
 
@@ -3161,11 +3507,79 @@
       }).join('');
     }
 
+    let activeLeaderboardTab = 'global';
+
     async function fetchLeaderboard() {
-      const rawRows = [];
+      const listEl = document.getElementById('leaderboardList');
       const myName = getMyName();
+
+      if (activeLeaderboardTab === 'online') {
+        const now = Date.now();
+        const onlineRaw = [];
+        try {
+          const res = await fetch(`${FIRESTORE_BASE}/online_players?pageSize=200&key=${FIREBASE_API_KEY}`, {
+            headers: firebaseToken ? { 'Authorization': `Bearer ${firebaseToken}` } : {}
+          });
+          if (res.ok) {
+            const json = await res.json();
+            const docs = Array.isArray(json.documents) ? json.documents : [];
+            docs.forEach((doc) => {
+              const docCid = doc.name ? decodeURIComponent(doc.name.split('/').pop()) : '';
+              const f = doc.fields || {};
+              const lastSeen = f.lastSeen ? Number(f.lastSeen.integerValue ?? 0) : 0;
+              const pName = f.name ? f.name.stringValue : '';
+              if (!docCid || !docCid.startsWith('acc_') || (now - lastSeen) >= SERVER_TTL_MS) return;
+              if (!pName || /^Player\d{4}$/.test(pName)) return;
+              const rUid = docCid.replace(/^acc_/, '');
+              onlineRaw.push({
+                id: docCid,
+                uid: rUid,
+                name: pName,
+                level: f.level ? Number(f.level.integerValue ?? 1) : 1,
+                wins: f.wins ? Number(f.wins.integerValue ?? 0) : 0,
+                coins: f.coins ? Number(f.coins.doubleValue ?? f.coins.integerValue ?? 0) : 0,
+                title: f.title ? f.title.stringValue : 'Rookie',
+                isMe: Boolean(firebaseUid && rUid === firebaseUid)
+              });
+            });
+          }
+        } catch (e) {}
+
+        if (isUserSignedIn() && firebaseUid) {
+          const meOnline = {
+            id: `acc_${firebaseUid}`,
+            uid: firebaseUid,
+            name: myName || 'Player',
+            level,
+            wins: totalWins,
+            coins,
+            title: activeTitle || 'Rookie',
+            isMe: true
+          };
+          const idx = onlineRaw.findIndex((r) => r.uid === firebaseUid);
+          if (idx >= 0) onlineRaw[idx] = meOnline;
+          else onlineRaw.push(meOnline);
+        }
+
+        onlineRaw.sort((a, b) => (b.level - a.level) || (b.wins - a.wins) || (b.coins - a.coins));
+        const seenUids = new Set();
+        const seenNames = new Set();
+        const onlineTop25 = [];
+        for (const r of onlineRaw) {
+          const nk = r.name.trim().toLowerCase();
+          if (seenUids.has(r.uid) || seenNames.has(nk)) continue;
+          seenUids.add(r.uid);
+          seenNames.add(nk);
+          onlineTop25.push(r);
+          if (onlineTop25.length >= 25) break;
+        }
+        renderLeaderboardRows(onlineTop25);
+        return;
+      }
+
+      const rawRows = [];
       try {
-        const res = await fetch(`${FIRESTORE_BASE}/leaderboard?pageSize=50&key=${FIREBASE_API_KEY}`, {
+        const res = await fetch(`${FIRESTORE_BASE}/leaderboard?pageSize=100&key=${FIREBASE_API_KEY}`, {
           headers: firebaseToken ? { 'Authorization': `Bearer ${firebaseToken}` } : {}
         });
         if (res.ok) {
@@ -3173,31 +3587,31 @@
           const docs = Array.isArray(json.documents) ? json.documents : [];
           docs.forEach((doc) => {
             const f = doc.fields || {};
-            const docId = doc.name ? doc.name.split('/').pop() : '';
+            const docId = doc.name ? decodeURIComponent(doc.name.split('/').pop()) : '';
             const rName = f.name ? f.name.stringValue : '';
-            const isAcc = f.isAccount ? Boolean(f.isAccount.booleanValue) : false;
             const rUid = f.uid ? f.uid.stringValue : '';
-            // Only keep real signed-in account entries (skip old guest/anonymous docs)
-            if (!isAcc || !rUid || !rName || /^Player\d{4}$/.test(rName)) return;
+            if (!docId || docId.startsWith('gst_') || docId === 'local_me') return;
+            if (!rName || rName === 'Player' || /^Player\d{4}$/.test(rName)) return;
             rawRows.push({
               id: docId,
-              uid: rUid,
+              uid: rUid || docId,
+              hasUid: Boolean(rUid),
               name: rName,
               level: f.level ? Number(f.level.integerValue ?? 1) : 1,
               coins: f.coins ? Number(f.coins.doubleValue ?? f.coins.integerValue ?? 0) : 0,
               wins: f.wins ? Number(f.wins.integerValue ?? 0) : 0,
               title: f.title ? f.title.stringValue : 'Rookie',
-              isMe: Boolean(firebaseUid && rUid === firebaseUid)
+              isMe: Boolean(firebaseUid && (rUid === firebaseUid || docId === firebaseUid))
             });
           });
         }
       } catch (e) {}
 
-      // Add/update current signed-in player's single live entry
       if (isUserSignedIn() && firebaseUid) {
         const meRow = {
           id: firebaseUid,
           uid: firebaseUid,
+          hasUid: true,
           name: myName || 'Player',
           level,
           coins,
@@ -3210,18 +3624,21 @@
         else rawRows.push(meRow);
       }
 
-      // Sort highest first, then deduplicate so each unique player/name has only 1 rank
-      rawRows.sort((a, b) => (b.level - a.level) || (b.wins - a.wins) || (b.coins - a.coins));
+      // Prefer real UID records over legacy name-keyed records, then sort highest first
+      rawRows.sort((a, b) => (Number(Boolean(b.hasUid)) - Number(Boolean(a.hasUid))) || (b.level - a.level) || (b.wins - a.wins) || (b.coins - a.coins));
       const seenUids = new Set();
-      const seenNames = new Set();
+      const seenLegacyNames = new Set();
       const rows = [];
       for (const r of rawRows) {
         const nameKey = r.name.trim().toLowerCase();
-        if (seenUids.has(r.uid) || seenNames.has(nameKey)) continue;
+        if (seenUids.has(r.uid)) continue;
+        if (!r.hasUid && seenLegacyNames.has(nameKey)) continue;
         seenUids.add(r.uid);
-        seenNames.add(nameKey);
+        seenLegacyNames.add(nameKey);
         rows.push(r);
       }
+      rows.sort((a, b) => (b.level - a.level) || (b.wins - a.wins) || (b.coins - a.coins));
+      if (rows.length > 25) rows.length = 25;
       renderLeaderboardRows(rows);
     }
 
@@ -3284,6 +3701,8 @@
           totalMatchesPlayed = Math.max(totalMatchesPlayed, data.totalMatchesPlayed || 0);
           spinsUsed = Math.max(spinsUsed, data.spinsUsed || 0);
           totalWins = Math.max(totalWins, data.totalWins || 0);
+          if (data.username) { savedUsername = data.username; usernameChangesUsed = Math.max(usernameChangesUsed, data.usernameChangesUsed || 1); }
+          if (activeEmail === 'vikashgaming1414@gmail.com' && !savedUsername) { savedUsername = 'Vikash'; usernameChangesUsed = 1; }
           if (data.isOwner) isOwner = true;
           if (data.activeTitle) activeTitle = data.activeTitle;
           applyBoardTheme(data.boardTheme || boardTheme, false);
@@ -3319,7 +3738,9 @@
           redeemedCodes,
           totalMatchesPlayed,
           spinsUsed,
-          totalWins
+          totalWins,
+          username: savedUsername,
+          usernameChangesUsed
         };
         localStorage.setItem(STORAGE_ACCOUNTS_KEY, JSON.stringify(accounts));
         localStorage.setItem(STORAGE_ACTIVE_EMAIL_KEY, activeEmail);
@@ -3346,6 +3767,8 @@
         xTheme = data && data.xTheme ? data.xTheme : 'classic';
         oTheme = data && data.oTheme ? data.oTheme : 'classic';
         activeTitle = data && typeof data.activeTitle === 'string' ? data.activeTitle : 'Owner';
+        savedUsername = data && typeof data.username === 'string' ? data.username : (email === 'vikashgaming1414@gmail.com' ? 'Vikash' : '');
+        usernameChangesUsed = data && typeof data.usernameChangesUsed === 'number' ? data.usernameChangesUsed : (savedUsername ? 1 : 0);
         saveProgress();
       } else if (data) {
         coins = typeof data.coins === 'number' ? data.coins : 0;
@@ -3363,7 +3786,11 @@
       totalMatchesPlayed = Number(data.totalMatchesPlayed || 0);
       spinsUsed = Number(data.spinsUsed || 0);
       totalWins = Number(data.totalWins || 0);
+      savedUsername = typeof data.username === 'string' ? data.username : '';
+      usernameChangesUsed = Number(data.usernameChangesUsed || 0);
       } else {
+        savedUsername = email === 'vikashgaming1414@gmail.com' ? 'Vikash' : '';
+        usernameChangesUsed = savedUsername ? 1 : 0;
         coins = 0;
         level = 1;
         xp = 0;
@@ -3876,14 +4303,24 @@
 
     function loadSavedUsername() {
       ensureGuestName(false);
-      try {
-        const storedName = localStorage.getItem(STORAGE_NAME_KEY);
-        const storedChanges = Number(localStorage.getItem(STORAGE_CHANGES_KEY) || '0');
-        if (storedName) {
-          savedUsername = storedName;
-          usernameChangesUsed = Number.isNaN(storedChanges) ? 1 : storedChanges;
+      if (isUserSignedIn()) {
+        const accounts = getAllAccounts();
+        const acc = accounts[activeEmail];
+        if (acc && typeof acc.username === 'string' && acc.username) {
+          savedUsername = acc.username;
+          usernameChangesUsed = Number(acc.usernameChangesUsed || 1);
+        } else if (activeEmail === 'vikashgaming1414@gmail.com') {
+          savedUsername = 'Vikash';
+          usernameChangesUsed = 1;
+          saveProgress();
+        } else {
+          savedUsername = '';
+          usernameChangesUsed = 0;
         }
-      } catch (e) {}
+      } else {
+        savedUsername = '';
+        usernameChangesUsed = 0;
+      }
 
       playerNameInput.value = isUserSignedIn() ? (savedUsername || '') : '';
       updateUsernameUI();
@@ -3942,15 +4379,11 @@
       savedUsername = entered.slice(0, 18);
       usernameChangesUsed = usernameChangesUsed === 0 ? 1 : 2;
 
-      try {
-        localStorage.setItem(STORAGE_NAME_KEY, savedUsername);
-        localStorage.setItem(STORAGE_CHANGES_KEY, String(usernameChangesUsed));
-      } catch (e) {}
-
+      saveProgress();
       updateUsernameUI();
       updateOnlineRoster();
       updateLabelsAndTheme();
-      pullFromCloud().then(pushToCloud);
+      pushToCloud();
 
       if (gameMode === 'online' && activeRoomCode) {
         patchRoomFields(mySymbol === 'X' ? { hostName: getMyName() } : { guestName: getMyName() });
@@ -4266,7 +4699,7 @@
         }
         const seenPeerNames = new Set([myName]);
         const srvPeers = (serverPlayersMap[currentServer] || []).filter((p) => {
-          if (!p || !p.name || seenPeerNames.has(p.name) || p.isSignedIn === false) return false;
+          if (!p || !p.name || seenPeerNames.has(p.name) || p.isSignedIn === false || /^Player\d{4}$/.test(p.name)) return false;
           seenPeerNames.add(p.name);
           return true;
         });
@@ -4299,12 +4732,17 @@
           playersListEl.appendChild(waitChip);
         }
       }
+      const labelEl = document.getElementById('assignedServerLabel');
+      if (labelEl) {
+        const visibleCount = 1 + (isOnlineConnected ? 1 : (serverPlayersMap[currentServer] || []).filter((p, idx, arr) => p && p.name && p.name !== myName && !/^Player\d{4}$/.test(p.name) && arr.findIndex(x => x.name === p.name) === idx).length);
+        labelEl.textContent = `Server ${currentServer} • Online: ${visibleCount}`;
+      }
 
       if (selectedPlayerForChat === 'friend') {
         chatHeaderTitle.textContent = `${friendName} Chat`;
         chatHeaderSub.textContent = 'Tap name again for Server';
       } else {
-        chatHeaderTitle.textContent = `Server ${currentServer} Chat`;
+        chatHeaderTitle.textContent = 'Server Chat';
         chatHeaderSub.textContent = isOnlineConnected ? 'Tap player for personal' : 'Always open';
       }
     }
@@ -4589,11 +5027,18 @@
       }
       const mask = Object.keys(fields).map(k => 'updateMask.fieldPaths=' + encodeURIComponent(k)).join('&');
       try {
-        await fetch(`${FIRESTORE_BASE}/rooms/${activeRoomCode}?${mask}&key=${FIREBASE_API_KEY}`, {
+        let res = await fetch(`${FIRESTORE_BASE}/rooms/${activeRoomCode}?${mask}&key=${FIREBASE_API_KEY}`, {
           method: 'PATCH',
           headers: getCloudHeaders(),
           body: JSON.stringify({ fields })
         });
+        if (!res.ok && (res.status === 401 || res.status === 403)) {
+          await fetch(`${FIRESTORE_BASE}/rooms/${activeRoomCode}?${mask}&key=${FIREBASE_API_KEY}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fields })
+          });
+        }
       } catch (e) {}
     }
 
@@ -4764,13 +5209,22 @@
       };
 
       try {
-        const res = await fetch(`${FIRESTORE_BASE}/rooms/${code}?key=${FIREBASE_API_KEY}`, {
+        let res = await fetch(`${FIRESTORE_BASE}/rooms/${code}?key=${FIREBASE_API_KEY}`, {
           method: 'PATCH',
           headers: getCloudHeaders(),
           body: JSON.stringify({ fields })
         });
+        if (!res.ok && (res.status === 401 || res.status === 403)) {
+          res = await fetch(`${FIRESTORE_BASE}/rooms/${code}?key=${FIREBASE_API_KEY}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fields })
+          });
+        }
         if (!res.ok) {
-          roomInfo.textContent = 'Could not create room. Check Firestore rules (test mode).';
+          if (genBox) genBox.textContent = '----';
+          activeRoomCode = '';
+          roomInfo.textContent = 'Could not create room. Check internet or Firebase rules.';
           return;
         }
         roomInfo.innerHTML = `Room <span class="room-code-badge">${code}</span> ready! Share this code or link on WhatsApp.`;
@@ -4785,7 +5239,7 @@
     }
 
     async function joinOnlineRoom(explicitCode) {
-      const code = (explicitCode || roomCodeInput.value).trim();
+      const code = String(explicitCode || roomCodeInput.value).replace(/\D/g, '').slice(0, 4);
       if (!/^\d{4}$/.test(code)) {
         roomInfo.textContent = 'Please enter a valid 4-digit room code.';
         return;
@@ -4802,9 +5256,12 @@
       roomInfo.textContent = `Joining room ${code}...`;
 
       try {
-        const res = await fetch(`${FIRESTORE_BASE}/rooms/${code}?key=${FIREBASE_API_KEY}`, {
+        let res = await fetch(`${FIRESTORE_BASE}/rooms/${code}?key=${FIREBASE_API_KEY}`, {
           headers: firebaseToken ? { 'Authorization': `Bearer ${firebaseToken}` } : {}
         });
+        if (!res.ok && (res.status === 401 || res.status === 403)) {
+          res = await fetch(`${FIRESTORE_BASE}/rooms/${code}?key=${FIREBASE_API_KEY}`);
+        }
         if (!res.ok) {
           roomInfo.textContent = `Room ${code} not found. Make sure your friend created it first.`;
           activeRoomCode = '';
@@ -5037,7 +5494,7 @@
     function updateOnlineLockUI() {
       const signedIn = isUserSignedIn();
       if (modeOnlineBtn) {
-        modeOnlineBtn.textContent = signedIn ? 'Online' : '🔒 Online';
+        modeOnlineBtn.textContent = signedIn ? '🌐 Online' : '🔒 Online';
       }
     }
 
@@ -5056,6 +5513,7 @@
       modeCpuBtn.classList.toggle('active', mode === 'cpu');
       modeOnlineBtn.classList.toggle('active', mode === 'online');
       difficultyBar.classList.toggle('visible', mode === 'cpu');
+      document.body.classList.toggle('cpu-mode', mode === 'cpu');
       onlinePanel.classList.toggle('visible', mode === 'online');
       updateOnlineLobbyUI();
       if (mode === 'online') { syncServerAssignment(); fetchLeaderboard(); }
@@ -5451,20 +5909,36 @@
       if (e.target === leaderboardModal) leaderboardModal.classList.remove('open');
     });
 
+    function switchLeaderboardTab(tab) {
+      activeLeaderboardTab = tab;
+      const gBtn = document.getElementById('lbTabGlobal');
+      const oBtn = document.getElementById('lbTabOnline');
+      if (gBtn) {
+        gBtn.classList.toggle('active', tab === 'global');
+        gBtn.setAttribute('aria-selected', String(tab === 'global'));
+      }
+      if (oBtn) {
+        oBtn.classList.toggle('active', tab === 'online');
+        oBtn.setAttribute('aria-selected', String(tab === 'online'));
+      }
+      fetchLeaderboard();
+    }
+    document.getElementById('lbTabGlobal').addEventListener('click', () => { playClickSound(); switchLeaderboardTab('global'); });
+    document.getElementById('lbTabOnline').addEventListener('click', () => { playClickSound(); switchLeaderboardTab('online'); });
+
     document.getElementById('refreshLeaderboardBtn').addEventListener('click', () => {
       playClickSound();
       pushLeaderboardRecord().then(fetchLeaderboard);
     });
 
 
-    // 5-Server Manager (A, B, C, D, E — 20 max each, next server at 15)
-    const SERVER_NAMES = ['A', 'B', 'C', 'D', 'E'];
+    // 26 Servers (A to Z — 20 max each, auto-assign under 15, switchable anytime)
+    const SERVER_NAMES = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
     const SERVER_SOFT_CAP = 15;
     const SERVER_HARD_CAP = 20;
     const SERVER_TTL_MS = 90000;
-    const SERVER_CLIENT_KEY = 'ttt_server_client_id';
     let currentServer = 'A';
-    let serverPlayersMap = { A: [], B: [], C: [], D: [], E: [] };
+    let serverPlayersMap = { A: [] };
     let serverHeartbeatTimer = null;
 
     function getServerClientId() {
@@ -5475,188 +5949,165 @@
 
     function renderServerBar() {
       const labelEl = document.getElementById('assignedServerLabel');
-      const pillsEl = document.getElementById('serverPills');
-      const myCount = (serverPlayersMap[currentServer] || []).length;
+      const myCount = Math.max(1, (serverPlayersMap[currentServer] || []).length);
       if (labelEl) {
-        labelEl.textContent = `Server ${currentServer} (${Math.max(1, myCount)}/${SERVER_HARD_CAP})`;
-      }
-      if (pillsEl) {
-        pillsEl.innerHTML = SERVER_NAMES.map((srv) => {
-          const cnt = (serverPlayersMap[srv] || []).length;
-          const cls = srv === currentServer ? 'server-pill mine' : (cnt >= SERVER_HARD_CAP ? 'server-pill full' : 'server-pill');
-          return `<span class="${cls}">${srv}: ${cnt}/${SERVER_HARD_CAP}</span>`;
-        }).join('');
+        labelEl.textContent = `Server ${currentServer} • Online: ${myCount}`;
       }
       const pTitleEl = document.getElementById('playersColTitle');
-      if (pTitleEl) pTitleEl.textContent = `Players in Server ${currentServer}`;
+      if (pTitleEl) pTitleEl.textContent = 'Players Online';
       if (selectedPlayerForChat !== 'friend' && chatHeaderTitle) {
-        chatHeaderTitle.textContent = `Server ${currentServer} Chat`;
+        chatHeaderTitle.textContent = 'Server Chat';
       }
     }
 
-    async function movePlayerToServer(targetSrv) {
-      if (!isUserSignedIn() || !SERVER_NAMES.includes(targetSrv)) return;
-      const cid = getServerClientId();
-      if (!cid) return;
+    async function fetchAllOnlinePlayers() {
       const now = Date.now();
-      const rosters = {};
-      SERVER_NAMES.forEach((sName) => { rosters[sName] = {}; });
+      const byServer = {};
+      let myExistingServer = null;
+      const cid = getServerClientId();
+
       try {
-        const res = await fetch(`${FIRESTORE_BASE}/servers?pageSize=10&key=${FIREBASE_API_KEY}`, {
+        const res = await fetch(`${FIRESTORE_BASE}/online_players?pageSize=200&key=${FIREBASE_API_KEY}`, {
           headers: firebaseToken ? { 'Authorization': `Bearer ${firebaseToken}` } : {}
         });
         if (res.ok) {
           const json = await res.json();
           const docs = Array.isArray(json.documents) ? json.documents : [];
           docs.forEach((doc) => {
-            const sName = doc.name ? doc.name.split('/').pop() : '';
-            if (!SERVER_NAMES.includes(sName)) return;
-            const raw = doc.fields && doc.fields.players && doc.fields.players.stringValue ? doc.fields.players.stringValue : '{}';
-            try {
-              const parsed = JSON.parse(raw);
-              Object.entries(parsed).forEach(([k, v]) => {
-                if (v && !k.startsWith('gst_') && v.isSignedIn !== false && (now - (v.lastSeen || 0)) < SERVER_TTL_MS) {
-                  rosters[sName][k] = v;
-                }
-              });
-            } catch (e) {}
+            const docCid = doc.name ? decodeURIComponent(doc.name.split('/').pop()) : '';
+            const f = doc.fields || {};
+            const lastSeen = f.lastSeen ? Number(f.lastSeen.integerValue ?? 0) : 0;
+            if (!docCid || !docCid.startsWith('acc_') || (now - lastSeen) >= SERVER_TTL_MS) return;
+            const sId = f.serverId && f.serverId.stringValue ? f.serverId.stringValue : 'A';
+            const pName = f.name && f.name.stringValue ? f.name.stringValue : '';
+            if (!pName || /^Player\d{4}$/.test(pName)) return;
+            if (!byServer[sId]) byServer[sId] = [];
+            byServer[sId].push({ cid: docCid, name: pName, serverId: sId, isSignedIn: true, lastSeen });
+            if (cid && docCid === cid) myExistingServer = sId;
           });
         }
       } catch (e) {}
 
-      const changedServers = [];
-      SERVER_NAMES.forEach((sName) => {
-        if (rosters[sName][cid] && sName !== targetSrv) {
-          delete rosters[sName][cid];
-          changedServers.push(sName);
-        }
-      });
-
-      currentServer = targetSrv;
-      rosters[targetSrv][cid] = {
-        name: getMyName(),
-        level,
-        title: activeTitle || 'Rookie',
-        isSignedIn: isUserSignedIn(),
-        lastSeen: now
-      };
-      changedServers.push(targetSrv);
-
-      SERVER_NAMES.forEach((sName) => {
-        serverPlayersMap[sName] = Object.values(rosters[sName]);
-      });
-      renderServerBar();
-      updateOnlineRoster();
-
-      for (const sName of changedServers) {
-        try {
-          await fetch(`${FIRESTORE_BASE}/servers/${sName}?key=${FIREBASE_API_KEY}`, {
-            method: 'PATCH',
-            headers: getCloudHeaders(),
-            body: JSON.stringify({
-              fields: {
-                players: { stringValue: JSON.stringify(rosters[sName]) },
-                updatedAt: { integerValue: String(now) }
-              }
-            })
-          });
-        } catch (e) {}
-      }
+      return { byServer, myExistingServer, now };
     }
 
-    async function syncServerAssignment() {
-      if (!isUserSignedIn()) return;
+    async function writeMyOnlinePresence(targetSrv, now) {
       const cid = getServerClientId();
-      if (!cid) return;
-      const now = Date.now();
-      const rosters = {};
-      SERVER_NAMES.forEach((sName) => { rosters[sName] = {}; });
-
+      if (!cid || !isUserSignedIn()) return;
       try {
-        const res = await fetch(`${FIRESTORE_BASE}/servers?pageSize=10&key=${FIREBASE_API_KEY}`, {
-          headers: firebaseToken ? { 'Authorization': `Bearer ${firebaseToken}` } : {}
-        });
-        if (res.ok) {
-          const json = await res.json();
-          const docs = Array.isArray(json.documents) ? json.documents : [];
-          docs.forEach((doc) => {
-            const sName = doc.name ? doc.name.split('/').pop() : '';
-            if (!SERVER_NAMES.includes(sName)) return;
-            const raw = doc.fields && doc.fields.players && doc.fields.players.stringValue ? doc.fields.players.stringValue : '{}';
-            try {
-              const parsed = JSON.parse(raw);
-              Object.entries(parsed).forEach(([k, v]) => {
-                if (v && !k.startsWith('gst_') && v.isSignedIn !== false && (now - (v.lastSeen || 0)) < SERVER_TTL_MS) {
-                  rosters[sName][k] = v;
-                }
-              });
-            } catch (e) {}
-          });
-        }
-      } catch (e) {}
-
-      // Remove this client from other servers first
-      let existingSrv = null;
-      SERVER_NAMES.forEach((sName) => {
-        if (rosters[sName][cid]) {
-          existingSrv = sName;
-          delete rosters[sName][cid];
-        }
-      });
-
-      // Keep existing server if under hard cap and either under soft cap or already assigned there
-      let chosen = null;
-      if (existingSrv && Object.keys(rosters[existingSrv]).length < SERVER_HARD_CAP) {
-        chosen = existingSrv;
-      } else {
-        for (const sName of SERVER_NAMES) {
-          if (Object.keys(rosters[sName]).length < SERVER_SOFT_CAP) {
-            chosen = sName;
-            break;
-          }
-        }
-        if (!chosen) {
-          // Fallback: least populated server under 20 max
-          chosen = SERVER_NAMES.reduce((best, sName) =>
-            Object.keys(rosters[sName]).length < Object.keys(rosters[best]).length ? sName : best
-          , 'A');
-        }
-      }
-
-      currentServer = chosen;
-      rosters[chosen][cid] = {
-        name: getMyName(),
-        level,
-        title: activeTitle || 'Rookie',
-        isSignedIn: isUserSignedIn(),
-        lastSeen: now
-      };
-
-      SERVER_NAMES.forEach((sName) => {
-        serverPlayersMap[sName] = Object.values(rosters[sName]);
-      });
-      renderServerBar();
-      updateOnlineRoster();
-
-      // Persist chosen server roster to Firestore 24/7
-      try {
-        await fetch(`${FIRESTORE_BASE}/servers/${chosen}?key=${FIREBASE_API_KEY}`, {
+        await fetch(`${FIRESTORE_BASE}/online_players/${encodeURIComponent(cid)}?key=${FIREBASE_API_KEY}`, {
           method: 'PATCH',
           headers: getCloudHeaders(),
           body: JSON.stringify({
             fields: {
-              players: { stringValue: JSON.stringify(rosters[chosen]) },
-              updatedAt: { integerValue: String(now) }
+              name: { stringValue: String(getMyName()) },
+              serverId: { stringValue: String(targetSrv) },
+              level: { integerValue: String(level || 1) },
+              wins: { integerValue: String(totalWins || 0) },
+              coins: { doubleValue: Number(coins || 0) },
+              title: { stringValue: String(activeTitle || 'Rookie') },
+              lastSeen: { integerValue: String(now || Date.now()) }
             }
           })
         });
       } catch (e) {}
     }
 
+    async function movePlayerToServer(targetSrv) {
+      if (!isUserSignedIn() || !targetSrv) return;
+      const cid = getServerClientId();
+      if (!cid) return;
+      currentServer = targetSrv;
+      const { byServer, now } = await fetchAllOnlinePlayers();
+      if (!byServer[targetSrv]) byServer[targetSrv] = [];
+      byServer[targetSrv] = byServer[targetSrv].filter((p) => p.cid !== cid);
+      byServer[targetSrv].push({ cid, name: getMyName(), serverId: targetSrv, isSignedIn: true, lastSeen: now });
+      serverPlayersMap = byServer;
+      renderServerBar();
+      updateOnlineRoster();
+      await writeMyOnlinePresence(targetSrv, now);
+    }
+
+    async function syncServerAssignment() {
+      if (!isUserSignedIn()) return;
+      const cid = getServerClientId();
+      if (!cid) return;
+
+      const { byServer, myExistingServer, now } = await fetchAllOnlinePlayers();
+
+      // Remove self from previous list before counting
+      Object.keys(byServer).forEach((sId) => {
+        byServer[sId] = byServer[sId].filter((p) => p.cid !== cid);
+      });
+
+      let chosen = null;
+      if (myExistingServer && (!byServer[myExistingServer] || byServer[myExistingServer].length < SERVER_HARD_CAP)) {
+        chosen = myExistingServer;
+      } else {
+        for (const sId of SERVER_NAMES) {
+          const count = (byServer[sId] || []).length;
+          if (count < SERVER_SOFT_CAP) {
+            chosen = sId;
+            break;
+          }
+        }
+        if (!chosen) {
+          chosen = SERVER_NAMES.reduce((best, sId) =>
+            (byServer[sId] || []).length < (byServer[best] || []).length ? sId : best
+          , 'A');
+        }
+      }
+
+      currentServer = chosen;
+      if (!byServer[chosen]) byServer[chosen] = [];
+      byServer[chosen].push({ cid, name: getMyName(), serverId: chosen, isSignedIn: true, lastSeen: now });
+
+      serverPlayersMap = byServer;
+      renderServerBar();
+      updateOnlineRoster();
+      await writeMyOnlinePresence(chosen, now);
+    }
+
+    function renderServersAzGrid() {
+      const grid = document.getElementById('serversAzGrid');
+      if (!grid) return;
+      grid.innerHTML = SERVER_NAMES.map((sId) => {
+        const cnt = (serverPlayersMap[sId] || []).length;
+        const isMine = sId === currentServer;
+        const isFull = !isMine && cnt >= SERVER_HARD_CAP;
+        const cls = isMine ? 'srv-az-btn mine' : (isFull ? 'srv-az-btn full' : 'srv-az-btn');
+        return `<button type="button" class="${cls}" data-srv="${sId}" ${isFull ? 'disabled' : ''}><span>Server ${sId}</span><span class="srv-az-count">${cnt}/20</span></button>`;
+      }).join('');
+      grid.querySelectorAll('.srv-az-btn:not(:disabled)').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const target = btn.dataset.srv;
+          playClickSound();
+          document.getElementById('serversModal').classList.remove('open');
+          if (target && target !== currentServer) {
+            await movePlayerToServer(target);
+          }
+        });
+      });
+    }
+
+    const serversModal = document.getElementById('serversModal');
+    document.getElementById('openServersBtn').addEventListener('click', async () => {
+      playClickSound();
+      renderServersAzGrid();
+      serversModal.classList.add('open');
+      await syncServerAssignment();
+      renderServersAzGrid();
+    });
+    document.getElementById('srvCloseX').addEventListener('click', () => { playClickSound(); serversModal.classList.remove('open'); });
+    document.getElementById('srvCloseBtn').addEventListener('click', () => { playClickSound(); serversModal.classList.remove('open'); });
+    serversModal.addEventListener('click', (e) => { if (e.target === serversModal) serversModal.classList.remove('open'); });
+
     function startServerHeartbeat() {
       syncServerAssignment();
       if (serverHeartbeatTimer) clearInterval(serverHeartbeatTimer);
-      serverHeartbeatTimer = setInterval(syncServerAssignment, 15000);
+      serverHeartbeatTimer = setInterval(() => {
+        if (gameMode === 'online' && isUserSignedIn()) syncServerAssignment();
+      }, 3000);
     }
 
     const accountNeededModal = document.getElementById('accountNeededModal');
