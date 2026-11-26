@@ -2650,6 +2650,7 @@
       <div class="server-bar">
         <span id="assignedServerLabel" class="server-bar-label">Server A &bull; Online: 1</span>
         <div style="display:flex; align-items:center; gap:6px;">
+          <button id="openFriendsBtn" class="lb-icon-btn" type="button" aria-haspopup="dialog" aria-label="Friends" title="Friends">&#128101;</button>
           <button id="openServersBtn" class="lb-icon-btn" type="button" aria-haspopup="dialog" aria-label="All Servers A-Z" title="Choose Server (A-Z)">&#127760;</button>
           <button id="openLeaderboardBtn" class="lb-icon-btn" type="button" aria-haspopup="dialog" aria-label="Global Leaderboard" title="Global Leaderboard">&#127942;</button>
         </div>
@@ -2888,9 +2889,9 @@
         </div>
         <div class="wheel-hub" aria-hidden="true">&#11088;</div>
       </div>
-      <div id="wheelStats" style="text-align:center; font-size:0.78rem; font-weight:700; color:#475569; margin-bottom:6px;">Matches: 0 / 25 &bull; Spins Ready: 0 &bull; Cost: 25 Coins</div>
-      <div id="wheelResult" class="wheel-result">1 Free Daily Spin! Or play 25 games + 25 Coins (1% Cosmic X)!</div>
-      <button id="spinWheelBtn" class="wheel-spin-btn" type="button">Spin Wheel (25 Coins)</button>
+      <div id="wheelStats" style="text-align:center; font-size:0.78rem; font-weight:700; color:#475569; margin-bottom:6px;">1 Free Daily Spin &bull; Extra Spins: 50 Coins</div>
+      <div id="wheelResult" class="wheel-result">1 Free Daily Spin! Extra spins cost 50 Coins (5% Cosmic X &amp; O)!</div>
+      <button id="spinWheelBtn" class="wheel-spin-btn" type="button">Spin Now (Free Daily!)</button>
       <div class="modal-footer" style="margin-top:12px;">
         <button id="wheelCancelBtn" class="modal-btn cancel" type="button">Close</button>
       </div>
@@ -2912,6 +2913,27 @@
     </div>
   </div>
 
+
+  <!-- FRIENDS MODAL -->
+  <div id="friendsModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="friendsModalTitle" style="z-index:1265;">
+    <div class="modal-card" style="max-width:390px;">
+      <div class="modal-head">
+        <span id="friendsModalTitle" class="modal-title">&#128101; Friends</span>
+        <button id="friendsCloseX" class="modal-close-x" type="button" aria-label="Close friends">&times;</button>
+      </div>
+      <div class="login-row" style="margin-bottom:8px;">
+        <input id="addFriendInput" class="login-input" type="text" maxlength="18" placeholder="Enter friend's username" aria-label="Friend username" />
+        <button id="addFriendBtn" class="online-btn" type="button">Add</button>
+      </div>
+      <div id="friendsMsg" class="login-msg" style="margin-bottom:6px;"></div>
+      <div id="friendsListBox" class="leaderboard-list" style="max-height:230px;">
+        <div class="chat-empty">No friends added yet. Add your friend's username above!</div>
+      </div>
+      <div class="modal-footer" style="margin-top:10px;">
+        <button id="friendsCloseBtn" class="modal-btn cancel" type="button">Close</button>
+      </div>
+    </div>
+  </div>
 
   <!-- SERVERS A-Z PICKER MODAL -->
   <div id="serversModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="serversModalTitle" style="z-index:1260;">
@@ -3066,6 +3088,8 @@
     let totalMatchesPlayed = 0;
     let spinsUsed = 0;
     let totalWins = 0;
+    let friendsList = [];
+    let selectedFriendCid = '';
 
     // Sound state
     let audioCtx = null;
@@ -3259,6 +3283,8 @@
       totalMatchesPlayed = 0;
       spinsUsed = 0;
       totalWins = 0;
+      friendsList = [];
+      selectedFriendCid = '';
 
       applyBoardTheme('classic', false);
       xTheme = 'classic';
@@ -3427,7 +3453,8 @@
           spinsUsed: { integerValue: String(obj.spinsUsed || 0) },
           totalWins: { integerValue: String(obj.totalWins || 0) },
           username: { stringValue: String(obj.username || '') },
-          usernameChangesUsed: { integerValue: String(obj.usernameChangesUsed || 0) }
+          usernameChangesUsed: { integerValue: String(obj.usernameChangesUsed || 0) },
+          friendsList: { stringValue: JSON.stringify(obj.friendsList || []) }
         }
       };
     }
@@ -3454,7 +3481,8 @@
         spinsUsed: fields.spinsUsed ? Number(fields.spinsUsed.integerValue ?? 0) : 0,
         totalWins: fields.totalWins ? Number(fields.totalWins.integerValue ?? 0) : 0,
         username: fields.username ? fields.username.stringValue : '',
-        usernameChangesUsed: fields.usernameChangesUsed ? Number(fields.usernameChangesUsed.integerValue ?? 0) : 0
+        usernameChangesUsed: fields.usernameChangesUsed ? Number(fields.usernameChangesUsed.integerValue ?? 0) : 0,
+        friendsList: parseArr(fields.friendsList, [])
       };
     }
 
@@ -3517,7 +3545,7 @@
         const now = Date.now();
         const onlineRaw = [];
         try {
-          const res = await fetch(`${FIRESTORE_BASE}/online_players?pageSize=200&key=${FIREBASE_API_KEY}`, {
+          const res = await firestoreFetch(`${FIRESTORE_BASE}/online_players?pageSize=200&key=${FIREBASE_API_KEY}`, {
             headers: firebaseToken ? { 'Authorization': `Bearer ${firebaseToken}` } : {}
           });
           if (res.ok) {
@@ -3703,6 +3731,7 @@
           totalWins = Math.max(totalWins, data.totalWins || 0);
           if (data.username) { savedUsername = data.username; usernameChangesUsed = Math.max(usernameChangesUsed, data.usernameChangesUsed || 1); }
           if (activeEmail === 'vikashgaming1414@gmail.com' && !savedUsername) { savedUsername = 'Vikash'; usernameChangesUsed = 1; }
+          if (Array.isArray(data.friendsList)) friendsList = Array.from(new Set([...friendsList, ...data.friendsList]));
           if (data.isOwner) isOwner = true;
           if (data.activeTitle) activeTitle = data.activeTitle;
           applyBoardTheme(data.boardTheme || boardTheme, false);
@@ -3740,7 +3769,8 @@
           spinsUsed,
           totalWins,
           username: savedUsername,
-          usernameChangesUsed
+          usernameChangesUsed,
+          friendsList
         };
         localStorage.setItem(STORAGE_ACCOUNTS_KEY, JSON.stringify(accounts));
         localStorage.setItem(STORAGE_ACTIVE_EMAIL_KEY, activeEmail);
@@ -3788,6 +3818,7 @@
       totalWins = Number(data.totalWins || 0);
       savedUsername = typeof data.username === 'string' ? data.username : '';
       usernameChangesUsed = Number(data.usernameChangesUsed || 0);
+      friendsList = Array.isArray(data.friendsList) ? data.friendsList : [];
       } else {
         savedUsername = email === 'vikashgaming1414@gmail.com' ? 'Vikash' : '';
         usernameChangesUsed = savedUsername ? 1 : 0;
@@ -4508,22 +4539,36 @@
     }
 
     // 7. Voice-to-Text Mic (Web Speech API)
-    function toggleMic() {
-      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRec) {
-        micStatus.textContent = 'Voice input is not supported in this browser.';
+    async function toggleMic() {
+      if (isListening && recognition) {
+        try { recognition.stop(); } catch (e) {}
         return;
       }
 
-      if (isListening && recognition) {
-        recognition.stop();
+      // Explicitly request Microphone permission first (required in Android WebView / APK)
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        try {
+          micStatus.textContent = 'Requesting microphone access...';
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          stream.getTracks().forEach((t) => t.stop());
+        } catch (err) {
+          micStatus.textContent = 'Mic blocked! Enable Microphone permission in Phone Settings -> Apps -> Tic-Tac Clash.';
+          return;
+        }
+      }
+
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRec) {
+        micStatus.textContent = 'Voice-to-text is not supported in this APK WebView; use your keyboard mic button.';
         return;
       }
 
       recognition = new SpeechRec();
-      recognition.lang = 'en-US';
-      recognition.interimResults = false;
+      recognition.lang = navigator.language || 'en-US';
+      recognition.interimResults = true;
+      recognition.continuous = false;
       recognition.maxAlternatives = 1;
+      let finalTranscript = '';
 
       recognition.onstart = () => {
         isListening = true;
@@ -4533,13 +4578,28 @@
       };
 
       recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        chatInput.value = chatInput.value ? `${chatInput.value} ${transcript}` : transcript;
-        micStatus.textContent = 'Voice captured! Tap Send.';
+        let interim = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const txt = event.results[i][0].transcript;
+          if (event.results[i].isFinal) finalTranscript += (finalTranscript ? ' ' : '') + txt;
+          else interim += txt;
+        }
+        const combined = (finalTranscript || interim).trim();
+        if (combined) {
+          chatInput.value = combined;
+          micStatus.textContent = finalTranscript ? 'Voice captured! Tap Send.' : 'Hearing: ' + combined;
+        }
       };
 
-      recognition.onerror = () => {
-        micStatus.textContent = 'Could not hear audio. Check mic permission.';
+      recognition.onerror = (ev) => {
+        const code = ev && ev.error ? ev.error : 'unknown';
+        if (code === 'not-allowed' || code === 'service-not-allowed') {
+          micStatus.textContent = 'Mic permission denied. Allow Microphone in Phone Settings -> Apps -> Tic-Tac Clash.';
+        } else if (code === 'no-speech') {
+          micStatus.textContent = 'No speech detected. Speak closer to the mic and try again.';
+        } else {
+          micStatus.textContent = `Mic error (${code}). You can also tap the keyboard mic icon.`;
+        }
       };
 
       recognition.onend = () => {
@@ -4717,6 +4777,7 @@
                 selectedPlayerForChat = null;
               } else {
                 friendName = p.name;
+                selectedFriendCid = p.cid || '';
                 selectedPlayerForChat = 'friend';
                 unreadPersonal = 0;
               }
@@ -4842,6 +4903,177 @@
       chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
     }
 
+    async function firestoreFetch(url, options = {}) {
+      let res = await fetch(url, options);
+      if (!res.ok && (res.status === 401 || res.status === 403) && options.headers && options.headers.Authorization) {
+        const cleanHeaders = { ...options.headers };
+        delete cleanHeaders.Authorization;
+        res = await fetch(url, { ...options, headers: cleanHeaders });
+      }
+      return res;
+    }
+
+    async function createAutoBattleRoom(opponentName) {
+      const code = String(Math.floor(1000 + Math.random() * 9000));
+      const fields = {
+        hostName: { stringValue: getMyName() },
+        hostUid: { stringValue: String(firebaseUid || activeEmail || '') },
+        guestName: { stringValue: String(opponentName || '') },
+        serverName: { stringValue: currentServer },
+        board: { stringValue: JSON.stringify(['', '', '', '', '', '', '', '', '']) },
+        turn: { stringValue: 'X' },
+        roundId: { integerValue: '1' },
+        scores: { stringValue: JSON.stringify({ X: 0, O: 0, draw: 0 }) },
+        messages: { stringValue: '[]' }
+      };
+      try {
+        const res = await firestoreFetch(`${FIRESTORE_BASE}/rooms/${code}?key=${FIREBASE_API_KEY}`, {
+          method: 'PATCH',
+          headers: getCloudHeaders(),
+          body: JSON.stringify({ fields })
+        });
+        if (res.ok) return code;
+      } catch (e) {}
+      return '';
+    }
+
+    async function enterAutoBattleRoom(code, roleSymbol, partnerName) {
+      if (!code) return;
+      if (roomPollTimer) clearInterval(roomPollTimer);
+      activeRoomCode = code;
+      mySymbol = roleSymbol;
+      friendName = partnerName || 'Friend';
+      isOnlineConnected = true;
+      const genBox = document.getElementById('generatedCodeBox');
+      if (genBox) genBox.textContent = code;
+      roomInfo.innerHTML = `Battle Room <span class="room-code-badge">${code}</span> vs <strong>${escapeHtml(friendName)}</strong>`;
+      updateLabelsAndTheme();
+      updateOnlineRoster();
+      roomPollTimer = setInterval(pollRoom, 1200);
+      startOnlineBattleWithAnimation();
+    }
+
+    async function pollServerAndDirectChats() {
+      if (gameMode !== 'online' || !isUserSignedIn()) return;
+      const myName = getMyName();
+      const myCid = getServerClientId();
+      try {
+        const res = await firestoreFetch(`${FIRESTORE_BASE}/server_chats/${currentServer}?key=${FIREBASE_API_KEY}`, {
+          headers: firebaseToken ? { 'Authorization': `Bearer ${firebaseToken}` } : {}
+        });
+        if (res.ok) {
+          const doc = await res.json();
+          const raw = doc.fields && doc.fields.messages && doc.fields.messages.stringValue ? doc.fields.messages.stringValue : '[]';
+          const msgs = JSON.parse(raw);
+          if (Array.isArray(msgs)) {
+            serverChatHistory = msgs.slice(-30).map((m) => ({
+              ...m,
+              isMe: m.sender === myName || (m.senderCid && m.senderCid === myCid)
+            }));
+            for (const m of msgs) {
+              if (m.kind === 'battle' && m.status === 'awaiting_host' && m.sender === myName && m.accepter && lastNotifiedBattleId !== m.id) {
+                lastNotifiedBattleId = m.id;
+                pendingServerBattle = { id: m.id, source: 'server', accepter: m.accepter };
+                document.getElementById('serverBattleOpponentName').textContent = m.accepter.name;
+                document.getElementById('serverBattleOpponentLevel').textContent = `Level ${m.accepter.level} • ${m.accepter.title || 'Rookie'}`;
+                document.getElementById('serverBattleConfirmModal').classList.add('open');
+                playChatSound();
+              }
+              if (m.kind === 'battle' && m.status === 'confirmed' && m.roomCode && lastNotifiedBattleId !== ('conf_' + m.id)) {
+                if (m.sender === myName || (m.accepter && m.accepter.name === myName)) {
+                  lastNotifiedBattleId = 'conf_' + m.id;
+                  const roleSym = m.sender === myName ? 'X' : 'O';
+                  const opp = m.sender === myName ? (m.accepter ? m.accepter.name : 'Friend') : m.sender;
+                  enterAutoBattleRoom(m.roomCode, roleSym, opp);
+                }
+              }
+            }
+          }
+        }
+      } catch (e) {}
+
+      // Also poll Direct Invites & Personal Messages sent to me
+      if (myCid) {
+        try {
+          const dRes = await firestoreFetch(`${FIRESTORE_BASE}/direct_invites/${encodeURIComponent(myCid)}?key=${FIREBASE_API_KEY}`, {
+            headers: firebaseToken ? { 'Authorization': `Bearer ${firebaseToken}` } : {}
+          });
+          if (dRes.ok) {
+            const doc = await dRes.json();
+            const raw = doc.fields && doc.fields.messages && doc.fields.messages.stringValue ? doc.fields.messages.stringValue : '[]';
+            const dMsgs = JSON.parse(raw);
+            if (Array.isArray(dMsgs)) {
+              let unreadAdded = false;
+              dMsgs.forEach((m) => {
+                if (!personalChatHistory.some((x) => x.id === m.id)) {
+                  personalChatHistory.push({ ...m, isMe: m.sender === myName });
+                  if (m.sender !== myName) unreadAdded = true;
+                } else {
+                  const ex = personalChatHistory.find((x) => x.id === m.id);
+                  if (ex && m.status && ex.status !== m.status) ex.status = m.status;
+                }
+                if (m.kind === 'battle' && m.status === 'confirmed' && m.roomCode && lastNotifiedBattleId !== ('conf_' + m.id)) {
+                  lastNotifiedBattleId = 'conf_' + m.id;
+                  const roleSym = m.sender === myName ? 'X' : 'O';
+                  const opp = m.sender === myName ? (m.accepter ? m.accepter.name : friendName) : m.sender;
+                  enterAutoBattleRoom(m.roomCode, roleSym, opp);
+                }
+              });
+              if (unreadAdded && selectedPlayerForChat !== 'friend') {
+                unreadPersonal++;
+                playChatSound();
+                updateOnlineRoster();
+              }
+            }
+          }
+        } catch (e) {}
+      }
+      renderChat();
+    }
+
+    async function pushToSharedServerChat(msgObj) {
+      try {
+        let msgs = [];
+        const res = await firestoreFetch(`${FIRESTORE_BASE}/server_chats/${currentServer}?key=${FIREBASE_API_KEY}`);
+        if (res.ok) {
+          const doc = await res.json();
+          const raw = doc.fields && doc.fields.messages && doc.fields.messages.stringValue ? doc.fields.messages.stringValue : '[]';
+          msgs = JSON.parse(raw);
+          if (!Array.isArray(msgs)) msgs = [];
+        }
+        msgs.push(msgObj);
+        if (msgs.length > 35) msgs = msgs.slice(-35);
+        await firestoreFetch(`${FIRESTORE_BASE}/server_chats/${currentServer}?key=${FIREBASE_API_KEY}`, {
+          method: 'PATCH',
+          headers: getCloudHeaders(),
+          body: JSON.stringify({ fields: { messages: { stringValue: JSON.stringify(msgs) } } })
+        });
+      } catch (e) {}
+    }
+
+    async function pushToDirectInvite(targetCid, msgObj) {
+      if (!targetCid) return;
+      try {
+        let msgs = [];
+        const res = await firestoreFetch(`${FIRESTORE_BASE}/direct_invites/${encodeURIComponent(targetCid)}?key=${FIREBASE_API_KEY}`);
+        if (res.ok) {
+          const doc = await res.json();
+          const raw = doc.fields && doc.fields.messages && doc.fields.messages.stringValue ? doc.fields.messages.stringValue : '[]';
+          msgs = JSON.parse(raw);
+          if (!Array.isArray(msgs)) msgs = [];
+        }
+        const existing = msgs.find((x) => x.id === msgObj.id);
+        if (existing) Object.assign(existing, msgObj);
+        else msgs.push(msgObj);
+        if (msgs.length > 30) msgs = msgs.slice(-30);
+        await firestoreFetch(`${FIRESTORE_BASE}/direct_invites/${encodeURIComponent(targetCid)}?key=${FIREBASE_API_KEY}`, {
+          method: 'PATCH',
+          headers: getCloudHeaders(),
+          body: JSON.stringify({ fields: { messages: { stringValue: JSON.stringify(msgs) } } })
+        });
+      } catch (e) {}
+    }
+
     function sendChatMessage() {
       const text = chatInput.value.trim();
       if (!text) return;
@@ -4856,8 +5088,15 @@
       renderChat();
       playChatSound();
 
+      const msgId = `txt_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+      const payload = { kind: 'text', id: msgId, channel, sender, senderCid: getServerClientId() || '', text, time };
+      if (channel === 'server') {
+        pushToSharedServerChat(payload);
+      } else if (selectedFriendCid) {
+        pushToDirectInvite(selectedFriendCid, payload);
+      }
       if (gameMode === 'online' && activeRoomCode) {
-        roomMessages.push({ kind: 'text', channel, sender, text, time });
+        roomMessages.push(payload);
         patchRoomFields({ messages: JSON.stringify(roomMessages) });
       }
     }
@@ -4880,8 +5119,14 @@
       renderChat();
       playChatSound();
 
+      const bPayload = { kind: 'battle', id, channel, sender, senderCid: getServerClientId() || '', time, status: 'pending' };
+      if (channel === 'server') {
+        pushToSharedServerChat(bPayload);
+      } else if (selectedFriendCid) {
+        pushToDirectInvite(selectedFriendCid, bPayload);
+      }
       if (gameMode === 'online' && activeRoomCode) {
-        roomMessages.push({ kind: 'battle', id, channel, sender, time, status: 'pending' });
+        roomMessages.push(bPayload);
         patchRoomFields({ messages: JSON.stringify(roomMessages) });
       }
     }
@@ -4943,6 +5188,47 @@
         oSym: O_SYMBOLS[oTheme] || 'O'
       };
 
+      if (channel === 'server') {
+        (async () => {
+          try {
+            const res = await firestoreFetch(`${FIRESTORE_BASE}/server_chats/${currentServer}?key=${FIREBASE_API_KEY}`);
+            if (res.ok) {
+              const doc = await res.json();
+              const raw = doc.fields && doc.fields.messages && doc.fields.messages.stringValue ? doc.fields.messages.stringValue : '[]';
+              const msgs = JSON.parse(raw);
+              const target = Array.isArray(msgs) ? msgs.find((m) => m.kind === 'battle' && m.id === id) : null;
+              if (target) {
+                target.status = nextStatus;
+                if (decision === 'accepted') target.accepter = myProfile;
+                await firestoreFetch(`${FIRESTORE_BASE}/server_chats/${currentServer}?key=${FIREBASE_API_KEY}`, {
+                  method: 'PATCH',
+                  headers: getCloudHeaders(),
+                  body: JSON.stringify({ fields: { messages: { stringValue: JSON.stringify(msgs) } } })
+                });
+              }
+            }
+          } catch (e) {}
+        })();
+      } else if (decision === 'accepted' && channel === 'personal') {
+        (async () => {
+          const senderCid = item && item.senderCid ? item.senderCid : selectedFriendCid;
+          const oppName = item && item.sender ? item.sender : friendName;
+          const roomCode = await createAutoBattleRoom(getMyName());
+          if (senderCid && roomCode) {
+            await pushToDirectInvite(senderCid, {
+              kind: 'battle', id, channel: 'personal', sender: oppName,
+              status: 'confirmed', roomCode, accepter: myProfile
+            });
+          }
+          if (roomCode) {
+            lastNotifiedBattleId = 'conf_' + id;
+            await enterAutoBattleRoom(roomCode, 'O', oppName);
+          } else {
+            startOnlineBattleWithAnimation();
+          }
+        })();
+      }
+
       if (gameMode === 'online' && activeRoomCode) {
         const rm = roomMessages.find((m) => m.kind === 'battle' && m.id === id);
         if (rm) {
@@ -4950,10 +5236,6 @@
           if (decision === 'accepted') rm.accepter = myProfile;
         }
         patchRoomFields({ messages: JSON.stringify(roomMessages) });
-      }
-
-      if (decision === 'accepted' && channel === 'personal') {
-        startOnlineBattleWithAnimation();
       }
     }
 
@@ -5761,19 +6043,11 @@
       const btn = document.getElementById('spinWheelBtn');
       const statsEl = document.getElementById('wheelStats');
       const freeToday = hasFreeSpinToday();
-      const spinsReady = getAvailableSpins();
-      const progressInCycle = totalMatchesPlayed % 25;
       if (statsEl) {
-        statsEl.textContent = `${freeToday ? '🎁 1 Free Daily Spin Ready!' : 'Daily Free Spin Used'} • Matches: ${totalMatchesPlayed} (${progressInCycle}/25) • Extra Spins: ${spinsReady}`;
+        statsEl.textContent = freeToday ? '🎁 1 Free Daily Spin Ready!' : 'Daily Free Spin Used • Extra Spin: 50 Coins';
       }
       if (btn) {
-        if (freeToday) {
-          btn.textContent = '🎁 Spin Now (Free Daily!)';
-        } else {
-          btn.textContent = spinsReady > 0
-            ? `Spin Wheel (25 Coins) • ${spinsReady} Ready`
-            : `Need ${25 - progressInCycle} More Games to Spin`;
-        }
+        btn.textContent = freeToday ? '🎁 Spin Now (Free Daily!)' : 'Spin Again (50 Coins)';
       }
     }
 
@@ -5797,20 +6071,12 @@
       if (freeToday) {
         try { localStorage.setItem(WHEEL_FREE_KEY, new Date().toISOString().slice(0, 10)); } catch (e) {}
       } else {
-        const spinsReady = getAvailableSpins();
-        if (spinsReady <= 0) {
-          const rem = 25 - (totalMatchesPlayed % 25);
-          resultEl.textContent = `Free spin used today! Play ${rem} more games for an extra spin.`;
+        if (coins < 50) {
+          resultEl.textContent = 'Need 50 Coins for another spin!';
           playDrawSound();
           return;
         }
-        if (coins < 25) {
-          resultEl.textContent = 'Need 25 Coins for an extra spin!';
-          playDrawSound();
-          return;
-        }
-        coins -= 25;
-        spinsUsed++;
+        coins -= 50;
         updateProgressUI();
         saveProgress();
       }
@@ -5820,9 +6086,9 @@
       spinBtn.disabled = true;
       resultEl.textContent = 'Spinning... Good luck!';
 
-      // 1% chance for Cosmic X (slice 7), 2% for Cosmic O (slice 6), 97% across slices 0-5
+      // 5% chance for Cosmic X (slice 7), 5% chance for Cosmic O (slice 6), 90% across slices 0-5
       const roll = Math.random();
-      const idx = roll < 0.01 ? 7 : (roll < 0.03 ? 6 : Math.floor(Math.random() * 6));
+      const idx = roll < 0.05 ? 7 : (roll < 0.10 ? 6 : Math.floor(Math.random() * 6));
       const sliceCenterDeg = idx * 45 + 22.5;
       const targetMod = (360 - sliceCenterDeg) % 360;
       const currentMod = ((wheelRotation % 360) + 360) % 360;
@@ -5856,7 +6122,7 @@
             unlockedXThemes.push('crystal_x');
             xTheme = 'crystal_x';
             refreshBoardMarks();
-            resultEl.textContent = 'EXCLUSIVE (1%)! Unlocked & equipped Cosmic Blue X!';
+            resultEl.textContent = 'EXCLUSIVE (5%)! Unlocked & equipped Cosmic Blue X!';
           } else {
             coins += 500;
             resultEl.textContent = 'Exclusive Duplicate! +500 Bonus Coins!';
@@ -5867,7 +6133,7 @@
             unlockedOThemes.push('cosmic_o');
             oTheme = 'cosmic_o';
             refreshBoardMarks();
-            resultEl.textContent = 'EXCLUSIVE! Unlocked & equipped Cosmic Blue O!';
+            resultEl.textContent = 'EXCLUSIVE (5%)! Unlocked & equipped Cosmic Blue O!';
           } else {
             coins += 500;
             resultEl.textContent = 'Exclusive Duplicate! +500 Bonus Coins!';
@@ -5995,7 +6261,7 @@
       const cid = getServerClientId();
       if (!cid || !isUserSignedIn()) return;
       try {
-        await fetch(`${FIRESTORE_BASE}/online_players/${encodeURIComponent(cid)}?key=${FIREBASE_API_KEY}`, {
+        await firestoreFetch(`${FIRESTORE_BASE}/online_players/${encodeURIComponent(cid)}?key=${FIREBASE_API_KEY}`, {
           method: 'PATCH',
           headers: getCloudHeaders(),
           body: JSON.stringify({
@@ -6090,6 +6356,86 @@
       });
     }
 
+    function renderFriendsModal() {
+      const box = document.getElementById('friendsListBox');
+      if (!box) return;
+      if (!friendsList.length) {
+        box.innerHTML = '<div class="chat-empty">No friends added yet. Enter a username above and tap Add!</div>';
+        return;
+      }
+      const allOnline = Object.values(serverPlayersMap).flat();
+      box.innerHTML = friendsList.map((fname) => {
+        const onlineMatch = allOnline.find((p) => p.name && p.name.toLowerCase() === fname.toLowerCase());
+        const isOnline = Boolean(onlineMatch);
+        return `
+          <div class="lb-row">
+            <div class="lb-left">
+              <span class="status-dot ${isOnline ? '' : 'waiting'}"></span>
+              <span class="lb-name">${escapeHtml(fname)}</span>
+            </div>
+            <div style="display:flex; gap:5px; flex-shrink:0;">
+              <button type="button" class="online-btn secondary friend-chat-btn" data-fname="${escapeHtml(fname)}" data-fcid="${onlineMatch ? escapeHtml(onlineMatch.cid) : ''}" style="padding:4px 8px; font-size:0.72rem;">Chat</button>
+              <button type="button" class="battle-send-btn friend-btl-btn" data-fname="${escapeHtml(fname)}" data-fcid="${onlineMatch ? escapeHtml(onlineMatch.cid) : ''}" style="padding:4px 8px; font-size:0.72rem;">⚔️ Battle</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      box.querySelectorAll('.friend-chat-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          playClickSound();
+          friendName = btn.dataset.fname;
+          selectedFriendCid = btn.dataset.fcid || '';
+          selectedPlayerForChat = 'friend';
+          unreadPersonal = 0;
+          document.getElementById('friendsModal').classList.remove('open');
+          updateOnlineRoster();
+          renderChat();
+        });
+      });
+
+      box.querySelectorAll('.friend-btl-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          playClickSound();
+          friendName = btn.dataset.fname;
+          selectedFriendCid = btn.dataset.fcid || '';
+          selectedPlayerForChat = 'friend';
+          unreadPersonal = 0;
+          document.getElementById('friendsModal').classList.remove('open');
+          updateOnlineRoster();
+          renderChat();
+          sendBattleChallenge();
+        });
+      });
+    }
+
+    const friendsModal = document.getElementById('friendsModal');
+    document.getElementById('openFriendsBtn').addEventListener('click', async () => {
+      playClickSound();
+      document.getElementById('friendsMsg').textContent = '';
+      renderFriendsModal();
+      friendsModal.classList.add('open');
+      await syncServerAssignment();
+      renderFriendsModal();
+    });
+    document.getElementById('friendsCloseX').addEventListener('click', () => { playClickSound(); friendsModal.classList.remove('open'); });
+    document.getElementById('friendsCloseBtn').addEventListener('click', () => { playClickSound(); friendsModal.classList.remove('open'); });
+    friendsModal.addEventListener('click', (e) => { if (e.target === friendsModal) friendsModal.classList.remove('open'); });
+    document.getElementById('addFriendBtn').addEventListener('click', () => {
+      const inp = document.getElementById('addFriendInput');
+      const msg = document.getElementById('friendsMsg');
+      const val = inp.value.trim();
+      if (!val) { msg.textContent = 'Enter a username to add.'; return; }
+      if (val.toLowerCase() === getMyName().toLowerCase()) { msg.textContent = 'You cannot add yourself.'; return; }
+      if (friendsList.some((f) => f.toLowerCase() === val.toLowerCase())) { msg.textContent = `${val} is already in your friends list.`; return; }
+      friendsList.push(val);
+      inp.value = '';
+      saveProgress();
+      renderFriendsModal();
+      msg.textContent = `Added ${val} to Friends!`;
+      playWinSound('X');
+    });
+
     const serversModal = document.getElementById('serversModal');
     document.getElementById('openServersBtn').addEventListener('click', async () => {
       playClickSound();
@@ -6105,9 +6451,13 @@
     function startServerHeartbeat() {
       syncServerAssignment();
       if (serverHeartbeatTimer) clearInterval(serverHeartbeatTimer);
+      pollServerAndDirectChats();
       serverHeartbeatTimer = setInterval(() => {
-        if (gameMode === 'online' && isUserSignedIn()) syncServerAssignment();
-      }, 3000);
+        if (gameMode === 'online' && isUserSignedIn()) {
+          syncServerAssignment();
+          pollServerAndDirectChats();
+        }
+      }, 2500);
     }
 
     const accountNeededModal = document.getElementById('accountNeededModal');
@@ -6125,20 +6475,36 @@
     });
 
     const serverBattleConfirmModal = document.getElementById('serverBattleConfirmModal');
-    document.getElementById('serverBattleAcceptBtn').addEventListener('click', () => {
+    document.getElementById('serverBattleAcceptBtn').addEventListener('click', async () => {
       serverBattleConfirmModal.classList.remove('open');
       if (pendingServerBattle) {
         const bId = pendingServerBattle.id;
+        const oppName = pendingServerBattle.accepter ? pendingServerBattle.accepter.name : 'Friend';
         lastNotifiedBattleId = 'conf_' + bId;
-        const rm = roomMessages.find((m) => m.kind === 'battle' && m.id === bId);
-        if (rm) rm.status = 'confirmed';
-        const loc = serverChatHistory.find((m) => m.kind === 'battle' && m.id === bId);
-        if (loc) loc.status = 'confirmed';
-        if (gameMode === 'online' && activeRoomCode) {
-          patchRoomFields({ messages: JSON.stringify(roomMessages) });
+        const roomCode = await createAutoBattleRoom(oppName);
+        try {
+          const res = await firestoreFetch(`${FIRESTORE_BASE}/server_chats/${currentServer}?key=${FIREBASE_API_KEY}`);
+          if (res.ok) {
+            const doc = await res.json();
+            const raw = doc.fields && doc.fields.messages && doc.fields.messages.stringValue ? doc.fields.messages.stringValue : '[]';
+            const msgs = JSON.parse(raw);
+            const target = Array.isArray(msgs) ? msgs.find((m) => m.kind === 'battle' && m.id === bId) : null;
+            if (target) {
+              target.status = 'confirmed';
+              if (roomCode) target.roomCode = roomCode;
+              await firestoreFetch(`${FIRESTORE_BASE}/server_chats/${currentServer}?key=${FIREBASE_API_KEY}`, {
+                method: 'PATCH',
+                headers: getCloudHeaders(),
+                body: JSON.stringify({ fields: { messages: { stringValue: JSON.stringify(msgs) } } })
+              });
+            }
+          }
+        } catch (e) {}
+        if (roomCode) {
+          await enterAutoBattleRoom(roomCode, 'X', oppName);
+        } else {
+          startOnlineBattleWithAnimation();
         }
-        renderChat();
-        startOnlineBattleWithAnimation();
         pendingServerBattle = null;
       }
     });
